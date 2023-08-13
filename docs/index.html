@@ -1,0 +1,191 @@
+<!DOCTYPE html> 
+
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="author" content="Thomas Gilray" />
+		<meta name="copyright" content="(c) Thomas Gilray, 2018" />
+		<meta name="robots" content="index, follow" />
+		<meta name="description" content="Thomas Gilray's personal website, publication list, etc." />
+		<meta name="keywords" content="thomas gilray, publications, computer science, programming, static analysis, abstract interpretation, programming languages, functional programming, research, racket, functional programming" />
+
+		<title>Thomas Gilray's Research</title>
+
+		<link rel="Shortcut Icon" href="favicon.ico" type="image/x-icon" />
+		<link rel="stylesheet" href="screen.css" type="text/css" media="print" />
+		<link rel="stylesheet" href="screen.css" type="text/css" media="screen,projection" />
+		<script src="conway.js" type="text/javascript"></script>
+		<script type="text/javascript">
+			function popopenimages()
+			{
+				document.getElementById('photoswrapper').style['display'] = 'block';
+			}
+			function closeimages()
+			{
+				document.getElementById('photoswrapper').style['display'] = 'none';
+			}
+			var old = function(){};
+			if (window.onload)
+				old = window.onload;
+			window.onload = function() 
+			{ 
+				document.getElementById('footeryear').innerHTML = ''+((new Date()).getFullYear()); 
+
+				var pgheight = Math.max(document.body.scrollHeight, document.body.offsetHeight, 
+			                      	 	document.documentElement.clientHeight, document.documentElement.scrollHeight, 
+										document.documentElement.offsetHeight);
+				document.getElementById('photoswrapper').style.height = (pgheight+5) + 'px';
+				
+				old(); 
+			};
+
+                  function loadallpubs()
+                  {
+                      function reqListener () {
+                          document.getElementById("allpubs").innerHTML = this.responseText;
+                      }
+                      
+                      var xhr = new XMLHttpRequest();
+                      xhr.addEventListener("load", reqListener);
+                      xhr.open("GET", "/cv/all-pubs.html");
+                      xhr.send();
+                  };
+                  setTimeout(loadallpubs, 10);
+
+                  function loadselpubs()
+                  {
+                      function reqListener () {
+                          document.getElementById("selpubs").innerHTML = this.responseText;
+                      }
+                      
+                      var xhr = new XMLHttpRequest();
+                      xhr.addEventListener("load", reqListener);
+                      xhr.open("GET", "/cv/sel-pubs.html");
+                      xhr.send();
+                  };
+                  setTimeout(loadselpubs, 10);
+		</script>
+	</head>
+
+	<body class="" lang="en-US">
+	<a href="https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life" onclick="javascript:crazyConway();" target="_blank" class="conwaylink">(what?)</a>
+	<div id="conway"></div>
+	<div id="photoswrapper" onclick="javascript:closeimages();">
+		<div class="whitexout">X</div>
+		<div class="photo" style="background:url(/img/tom-photo-2.jpg);height:400px;width:571px;">
+			<img src="/img/taj-note.jpg" style="left:580px;"></img>
+		</div>
+		<div class="photo" style="background:url(/img/tom-photo-1.jpg);height:550px;width:400px;">
+			<img src="/img/wedding-note.jpg" style="right:412px;"></img>
+		</div>
+		<div class="photo" style="background:url(/img/tom-photo-0.jpg);height:400px;width:450px;">
+			<img src="/img/hiking-note.jpg" style="left:462px;"></img>
+		</div>
+	</div>
+	<div id="wrapper">
+		<div class="rounded">
+		    <div class="content">
+				<div id="contact">
+                                        <div id="photo" onclick="javascript:popopenimages();"></div>
+					<div><a href="http://cs.umd.edu/">U of A at Birmingham</a></div>
+					<div>Office: 4155 UH (<a href="http://www.uab.edu/map/?university-hall">map</a>)</div>
+					<div>Email: <span style="font-family:monospace;">gilra<img style="position:relative;top:4px;"  src="data:image/gif;base64,R0lGODlhEwAQAMZQAAABAAIJKycIBAEPPAAZU0cYDjQZPwE2lTowLXYqHRBGl2pDGyFQnj5UV4xDJEdWX49OKjBioVZfYF1eV1xhcDNqr4RgRE1znJ9mMJ92RKh2NVKRxmqMtbGKaaGSecaZTnGo03+mvreffcqeV3+qzMyia8ynaNGmasSojZawyp2ypay2t6C7uMS2kKK62tq6kdTDo+TAoKzN5rXN1+PGmavW89vT1+vUqsTZ9brd8e7VscDd8dja1sHf+fTesvDdzOTg3s7p+u/q3fzsxPDw7d70/uP09P3z1ur3/f713f738Or9/f/+9/r///7//P///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEKAH8ALAAAAAATABAAAAeygE6Cg4SEQjxIhYqELwCOO4uKQwAyThoVkYUnDE1ONwdNTB0SExxNMQ+loRAgSRYAnE4oAgApTj8LACROTA4zCRctCp1OJgNFvBiYvBAqBks+oIJJBRtOOgCQvA4sBUE00oIlBEbKxL0hGY4ByIJHBQ3ZhCOYQEQ2TU+DJQARxILYehDSBxBAjkJMMAxY4cEFoYT+FDERgYACDkFKgMDQ9S+Tkw+OHNXwKOiJyZMoU6IMBAA7"></img>uab.edu</span></div>
+					<script type="text/javascript">setTimeout(function(){document.getElementById('hemail').innerHTML = "g6h7".charAt(1+eval("1"+""));},800);</script>
+					<div>Twitter: <a href="http://twitter.com/tomgilray">@tomgilray</a></div>
+			    </div>
+				<h1>Thomas Gilray</h1>
+				<div class="subtitle">Computer Scientist</div>
+				<div class="position">Asst. Professor at <a href="https://cs.uab.edu/">UAB CS</a></div>
+				
+				<p>My research is in tunable static analysis&mdash;mainly of higher-order, functional languages. I also work on compiling, parallelizing, and incrementalizing such analyses, and on their applications&mdash;software verification, optimization, and auditing. More broadly, my interests include semantics, language design, compilers and their implementation, safety and verification, parallelism and high-performance logic solvers. Contact me if you have an idea which intersects with my research or broader interests and want to discuss it. I am looking for students!</p>
+	 	    </div>
+	 		<div class="a"></div>
+			<div class="b"></div>
+			<div class="c"></div>
+			<div class="d"></div>
+		</div>
+
+		<div class="rounded">
+		    <div class="content">
+		      <h2>News</h2>
+		      <ul id="news">
+			<li>The HARP lab, with key collaborators at WSU, OSU, and UT, has won a PPoSS (Principles and Practice of Scalable Systems) Large award from the NSF, to develop Slog and related techniques into a full-stack approach to modern declarative programming. This ~$5M award will provide reliable support to roughly ten PhD students and seven faculty for its five year duration.  <a href="/news/pposs.html">Read more &#8608;</a></li>
+			<li>The HARP lab has won a PPoSS (Principles and Practice of Scalable Systems) planning-grant award from the NSF, to develop a Large proposal on scaling Datalog-based compute platforms like Slog. See our <a href="https://arxiv.org/abs/2211.11573">preprint on the Slog language</a> for more details.</li>
+                        <li>The HARP lab has won an award, through subcontract with <a href="https://galois.com/project/polymorph/">Galois, inc.</a>, to work on the DARPA <a href="https://www.darpa.mil/news-events/2020-07-30">V-SPELLS program</a>: <i>Verified Security and Performance Enhancement of Large Legacy Software</i>. We will be exploring the use of AI-based programming languages for reasoning about code at scale&mdash;in the cloud and on supercomputers. <a href="/news/vspells.html">Read more &#8608;</a></li>
+		      </ul>
+	 	    </div>
+	 	    <div class="a"></div>
+		    <div class="b"></div>
+		    <div class="c"></div>
+		    <div class="d"></div>
+		</div>
+
+		<div class="rounded">
+			    <div class="content">
+					<h2>Selected Publications</h2>
+					<ul class="nodot" id="selpubs">
+						<li><span class="title">Distributed Relational Algebra at Scale</span> with Sidharth Kumar. IEEE International Conference on High Performance Computing, Data, and Analytics (HiPC). 2019.
+						<a href="/pdf/distributed-ra.pdf">(pdf)</a></li>
+                                                <li><span class="title">Size-Change Termination as a Contract</span> with Ph&#250;c C. Nguy&#7877;n, Sam Tobin-Hochstadt, and David Van Horn. SIGPLAN, Programming Language Design and Implementation (PLDI). 2019.
+						<a href="/pdf/termination-contract.pdf">(pdf)</a></li>
+						<li><span class="title">Soft Contract Verification for Higher-order Stateful Programs</span> with Ph&#250;c C. Nguy&#7877;n, Sam Tobin-Hochstadt, and David Van Horn. SIGPLAN, Principles of Programming Languages (POPL). 2018.
+						<a href="/pdf/stateful-scv.pdf">(pdf)</a></li>
+						<li><span class="title">Pushdown Control-Flow Analysis for Free.</span> with Steven Lyde, Michael Adams, Matthew Might, and David Van Horn. SIGPLAN, Principles of Programming Languages (POPL). 2016.
+						<a href="/pdf/pushdown-for-free.pdf">(pdf)</a></li>
+						<li><span class="title">Allocation Characterizes Polyvariance.</span> with Michael Adams, Matthew Might. SIGPLAN, International Conference on Functional Programming (ICFP). 2016.
+						<a href="/pdf/allocation-polyvariance.pdf">(pdf)</a> <a href="/pdf/abstract-allocation.pdf">(invited JFP version)</a></li>
+						<li><span class="title">Dynamic Sparse-Matrix Allocation on GPUs.</span> with James King, Robert M. Kirby, and Matthew Might. International Supercomputing Conference (ISC). 2016. (Winner of the <b>PRACE ISC</b> award.)
+						<a href="/pdf/dynamic-csr.pdf">(pdf)</a></li>
+					</ul>
+					
+					<h2>All Publications</h2>
+					<ol reversed="reversed" id="allpubs">
+						<li><span class="title">Distributed Relational Algebra at Scale</span> with Sidharth Kumar. IEEE International Conference on High Performance Computing, Data, and Analytics (HiPC). 2019.
+						  <a href="/pdf/distributed-ra.pdf">(pdf)</a></li>
+                                                <li><span class="title">Size-Change Termination as a Contract</span> with Ph&#250;c C. Nguy&#7877;n, Sam Tobin-Hochstadt, and David Van Horn. SIGPLAN, Programming Language Design and Implementation (PLDI). 2019.
+						<a href="/pdf/termination-contract.pdf">(pdf)</a></li>
+						<li><span class="title">Symbolic Path Tracing to Find Android Permission-Use Triggers</span> with Kristopher Micinski, Daniel Votipka, Jeffrey S. Foster, and Michelle L. Mazurek. NDSS workshop on Binary Analysis Research (BAR). 2019.
+						<a href="/pdf/permission-use-triggers.pdf">(pdf)</a></li>
+						<li><span class="title">Racets: Faceted Execution in Racket</span> with Zhanpeng Wang and Kristopher Micinski. SIGPLAN, Scheme Workshop (SC). 2018.
+						<a href="/pdf/racets-scheme.pdf">(pdf)</a></li>
+
+						<li><span class="title">Abstract Allocation as a Unified Approach to Polyvariance in Control-flow Analyses</span> with Michael D. Adams, Matthew Might. Journal of Functional Programming (JFP). 2018. <b>(Invited)</b>
+						  <a href="/pdf/abstract-allocation.pdf">(pdf)</a> <a href="/pdf/allocation-polyvariance.pdf">(ICFP version)</a></li>
+						<li><span class="title">User Comfort with Android Background Resource Accesses in Different Contexts</span> with Daniel Votipka, Seth M. Rabin, Kristopher Micinski, Michelle L. Mazurek, Jeffrey S. Foster. Symposium on Usable Privacy and Security (SOUPS). 2018.
+						<a href="/pdf/user-comfort.pdf">(pdf)</a></li>
+						<li><span class="title">Soft Contract Verification for Higher-order Stateful Programs</span> with Ph&#250;c C. Nguy&#7877;n, Sam Tobin-Hochstadt, and David Van Horn. SIGPLAN, Principles of Programming Languages (POPL). 2018.
+						<a href="/pdf/stateful-scv.pdf">(pdf)</a></li>
+						<li><span class="title">Toward Parallel CFA with Datalog, MPI, and CUDA</span> with Sidharth Kumar. The Scheme Workshop (SW). 2017.
+						  <a href="/pdf/toward-parallel-cfa.pdf">(pdf)</a></li>
+                                                <li><span class="title">Introspective Polyvariance for Control-Flow Analyses.</span> Ph.D. Dissertation. University of Utah. 2016.
+						<a href="/pdf/thesis-gilray.pdf">(pdf)</a></li>
+						<li><span class="title">Allocation Characterizes Polyvariance.</span> with Michael Adams, Matthew Might. SIGPLAN, International Conference on Functional Programming (ICFP). 2016.
+						<a href="/pdf/allocation-polyvariance.pdf">(pdf)</a></li>
+						<li><span class="title">Dynamic Sparse-Matrix Allocation on GPUs.</span> with James King, Robert M. Kirby, and Matthew Might. International Supercomputing Conference (ISC). 2016. (Winner of the <b>PRACE ISC</b> award.)
+						<a href="/pdf/dynamic-csr.pdf">(pdf)</a>
+						<a href="/pdf/dynamic-csr-journal.pdf">(extended pdf)</a></li>
+						<li><span class="title">Pushdown Control-Flow Analysis for Free.</span> with Steven Lyde, Michael Adams, Matthew Might, and David Van Horn. SIGPLAN, Principles of Programming Languages (POPL). 2016.
+						<a href="/pdf/pushdown-for-free.pdf">(pdf)</a></li>
+						<li><span class="title">A Linear Encoding of Pushdown Control-Flow Analysis.</span> with Steven Lyde and Matthew Might. The Scheme Workshop (SW). 2014.</li>
+						<li><span class="title">Concrete and Abstract Interpretation: Better Together.</span> with Maria Jenkins, Leif Andersen, and Matthew Might. The Scheme Workshop (SW). 2014.</li>
+						<li><span class="title">Partitioning 0-CFA for the GPU.</span> with James King and Matthew Might. International Workshop on Functional and Constraint Logic Programming (WFLP). 2014.
+						<a href="/pdf/partitioning-0cfa.pdf">(pdf)</a></li>
+						<li><span class="title">A Unified Approach to Polyvariance in Abstract Interpretations.</span> with Matthew Might. The Scheme Workshop (SW). 2013.</li>
+						<li><span class="title">Sound and Precise Malware Analysis for Android via Pushdown Reachability and Entry-Point Saturation.</span> with Shuying Liang, Andrew W. Keep, Matthew Might, David Van Horn, Steven Lyde, and Petey Aldous. Workshop in Security and Privacy for Smartphones (SPSM). 2013.</li>
+						<li><span class="title">A Survey of Polyvariance in Abstract Interpretations.</span> with Matthew Might. Symposium on Trends in Functional Programming (TFP). 2013. (Winner of the <b>best student paper</b> award.)
+						<a href="/pdf/survey-polyvariance.pdf">(pdf)</a></li>
+					</ol>
+		 	    </div>
+		 		<div class="a"></div>
+				<div class="b"></div>
+				<div class="c"></div>
+				<div class="d"></div>
+			</div>
+			<div id="footer">
+				Copyright (c) Thomas Gilray, <span id="footeryear">2016</span>, <a target="_blank" href="https://creativecommons.org/licenses/by-nc/4.0/">Some Rights Reserved</a>. 
+			</div>
+		</div>
+	</div>
+	</body>
+
+</html>

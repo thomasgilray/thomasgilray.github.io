@@ -1,0 +1,142 @@
+[
+
+ [(name "Yihao Sun")
+  ;(website "")
+  (start-year 2020)
+  ;(end-year 2019)
+  (kind PhD)
+  (committee)
+  (note "At Syracuse University.")]
+ 
+ [(name "Arash Sahebolamri")
+  ;(website "")
+  (start-year 2019)
+  ;(end-year 2019)
+  (kind PhD)
+  (committee)
+  (note "At Syracuse University.")]
+ 
+ [(name "Landon Dyken")
+  ;(website "")
+  (start-year 2022)
+  ;(end-year 2019)
+  (kind PhD)
+  (mentor)]
+ 
+ [(name "Akshar Patel")
+  ;(website "")
+  (start-year 2022)
+  ;(end-year 2019)
+  (kind MS)
+  (mentor)]
+ 
+ [(name "Michael Gathara")
+  ;(website "")
+  (start-year 2022)
+  ;(end-year 2019)
+  (kind MS)
+  (mentor)]
+
+ [(name "Ke Fan")
+  ;(website "")
+  (start-year 2019)
+  ;(end-year 2019)
+  (kind PhD)
+  (committee)]
+
+ [(name "Akmedur Rahman Shovon")
+  ;(website "")
+  (start-year 2021)
+  ;(end-year 2019)
+  (kind PhD)
+  (committee)]
+
+ [(name "Nick Netterville")
+  ;(website "")
+  (start-year 2022)
+  ;(end-year 2019)
+  (kind MS)
+  (advisor)]
+
+ [(name "Ashraful Islam")
+  ;(website "")
+  (start-year 2022)
+  ;(end-year 2019)
+  (kind PhD)
+  (advisor)]
+  
+ [(name "Kyle Headley")
+  (website "http://kyleheadley.github.io/PHDWebsite/")
+  (start-year 2019)
+  (end-year 2020)
+  (kind PhD)
+  (advisor)
+  (note "Left for personal reasons at the start of the pandemic.")]
+
+ [(name "Leif Andersen")
+  (website "http://leifandersen.net/")
+  (start-year 2011)
+  (end-year 2014)
+  (mentor)
+  (kind BS)
+  (note "Now a PhD student at Northeastern University.")]
+
+ [(name "Maria Jenkins")
+  (start-year 2013)
+  (end-year 2014)
+  (kind BS)
+  (mentor)
+  (note "Now at Pixio, inc.")]
+
+ [(name "Guannan Wei")
+  (start-year 2014)
+  (end-year 2016)
+  (kind MS)
+  (mentor)
+  (note "Now a PhD student at Purdue University.")]
+
+ [(name "Phúc C. Nguyễn")
+  (website "https://philnguyen.github.io/")
+  (start-year 2016)
+  (end-year 2019)
+  (kind PhD)
+  (mentor)
+  (note "Now at Google, inc.")]
+
+ [(name "David Darais")
+  (website "http://david.darais.com/")
+  (start-year 2016)
+  (end-year 2018)
+  (kind PhD)
+  (mentor)
+  (note "Now at Galois, inc.")]
+
+ [(name "Kristopher Micinski")
+  (website "https://kmicinksi.com/")
+  (start-year 2016)
+  (end-year 2018)
+  (kind PhD)
+  (mentor)
+  (note "Now a faculty member at Syracuse University.")]
+
+ [(name "Javran Cheng")
+  (start-year 2016)
+  (end-year 2017)
+  (kind MS)
+  (mentor)
+  (note "Now at Google, inc.")]
+
+ [(name "Clark Ren")
+  (start-year 2018)
+  (end-year 2021)
+  (kind MS)
+  (mentor)
+  (note "Now at Amazon, inc.")]
+
+ [(name "Laura Thompson")
+  (start-year 2021)
+  (end-year 2021)
+  (kind BS)
+  (mentor)]
+ 
+]

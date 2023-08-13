@@ -1,0 +1,201 @@
+[ 
+
+[(title )
+ (authors )
+ (conf )
+ (date )
+ (pdf "")]
+
+[(title )
+ (authors )
+ (conf )
+ (date )
+ (pdf "")]
+
+[(title )
+ (authors )
+ (conf )
+ (date )
+ (pdf "")]
+
+[(title "Exploring MPI Collective I/O and File-per-process I/O for Checkpointing a Logical Inference task.")
+ (authors "Ke Fan" "Kristopher Micinski" "Thomas Gilray" "Sidharth Kumar")
+ (work hps)
+ (date 5 2021)
+ (pdf "exploring-checkpointing-inference.pdf")]
+ 
+[(title "Accelerating Datalog Applications with cuDF")
+ (authors "Ahmedur Rahman Shovon" "Landon Richard Dyken" "Oded Green" "Thomas Gilray" "Sidharth Kumar")
+ (work ia3)
+ (date 11 2022)
+ (pdf "datalog-with-cudf.pdf")]
+
+
+[(title "A Visual Guide to MPI All-to-all")
+ (authors "Nick Netterville" "Ke Fan" "Sidharth Kumar" "Thomas Gilray")
+ (work eduhipc)
+ (date 12 2022)
+ (pdf "visual-guide-all-to-all.pdf")]
+ 
+[(title "Seamless Deductive Inference Via Macros")
+ (authors "Arash Sahebolamri" "Thomas Gilray" "Kristopher Micinski")
+ (conf cc)
+ (date 4 2022)
+ (pdf "seamless-deductive.pdf")]
+ 
+[(title "Optimizing the Bruck Algorithm for Non-uniform All-to-all Communication")
+ (authors "Ke Fan" "Thomas Gilray" "Valerio Pascucci" "Xuan Huang" "Kristopher Micinski" "Sidharth Kumar")
+ (conf hpdc 19)
+ (date 6 2022)
+ (pdf "optimizing-bruck.pdf")
+ (selected)]
+
+[(title "Load-balancing Parallel I/O of Compressed Hierarchical Layouts")
+ (authors "Ke Fan" "Duong Hoang" "Steve Petruzza" "Thomas Gilray" "Valerio Pascucci" "Sidharth Kumar")
+ (conf hipc)
+ (date 12 2021)
+ (pdf "balancing-parallel-io.pdf")]
+ 
+[(title "Compiling Data-parallel Datalog")
+ (authors "Thomas Gilray" "Sidharth Kumar" "Kristopher Micinski")
+ (conf cc)
+ (date 3 2021)
+ (pdf "compiling-datalog.pdf")]
+
+[(title "Load-balancing Parallel Relational Algebra")
+ (authors "Sidharth Kumar" "Thomas Gilray")
+ (conf isc 31)
+ (date 6 2020)
+ (pdf "load-balancing-ra.pdf")
+ (awards "Won ISC Hans Meuer Best Paper award")
+ (selected)]
+
+[(title "Abstracting Faceted Execution")
+ (authors "Kristopher Micinski" "David Darais" "Thomas Gilray")
+ (conf csf)
+ (date 6 2020)
+ (pdf "abstracting-facets.pdf")]
+
+[(title "Distributed Relational Algebra at Scale")
+ (authors "Sidharth Kumar" "Thomas Gilray")
+ (conf hipc 23)
+ (date 12 2019)
+ (awards "Won HiPC Best Paper award")
+ (pdf "distributed-ra.pdf")
+ (selected)]
+
+[(title "Size-Change Termination as a Contract")
+ (authors "Phúc C. Nguyễn" "Thomas Gilray" "Sam Tobin-Hochstadt" "David Van Horn")
+ (conf pldi 27)
+ (date 6 2019)
+ (awards "Invited to the Journal of Functional Programming")
+ (pdf "termination-contract.pdf")
+ (selected)]
+ 
+[(title "Symbolic Path Tracing to Find Android Permission-Use Triggers")
+ (authors "Kristopher Micinski" "Thomas Gilray" "Daniel Votipka" "Jeffrey S. Foster" "Michelle L. Mazurek")
+ (work bar)
+ (date 1 2019)
+ (pdf "permission-use-triggers.pdf")]
+ 
+[(title "Racets: Faceted Execution in Racket")
+ (authors "Kristopher Micinski" "Zhanpeng Wang" "Thomas Gilray")
+ (work scheme)
+ (date 9 2018)
+ (pdf "racets-scheme.pdf")]
+ 
+[(title "Abstract Allocation as a Unified Approach to Polyvariance in Control-flow Analyses")
+ (authors "Thomas Gilray" "Michael D. Adams" "Matthew Might")
+ (journal jfp)
+ (date 2018)
+ (awards "Invited to the Journal of Functional Programming")
+ (pdf "abstract-allocation.pdf")
+ (conf-pdf "allocation-polyvariance.pdf")
+ (invited)]
+ 
+[(title "User Comfort with Android Background Resource Accesses in Different Contexts")
+ (authors "Daniel Votipka" "Seth M. Rabin" "Kristopher Micinski" "Thomas Gilray" "Michelle L. Mazurek" "Jeffrey S. Foster")
+ (conf soups 21)
+ (date 2018)
+ (pdf "user-confort.pdf")]
+ 
+[(title "Soft Contract Verification for Higher-order Stateful Programs")
+ (authors "Phúc C. Nguyễn" "Thomas Gilray" "Sam Tobin-Hochstadt" "David Van Horn")
+ (conf popl 23)
+ (date 1 2018)
+ (pdf "stateful-scv.pdf")]
+ 
+[(title "Toward Parallel CFA with Datalog, MPI, and CUDA")
+ (authors "Thomas Gilray" "Sidharth Kumar")
+ (work scheme)
+ (date 9 2017)
+ (pdf "toward-parallel-cfa.pdf")
+ (talk "Oxford, UK")]
+ 
+[(title "Introspective Polyvariance for Control-Flow Analyses")
+ (authors "Thomas Gilray")
+ (phd utah)
+ (date 2016)
+ (pdf "thesis-gilray.pdf")]
+ 
+[(title "Allocation Characterizes Polyvariance")
+ (authors "Thomas Gilray" "Michael D. Adams" "Matthew Might")
+ (conf icfp 31)
+ (date 9 2016)
+ (pdf "allocation-polyvariance.pdf")
+ (invited-journal-pdf "abstract-allocation.pdf")
+ (selected)
+ (talk "Nara, Japan")]
+ 
+[(title "Dynamic Sparse-Matrix Allocation on GPUs")
+ (authors "James King" "Thomas Gilray" "Robert M. Kirby" "Matthew Might")
+ (conf isc)
+ (date 2016)
+ (pdf "dynamic-csr.pdf")
+ (extended-pdf "dynamic-csr-extended.pdf")
+ (awards "Won PRACE ISC best paper award")]
+ 
+[(title "Pushdown Control-Flow Analysis for Free")
+ (authors "Thomas Gilray" "Steven Lyde" "Michael D. Adams" "Matthew Might" "David Van Horn")
+ (conf popl 23)
+ (date 1 2016)
+ (pdf "pushdown-for-free.pdf")
+ (selected)
+ (talk "St. Petersburg, FL")]
+ 
+[(title "A Linear Encoding of Pushdown Control-Flow Analysis")
+ (authors "Steven Lyde" "Thomas Gilray" "Matthew Might")
+ (work scheme)
+ (date 11 2014)]
+ 
+[(title "Concrete and Abstract Interpretation: Better Together")
+ (authors "Maria Jenkins" "Leif Andersen" "Thomas Gilray" "Matthew Might")
+ (work scheme)
+ (date 11 2014)]
+ 
+[(title "Partitioning 0-CFA for the GPU")
+ (authors "Thomas Gilray" "Matthew Might")
+ (work wflp)
+ (date 8 2014)
+ (pdf "partitioning-0cfa.pdf")
+ (talk "Wittenberg, Germany")]
+ 
+[(title "A Unified Approach to Polyvariance in Abstract Interpretations")
+ (authors "Thomas Gilray" "Matthew Might")
+ (work scheme)
+ (date 11 2013)
+ (talk "Alexandria, VA, USA")]
+ 
+[(title "Sound and Precise Malware Analysis for Android via Pushdown Reachability and Entry-Point Saturation")
+ (authors "Shuying Liang" "Andrew W. Keep" "Matthew Might" "David Van Horn" "Steven Lyde" "Thomas Gilray" "Petey Aldous")
+ (work spsm)
+ (date 11 2013)]
+ 
+[(title "A Survey of Polyvariance in Abstract Interpretations")
+ (authors "Thomas Gilray" "Matthew Might")
+ (conf tfp)
+ (date 5 2013)
+ (pdf "survey-polyvariance.pdf")
+ (awards "Won TFP best student paper award")
+ (talk "Provo, UT, USA")]
+]

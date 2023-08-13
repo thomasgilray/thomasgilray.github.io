@@ -1,0 +1,48 @@
+<!DOCTYPE html> 
+
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="author" content="Thomas Gilray" />
+		<meta name="copyright" content="(c) Thomas Gilray, 2021" />
+		<meta name="robots" content="index, follow" />
+		<meta name="description" content="Thomas Gilray's personal website, publication list, etc." />
+		<meta name="keywords" content="thomas gilray, publications, computer science, programming, static analysis, abstract interpretation, programming languages, functional programming, research, racket, functional programming" />
+
+		<title>Thomas Gilray's Research: PPoSS program</title>
+
+		<link rel="Shortcut Icon" href="favicon.ico" type="image/x-icon" />
+		<link rel="stylesheet" href="/screen.css" type="text/css" media="print" />
+		<link rel="stylesheet" href="/screen.css" type="text/css" media="screen,projection" />
+		<script src="/conway.js" type="text/javascript"></script>
+	</head>
+
+	<body class="" lang="en-US">
+	<a href="https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life" onclick="javascript:crazyConway();" target="_blank" class="conwaylink">(what?)</a>
+	<div id="conway"></div>
+
+        <div id="wrapper">
+	  <div class="rounded">
+	    <div class="content">
+	      <h2>NSF PPoSS Large Award</h2>
+		<p>
+		  The HARP lab <a href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=2316157">has won</a> a Large (~$5M) award from the National Science Foundation (NSF) under the Principles and Practice of Scalable Systems (PPoSS) program. (This award follows a small PPoSS planning grant we were awarded in 2022.) In this project, we will develop full-stack implementation approaches for next-generation AI-based programming languages that perform deduction (chain-forward reasoning) at massive scale on a variety of heterogeneous backends (GPUs, supercomputers, cloud-based clusters, etc). A long-standing dream of computer science is to enable high-level, <i>declarative</i> programming where a user is enabled to simply <i>specify</i> the problem to be solved while the work of materializing a solution, and optimizing this work on the available hardware, is done automatically. Our work will develop the necessary techniques to enable this vision for specific types of reasoning and a specific ensamble of target reasoning tasks, including genomic analysis, smart querying of medical literature, neuro-symbolic AI with stochastic reasoning, graph analytics, security analysis, and general program analysis and software verification tasks. Scaling up these complex reasoning tasks will involve enabling application-level insights to be structured naturally via a language-based approach with both semantic- and implementation-level innovations, that sit atop a stack of high-performance-computing techniques designed to implement this high-level behavior in ways disparately optimized for modern heterogenous systems.
+		</p>
+		<div style="text-align:center;overflow:hidden;height:648px;margin:15px;"><img src="/img/pposs-tree.jpg" style="height:650px;"></img></div>
+              <p>
+                We will be collaborating with researchers at <a href="https://cse.osu.edu/people/byna.1">Ohio State University</a>, <a href="https://eecs.wsu.edu/~ananth/">Washington State University</a>, <a href="https://www.cs.utexas.edu/~swarat/">the University of Texas</a>, <a href="https://kmicinski.com/">Syracuse University</a>, <a href="https://sidharthkumar.io/">the University of Illinois at Chicago</a>, and at <a href="https://matt.might.net/">UABs Precision Medicine Institute</a> and investigating five principle applications for evaluation of our full-stack approach. The concept tree above illustrates our proposal, showing our language-based approach as the trunk of the tree, developing a structured Datalog with logical constraints and probablistic reasoning, the underlying techniques as roots, and the application foci as branches. This NSF Large award will support around ten PhD students and seven faculty, for five years, working to tackle the implementation of complex deductive-analytic workloads (precision medicine, program analysis, monotonic aggregation, probabilistic reasoning) at unprecedented scale. We’re currently looking for students!
+              </p>
+              <p>
+                Of particular interest to me, given my broader research program, is our investigation of techniques for using structured data and data-parallel deduction in a chain-forward reasoning system. My original motivation in developing our prototype Structured Datalog system (&quot;Slog&quot;) was to enable high-level and scalable reasoning about code for the purposes of verification and auditing of complex software systems. This technology uniquely permits us to turn high-level and understandable specifications of programming-language behavior (i.e., a rules-based semantics) into massively parallel simulations of code that can be run at scale (i.e., program analyses), including on large flexible resources such as cloud systems Amazon EC2, Google Cloud, or Microsoft Azure, and on supercomputers such as UAB Cheaha and even larger US Department of Energy machines, such as ALCF's Theta.    
+              </p>
+              <p><a href="/">&#8606; Back</a></p>
+	    </div>
+	    <div class="a"></div>
+	    <div class="b"></div>
+	    <div class="c"></div>
+	    <div class="d"></div>
+	  </div>
+	</div>
+	</body>
+
+</html>

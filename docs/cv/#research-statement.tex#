@@ -1,0 +1,50 @@
+\documentclass[11pt]{article}
+
+\usepackage{sectsty}
+\usepackage{graphicx}
+
+% Margins
+\topmargin=-0.45in
+\evensidemargin=0in
+\oddsidemargin=0in
+\textwidth=6.5in
+\textheight=9.0in
+\headsep=0.25in
+
+\title{ Research Statement }
+\author{ Thomas Gilray }
+\date{}
+
+\begin{document}
+\maketitle	
+
+
+My research program is to advance the state of art for abstract reasoning about complex systems at scale. These advancements are comprised of insights, techniques, and tools, along with high-level declarative languages that encapsulate them for human use. My background is broadly in programming languages, formal methods, high-performance computing, automated reasoning, and more specifically in tunable whole-program analysis, verification techniques, and high-performance parallel implementations.
+
+
+
+\paragraph{Tunable Flow Analysis}
+%
+System verification requires automatic explication of whole-program, context-dependent properties. My work on tunable flow analysis shows how to develop arbitrary polyvariant flow analyses (modeling the propagation of data and control) from concrete interpreters using the theory of abstract interpretation. Such polyvariant analyses are straightforward to adjust in their sensitivity to control, data, and other notions of context. In    
+
+
+\paragraph{Automating Formal Verification}
+%
+
+
+
+\paragraph{Parallel, High-Performance Implementations}
+%
+
+
+
+
+\paragraph{Broader Impacts and Applications}
+%
+
+
+
+
+
+
+\end{document}

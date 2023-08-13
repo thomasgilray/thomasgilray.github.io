@@ -1,0 +1,267 @@
+
+
+#photo {
+	float: right;
+	height: 15px;
+	width: 210px;
+	background: url(/img/gilray-headshot.jpg);
+	padding: 190px 15px 5px 15px;
+	cursor: pointer;
+	color: #fff;
+	font-size: 9px;
+	font-family: sans-serif;
+	font-weight: bold;   
+        margin: 0 5px 0 0;
+}
+
+#contact {
+	padding: 6px 12px 12px 12px;
+	float: right;
+        width: 240px;
+}
+
+div#footer {
+	font-size: 15px;
+	font-weight: bold;
+	color: #444;
+}
+
+.conwaylink {
+	position: fixed;
+	z-index: 25;
+	top: 7px;
+	right: 18px;
+	font-size: 15px;
+}
+
+.whitexout {
+	float: right;
+	color: #fff;
+	font-family: verdana;
+	-weight: bold;
+	font-size: 32px;
+	margin: 15px 20px;
+	cursor: pointer;
+}
+
+a {
+	text-decoration: none;
+	font-weight: bold;
+	color: #0a2;
+}
+
+a:hover {
+	text-decoration: underline;
+	font-weight: bold;
+	color: #0a2;
+}
+
+a:visited {
+	text-decoration: none;
+	font-weight: bold;
+	color: #0a2;
+}
+
+span.title {
+	font-style: italic;
+	font-size: 21px;
+}
+
+div.subtitle {
+	font-size: 16px;
+	font-weight: bold;
+}
+
+div.position {
+	margin: 9px 0;
+	font-size: 18px;
+	font-weight: bold;
+	color: #888;
+}
+
+ul#selpubs {
+	margin: 0;
+	padding: 0;
+	list-style-image: url(/img/grey-star.png);
+}
+
+ul#news {
+	margin: 0;
+	padding: 0;
+	list-style-image: url(/img/news.png);
+}
+
+ol {
+	margin: 0;
+	padding: 0;
+}
+
+li {
+	margin: 0 0 0 38px;
+	padding: 0 0 16px 5px;
+	font-size: 18px;
+	line-height: 29px;
+}
+
+div.rounded div.content {
+	padding: 8px;
+	width: auto;
+	background: #fff;
+}
+
+div.rounded div.a { background: #fff; width: 1px; position: absolute; top: 3px; bottom: 3px; left: 0;}
+div.rounded div.b { background: #fff; width: 1px; position: absolute; top: 3px; bottom: 3px; right: 0;}
+div.rounded div.c { background: #fff; height: 1px; position: absolute; left: 3px; right: 3px; top: 0;}
+div.rounded div.d { background: #fff; height: 1px; position: absolute; left: 3px; right: 3px; bottom: 0;}
+
+div.rounded {
+	margin: 0 auto 30px auto;
+	padding: 1px;
+	text-align: left;
+	width: 850px;
+	position: relative;
+	min-height: 30px;
+	z-index: 30;
+	background: transparent;
+}
+
+h1 {
+	font-size: 32px;
+	line-height: 46px;
+	margin: 0;
+	padding: 0;
+}
+
+
+h2,h3 {
+	font-size: 24px;
+	line-height: 35px;
+	margin: 0;
+	padding: 3px 0 4px 0;
+}
+
+
+div {
+	display: block;
+	margin: 0;
+	padding: 0;
+}
+
+#photoswrapper {
+	text-align: center;
+	position: absolute;
+	position: abolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	min-height: 1500px;
+	z-index: 50;
+	display: none;
+	background: #000;
+}
+
+#photoswrapper div.photo {
+	display: block;
+	margin: 15px auto;
+	overflow: visible;
+	position: relative;
+}
+
+#photoswrapper div.photo img {
+	overflow: visible;
+	position: absolute;
+	top: 160px;
+}
+
+#wrapper {
+	text-align: center;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	min-width: 990px;
+	z-index: 20;
+	padding: 35px 5px;
+}
+
+#conway {
+	text-align: left;
+	position: fixed;
+	position: abolute;
+	top: 0;
+	left: 0;
+	z-index: 5;
+}
+
+#conway div.box {
+	height: 13px;
+	width: 13px;
+	margin: 2px 0 0 3px;
+	background: transparent;
+	float: left;
+	display: block;
+	clear: right;
+	position: relative;
+}
+
+#conway div.greenbox {
+	height: 13px;
+	width: 13px;
+	margin: 2px 0 0 3px;
+	background: transparent;
+	float: left;
+	display: block;
+	clear: right;
+	position: relative;
+}
+
+#conway div.lightgreenbox {
+	height: 13px;
+	width: 13px;
+	margin: 2px 0 0 3px;
+	background: transparent;
+	float: left;
+	display: block;
+	clear: right;
+	position: relative;
+}
+
+#conway div.box div.a { background: #ccc; width: 1px; position: absolute; top: 3px; bottom: 3px; left: 0;}
+#conway div.box div.b { background: #ccc; width: 1px; position: absolute; top: 3px; bottom: 3px; right: 0;}
+#conway div.box div.c { background: #ccc; height: 1px; position: absolute; left: 3px; right: 3px; top: 0;}
+#conway div.box div.d { background: #ccc; height: 1px; position: absolute; left: 3px; right: 3px; bottom: 0;}
+#conway div.box div.e { background: #ccc; position: absolute; left: 1px; right: 1px; bottom: 1px; top: 1px;}
+
+#conway div.greenbox div.a { background: #589864; width: 1px; position: absolute; top: 3px; bottom: 3px; left: 0;}
+#conway div.greenbox div.b { background: #589864; width: 1px; position: absolute; top: 3px; bottom: 3px; right: 0;}
+#conway div.greenbox div.c { background: #589864; height: 1px; position: absolute; left: 3px; right: 3px; top: 0;}
+#conway div.greenbox div.d { background: #589864; height: 1px; position: absolute; left: 3px; right: 3px; bottom: 0;}
+#conway div.greenbox div.e { background: #589864; position: absolute; left: 1px; right: 1px; bottom: 1px; top: 1px;}
+
+#conway div.lightgreenbox div.a { background: #3E9993; width: 1px; position: absolute; top: 3px; bottom: 3px; left: 0;}
+#conway div.lightgreenbox div.b { background: #3E9993; width: 1px; position: absolute; top: 3px; bottom: 3px; right: 0;}
+#conway div.lightgreenbox div.c { background: #3E9993; height: 1px; position: absolute; left: 3px; right: 3px; top: 0;}
+#conway div.lightgreenbox div.d { background: #3E9993; height: 1px; position: absolute; left: 3px; right: 3px; bottom: 0;}
+#conway div.lightgreenbox div.e { background: #3E9993; position: absolute; left: 1px; right: 1px; bottom: 1px; top: 1px;}
+
+#conway div.break {
+	width: 1px;
+	height: 1px;
+	background: transparent;
+	clear: left;
+	float: right;
+}
+
+
+html,body {
+  margin: 0;
+  padding: 5px;
+  font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
+  font-size: 16px;
+  line-height: 24px;
+  font-style: normal;
+  font-weight: normal;
+  text-align: center;
+  background: #eee;
+  overflow-x: hidden;
+}
