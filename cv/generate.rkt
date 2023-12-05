@@ -22,7 +22,9 @@
 	 ['hps "Workshop on High Performance Storage"]
 	 ['hpdc "International ACM Symposium on High-Performance Parallel and Distributed Computing"]
          ['cc "International Conference on Compiler Construction"]
+	 ['cluster "IEEE International Conference on Cluster Computing"]
          ['csf "IEEE Computer Security Foundations Symposium"]
+	 ['atc "USENIX ATC"]
          ['utah "University of Utah"]
          [_ "???"]))
 
@@ -46,7 +48,9 @@
          ['jfp "JFP"]
          ['wflp "WFLP"]
          ['cc "CC"]
+	 ['cluster "CLUSTER"]
          ['csf "CSF"]
+	 ['atc "USENIX ATC"]
          ['utah "U of U"]
          [_ "??"]))
 

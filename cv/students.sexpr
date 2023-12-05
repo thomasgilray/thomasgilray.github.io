@@ -1,4 +1,10 @@
 [
+ [(name "Sowmith Kunapaneni")
+  ;(website "")
+  (start-year 2023)
+  ;(end-year 2019)
+  (kind PhD)
+  (advisor)]
 
  [(name "Yihao Sun")
   ;(website "")
@@ -28,28 +34,30 @@
   (start-year 2022)
   ;(end-year 2019)
   (kind MS)
-  (mentor)]
+  (advisor)]
  
  [(name "Michael Gathara")
   ;(website "")
   (start-year 2022)
   ;(end-year 2019)
   (kind MS)
-  (mentor)]
+  (advisor)]
 
  [(name "Ke Fan")
   ;(website "")
   (start-year 2019)
   ;(end-year 2019)
   (kind PhD)
-  (committee)]
+  (committee)
+  (note "At University of Illinois Chicago.")]
 
  [(name "Akmedur Rahman Shovon")
   ;(website "")
   (start-year 2021)
   ;(end-year 2019)
   (kind PhD)
-  (committee)]
+  (committee)
+  (note "At University of Illinois Chicago.")]
 
  [(name "Nick Netterville")
   ;(website "")

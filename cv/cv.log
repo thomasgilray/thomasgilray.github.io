@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999993 (TeX Live 2022/dev/Debian) (preloaded format=xelatex 2022.4.21)  25 DEC 2022 22:46
+This is XeTeX, Version 3.141592653-2.6-0.999993 (TeX Live 2022/dev/Debian) (preloaded format=xelatex 2023.6.6)  5 DEC 2023 12:18
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -340,7 +340,7 @@ LaTeX Info: Redefining \nameref on input line 20.
 
 Package hyperref Warning: Rerun to get /PageLabels entry.
 
-Randomizer initialized to 1599816647.
+Randomizer initialized to 867120066.
 LaTeX Font Info:    External font `cmex10' loaded for size
 (Font)              <7> on input line 43.
 LaTeX Font Info:    External font `cmex10' loaded for size
@@ -348,7 +348,7 @@ LaTeX Font Info:    External font `cmex10' loaded for size
  [1
 
 ] [2] (./awards.tex
-Overfull \hbox (18.63pt too wide) in paragraph at lines 5--6
+Overfull \hbox (18.63pt too wide) in paragraph at lines 6--7
 [][][][] [] [][][] [] [][][] [] [][][][][] [] [][][][][][][] [] [][][][][] [] [
 ][][][][][][][] [] [][][][] [] [][][][][][][][][][][][][][][][][] [] [][][]$[] 
 \TU/lmr/m/n/10 (page 37) (2020). 
@@ -359,15 +359,15 @@ Overfull \hbox (18.63pt too wide) in paragraph at lines 5--6
 
 
 ] (./thesis-pubs.tex) (./journal-pubs.tex)
-(./conference-pubs.tex) [5] (./workshop-pubs.tex) [6] (./contributed-talks.tex
-[7]) [8] ) 
+(./conference-pubs.tex) [5] [6] (./workshop-pubs.tex) [7]
+(./contributed-talks.tex) [8] ) 
 Here is how much of TeX's memory you used:
  8385 strings out of 476191
- 134858 string characters out of 5812072
- 453055 words of memory out of 5000000
+ 134858 string characters out of 5812073
+ 453056 words of memory out of 5000000
  29025 multiletter control sequences out of 15000+600000
  469683 words of font info for 37 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
- 60i,5n,64p,728b,494s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 60i,5n,64p,728b,482s stack positions out of 5000i,500n,10000p,200000b,80000s
 
 Output written on cv.pdf (8 pages).

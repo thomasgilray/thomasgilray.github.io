@@ -18,7 +18,19 @@
  (date )
  (pdf "")]
 
-[(title "Exploring MPI Collective I/O and File-per-process I/O for Checkpointing a Logical Inference task.")
+[(title "Towards Iterative Relational Algebra on the GPU")
+ (authors "Ahmedur Rahman Shovon" "Thomas Gilray" "Kristopher Micinski" "Sidharth Kumar")
+ (conf atc)
+ (date 7 2023)
+ (pdf "")]
+
+[(title "Communication-Avoiding Recursive Aggregation")
+ (authors "Yihao Sun" "Sidharth Kumar" "Thomas Gilray" "Kristopher Micinski")
+ (conf cluster)
+ (date 11 2023)
+ (pdf "")]
+
+[(title "Exploring MPI Collective I/O and File-per-process I/O for Checkpointing a Logical Inference Task")
  (authors "Ke Fan" "Kristopher Micinski" "Thomas Gilray" "Sidharth Kumar")
  (work hps)
  (date 5 2021)
@@ -68,7 +80,8 @@
  (date 6 2020)
  (pdf "load-balancing-ra.pdf")
  (awards "Won ISC Hans Meuer Best Paper award")
- (selected)]
+ (selected)
+ (talk "Frankfurt, Germany (remote)")]
 
 [(title "Abstracting Faceted Execution")
  (authors "Kristopher Micinski" "David Darais" "Thomas Gilray")
