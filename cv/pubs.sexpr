@@ -12,10 +12,10 @@
  (date )
  (pdf "")]
 
-[(title )
- (authors )
- (conf )
- (date )
+[(title "Analysis of MPI Communication Time for Distribution of Repartitioned Data")
+ (authors "John-Paul Robinson" "Ke Fan" "Sidharth Kumar" "Steve Petruzza" "Thomas Gilray")
+ (conf pearc)
+ (date 7 2024)
  (pdf "")]
 
 [(title "Towards Iterative Relational Algebra on the GPU")

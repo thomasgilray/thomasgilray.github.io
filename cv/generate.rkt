@@ -15,6 +15,7 @@
          ['bar "Workshop on Binary Analysis Research"]
          ['tfp "Symposium on Trends in Functional Programming"]
          ['wflp "Workshop on Functional and Constraint Logic Programming"]
+	 ['pearc "Practice and Experience in Advanced Research Computing"]
          ['jfp "Journal of Functional Programming"]
          ['isc "ISC High Performance"]
          ['ics "International Conference on Supercomputing"]
@@ -39,6 +40,7 @@
          ['hipc "HiPC" ]
 	 ['eduhipc "EduHiPC" ]
          ['isc "ISC"]
+	 ['pearc "PEARC"]
          ['ics "ICS"]
 	 ['hps "HPS"]
 	 ['ia3 "IA3"]
@@ -69,6 +71,12 @@
 
 (define (date->year date)
   (last date))
+
+(define (pub-is-student? pub)
+  (and (> (date->year (pub->date pub)) 2019)
+       (not (equal? (first (pub->authors pub)) "Thomas Gilray"))
+       (not (equal? (first (pub->authors pub)) "Sidharth Kumar"))
+       (not (equal? (first (pub->authors pub)) "Kristopher Micinski"))))
 
 (define (pub->title pub)
   (define lst (filter (lambda (p) (and (list? p) (> (length p) 1) (equal? 'title (car p)))) pub))
@@ -185,7 +193,8 @@
    (lambda ()
      (map (lambda (pub)
             (define venue (pub->venue pub))
-            (display (format "\\paper. \\textit{~a.}\n~a\n~a.\n\\\\(~a~a) ~a. ~a\n\\\\~a"
+            (display (format "\\paper.~a \\textit{~a.}\n~a\n~a.\n\\\\(~a~a) ~a. ~a\n\\\\~a"
+			     (if (pub-is-student? pub) "$\\dagger$" "")
                              (pub->title pub)
                              (let ([authors (map (lambda (auth) (if (equal? auth "Thomas Gilray") "\\textbf{Thomas Gilray}" auth))
                                                  (pub->authors pub))])
