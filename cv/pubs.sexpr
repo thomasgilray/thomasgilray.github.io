@@ -6,11 +6,11 @@
  (date )
  (pdf "")]
 
-[(title )
- (authors )
- (conf )
- (date )
- (pdf "")]
+[(title "Configurable Algorithms for All-to-all Collectives")
+ (authors "Ke Fan" "Steve Petruzza" "Thomas Gilray" "Sidharth Kumar")
+ (conf isc 29)
+ (date 5 2024)
+ (pdf "configurable-alltoall.pdf")]
 
 [(title "Analysis of MPI Communication Time for Distribution of Repartitioned Data")
  (authors "John-Paul Robinson" "Ke Fan" "Sidharth Kumar" "Steve Petruzza" "Thomas Gilray")
