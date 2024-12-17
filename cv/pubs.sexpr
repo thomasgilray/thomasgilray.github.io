@@ -6,6 +6,45 @@
  (date )
  (pdf "")]
 
+[(title )
+ (authors )
+ (conf )
+ (date )
+ (pdf "")]
+
+[(title )
+ (authors )
+ (conf )
+ (date )
+ (pdf "")]
+
+[(title )
+ (authors )
+ (conf )
+ (date )
+ (pdf "")]
+
+[(title "Datalog with First-class Facts")
+ (authors "Thomas Gilray" "Arash Sahebolamri" "Yihao Sun" "Sowmith Kunapaneni" "Sidharth Kumar" "Kristopher Micinski")
+ (conf vldb )
+ (date 9 2025)
+ (pdf "datalog-first-class.pdf")
+ (selected)]
+
+[(title "Column-Oriented Datalog on the GPU")
+ (authors "Yihao Sun" "Sidharth Kumar" "Thomas Gilray" "Kristopher Micinski")
+ (conf aaai )
+ (date 2 2025)
+ (pdf "column-datalog-gpu.pdf")
+ (selected)]
+
+[(title "Optimizing Datalog for the GPU")
+ (authors "Yihao Sun" "Ahmedur Rahman Shovon" "Thomas Gilray" "Sidharth Kumar" "Kristopher Micinski")
+ (conf asplos 12.7)
+ (date 3 2025)
+ (pdf "datalog-gpu.pdf")
+ (selected)]
+
 [(title "Configurable Algorithms for All-to-all Collectives")
  (authors "Ke Fan" "Steve Petruzza" "Thomas Gilray" "Sidharth Kumar")
  (conf isc 29)
