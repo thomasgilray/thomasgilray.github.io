@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999996 (TeX Live 2024/Homebrew) (preloaded format=xelatex 2024.3.20)  25 OCT 2024 09:44
+This is XeTeX, Version 3.141592653-2.6-0.999996 (TeX Live 2024/Homebrew) (preloaded format=xelatex 2024.3.20)  17 DEC 2024 15:42
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -369,7 +369,7 @@ Package hyperref Info: Link coloring OFF on input line 20.
 
 Package hyperref Warning: Rerun to get /PageLabels entry.
 
-Randomizer initialized to 687450747.
+Randomizer initialized to 1105134301.
 LaTeX Font Info:    External font `cmex10' loaded for size
 (Font)              <7> on input line 43.
 LaTeX Font Info:    External font `cmex10' loaded for size
@@ -389,7 +389,7 @@ Overfull \hbox (18.63pt too wide) in paragraph at lines 6--7
 
 ]) (./thesis-pubs.tex) (./journal-pubs.tex)
 (./conference-pubs.tex) [5] [6] (./workshop-pubs.tex) [7]
-(./contributed-talks.tex) [8]
+(./contributed-talks.tex [8]) [9]
  ***********
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-02-20>
@@ -398,10 +398,10 @@ L3 programming layer <2024-02-20>
 Here is how much of TeX's memory you used:
  8587 strings out of 474773
  138441 string characters out of 5748823
- 1940839 words of memory out of 5000000
+ 1941839 words of memory out of 5000000
  30646 multiletter control sequences out of 15000+600000
  558493 words of font info for 45 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
- 72i,6n,79p,728b,489s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 72i,6n,79p,728b,513s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on cv.pdf (8 pages).
+Output written on cv.pdf (9 pages).
