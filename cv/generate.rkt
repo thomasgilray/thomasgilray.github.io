@@ -208,7 +208,7 @@
                                       [1 (string-append (first authors) ".") ] 
                                       [2 (string-append (first authors) " and " (second authors) ".")]
                                       [_ (string-join
-                                          authors
+                                         authors
                                           ", "
                                           #:before-last ", and "
                                           #:after-last ".")]))
