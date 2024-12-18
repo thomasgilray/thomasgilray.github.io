@@ -37,7 +37,7 @@
          ['asplos "ASPLOS"]
 	 ['aaai "AAAI"]
 	 ['vldb "VLDB"]
-	 ['popl "PoPL"]
+	 ['popl "POPL"]
          ['icfp "ICFP"]
          ['pldi "PLDI"]
          ['scheme "SW"]
