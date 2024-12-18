@@ -33,7 +33,7 @@
 
 [(title "Column-Oriented Datalog on the GPU")
  (authors "Yihao Sun" "Sidharth Kumar" "Thomas Gilray" "Kristopher Micinski")
- (conf aaai )
+ (conf aaai 23.4)
  (date 2 2025)
  (pdf "column-datalog-gpu.pdf")
  (selected)]
@@ -61,13 +61,13 @@
  (authors "Ahmedur Rahman Shovon" "Thomas Gilray" "Kristopher Micinski" "Sidharth Kumar")
  (conf atc)
  (date 7 2023)
- (pdf "")]
+ (pdf "toward-ra-gpu.pdf")]
 
 [(title "Communication-Avoiding Recursive Aggregation")
  (authors "Yihao Sun" "Sidharth Kumar" "Thomas Gilray" "Kristopher Micinski")
  (conf cluster)
  (date 11 2023)
- (pdf "")]
+ (pdf "comm-avoiding-aggregation.pdf")]
 
 [(title "Exploring MPI Collective I/O and File-per-process I/O for Checkpointing a Logical Inference Task")
  (authors "Ke Fan" "Kristopher Micinski" "Thomas Gilray" "Sidharth Kumar")
@@ -175,7 +175,8 @@
  (authors "Phúc C. Nguyễn" "Thomas Gilray" "Sam Tobin-Hochstadt" "David Van Horn")
  (conf popl 23)
  (date 1 2018)
- (pdf "stateful-scv.pdf")]
+ (pdf "stateful-scv.pdf")
+ (selected)]
  
 [(title "Toward Parallel CFA with Datalog, MPI, and CUDA")
  (authors "Thomas Gilray" "Sidharth Kumar")
@@ -205,7 +206,8 @@
  (date 2016)
  (pdf "dynamic-csr.pdf")
  (extended-pdf "dynamic-csr-extended.pdf")
- (awards "Won PRACE ISC best paper award")]
+ (awards "Won PRACE ISC best paper award")
+ (selected)]
  
 [(title "Pushdown Control-Flow Analysis for Free")
  (authors "Thomas Gilray" "Steven Lyde" "Michael D. Adams" "Matthew Might" "David Van Horn")
