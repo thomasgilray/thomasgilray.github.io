@@ -154,7 +154,7 @@
          ,(string-append (venue->long-name venue) ". ")
 	 "("
 	 (b ,(venue->short-name venue))
-	 ,(if (< (length venue) 3) (format "—~a% acceptance" (last venue)) "") 
+	 ,(if (>= (length venue) 3) (format "—~a% acceptance" (last venue)) "") 
 	 ") " 
 	 ,(date-name (pub->date pub))
 	 ". "
