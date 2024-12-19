@@ -407,6 +407,6 @@
 
 
 
-(system "xelatex cv")
+(system "xelatex gilray-cv")
 
 

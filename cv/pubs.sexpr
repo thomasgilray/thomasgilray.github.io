@@ -55,7 +55,7 @@
  (authors "John-Paul Robinson" "Ke Fan" "Sidharth Kumar" "Steve Petruzza" "Thomas Gilray")
  (conf pearc)
  (date 7 2024)
- (pdf "")]
+ (pdf "data-movement-repartitioned.pdf")]
 
 [(title "Towards Iterative Relational Algebra on the GPU")
  (authors "Ahmedur Rahman Shovon" "Thomas Gilray" "Kristopher Micinski" "Sidharth Kumar")

@@ -256,11 +256,12 @@ html,body {
   margin: 0;
   padding: 5px;
   font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
-  font-size: 19px;
-  line-height: 27px;
+  font-size: 18px;
+  line-height: 26px;
   font-style: normal;
   font-weight: normal;
   text-align: center;
   background: #eee;
   overflow-x: hidden;
 }
+B
