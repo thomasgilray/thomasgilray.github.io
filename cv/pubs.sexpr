@@ -79,7 +79,7 @@
  (authors "Ahmedur Rahman Shovon" "Landon Richard Dyken" "Oded Green" "Thomas Gilray" "Sidharth Kumar")
  (work ia3)
  (date 11 2022)
- (pdf "datalog-with-cudf.pdf")]
+ (pdf "accelerating-with-cuDF.pdf")]
 
 
 [(title "A Visual Guide to MPI All-to-all")
