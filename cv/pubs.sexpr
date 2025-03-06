@@ -12,17 +12,19 @@
  (date )
  (pdf "")]
 
-[(title )
- (authors )
- (conf )
- (date )
- (pdf "")]
+[(title "Parallel Prefix Joins for Linear Recursive Datalog Rules")
+ (authors "Akash Rao" "Thomas Gilray" "Ananth Kalyanaraman")
+ (conf ics)
+ (date 2 2025)
+ (pdf "")
+ (submitted)]
 
-[(title )
- (authors )
- (conf )
- (date )
- (pdf "")]
+[(title "Multi-Node Mutli-GPU Datalog")
+ (authors "Ahmedur Rahman Shovon" "Yihao Sun" "Thomas Gilray" "Sidharth Kumar" "Kristopher Micinski")
+ (conf ics)
+ (date 2 2025)
+ (pdf "")
+ (submitted)]
 
 [(title "Datalog with First-class Facts")
  (authors "Thomas Gilray" "Arash Sahebolamri" "Yihao Sun" "Sowmith Kunapaneni" "Sidharth Kumar" "Kristopher Micinski")
@@ -43,19 +45,22 @@
  (conf asplos 12.7)
  (date 3 2025)
  (pdf "datalog-gpu.pdf")
- (selected)]
+ (selected)
+ (doi "10.1145/3669940.3707274")]
 
 [(title "Configurable Algorithms for All-to-all Collectives")
  (authors "Ke Fan" "Steve Petruzza" "Thomas Gilray" "Sidharth Kumar")
  (conf isc 29)
  (date 5 2024)
- (pdf "configurable-alltoall.pdf")]
+ (pdf "configurable-alltoall.pdf")
+ (doi "10.23919/ISC.2024.10528936")]
 
 [(title "Analysis of MPI Communication Time for Distribution of Repartitioned Data")
  (authors "John-Paul Robinson" "Ke Fan" "Sidharth Kumar" "Steve Petruzza" "Thomas Gilray")
  (conf pearc)
  (date 7 2024)
- (pdf "data-movement-repartitioned.pdf")]
+ (pdf "data-movement-repartitioned.pdf")
+ (doi "10.1109/HiPCW61695.2023.00020")]
 
 [(title "Towards Iterative Relational Algebra on the GPU")
  (authors "Ahmedur Rahman Shovon" "Thomas Gilray" "Kristopher Micinski" "Sidharth Kumar")
@@ -67,51 +72,58 @@
  (authors "Yihao Sun" "Sidharth Kumar" "Thomas Gilray" "Kristopher Micinski")
  (conf cluster)
  (date 11 2023)
- (pdf "comm-avoiding-aggregation.pdf")]
+ (pdf "comm-avoiding-aggregation.pdf")
+ (doi "10.1109/CLUSTER52292.2023.00024")]
 
 [(title "Exploring MPI Collective I/O and File-per-process I/O for Checkpointing a Logical Inference Task")
  (authors "Ke Fan" "Kristopher Micinski" "Thomas Gilray" "Sidharth Kumar")
  (work hps)
  (date 5 2021)
- (pdf "exploring-checkpointing-inference.pdf")]
+ (pdf "exploring-checkpointing-inference.pdf")
+ (doi "10.1109/IPDPSW52791.2021.00153")]
  
 [(title "Accelerating Datalog Applications with cuDF")
  (authors "Ahmedur Rahman Shovon" "Landon Richard Dyken" "Oded Green" "Thomas Gilray" "Sidharth Kumar")
  (work ia3)
  (date 11 2022)
- (pdf "accelerating-with-cuDF.pdf")]
-
+ (pdf "accelerating-with-cuDF.pdf")
+ (doi "10.1109/IA356718.2022.00012")]
 
 [(title "A Visual Guide to MPI All-to-all")
  (authors "Nick Netterville" "Ke Fan" "Sidharth Kumar" "Thomas Gilray")
  (work eduhipc)
  (date 12 2022)
- (pdf "visual-guide-all-to-all.pdf")]
+ (pdf "visual-guide-all-to-all.pdf")
+ (doi "10.1109/HiPCW57629.2022.00008")]
  
 [(title "Seamless Deductive Inference Via Macros")
  (authors "Arash Sahebolamri" "Thomas Gilray" "Kristopher Micinski")
  (conf cc)
  (date 4 2022)
- (pdf "seamless-deductive.pdf")]
+ (pdf "seamless-deductive.pdf")
+ (doi "10.1145/3497776.35177")]
  
 [(title "Optimizing the Bruck Algorithm for Non-uniform All-to-all Communication")
  (authors "Ke Fan" "Thomas Gilray" "Valerio Pascucci" "Xuan Huang" "Kristopher Micinski" "Sidharth Kumar")
  (conf hpdc 19)
  (date 6 2022)
  (pdf "optimizing-bruck.pdf")
- (selected)]
+ (selected)
+ (doi "10.1145/3502181.35314")]
 
 [(title "Load-balancing Parallel I/O of Compressed Hierarchical Layouts")
  (authors "Ke Fan" "Duong Hoang" "Steve Petruzza" "Thomas Gilray" "Valerio Pascucci" "Sidharth Kumar")
  (conf hipc)
  (date 12 2021)
- (pdf "balancing-parallel-io.pdf")]
+ (pdf "balancing-parallel-io.pdf")
+ (doi "10.1109/HiPC53243.2021.00048")]
  
 [(title "Compiling Data-parallel Datalog")
  (authors "Thomas Gilray" "Sidharth Kumar" "Kristopher Micinski")
  (conf cc)
  (date 3 2021)
- (pdf "compiling-datalog.pdf")]
+ (pdf "compiling-datalog.pdf")
+ (doi "10.1145/3446804.3446855")]
 
 [(title "Load-balancing Parallel Relational Algebra")
  (authors "Sidharth Kumar" "Thomas Gilray")
@@ -120,12 +132,14 @@
  (pdf "load-balancing-ra.pdf")
  (awards "Won ISC Hans Meuer Best Paper award")
  (selected)
+ (doi "10.1007/978-3-030-50743-5_15")
  (talk "Frankfurt, Germany (remote)")]
 
 [(title "Abstracting Faceted Execution")
  (authors "Kristopher Micinski" "David Darais" "Thomas Gilray")
  (conf csf)
  (date 6 2020)
+ (doi "10.1109/CSF49147.2020.00021")
  (pdf "abstracting-facets.pdf")]
 
 [(title "Distributed Relational Algebra at Scale")
@@ -134,7 +148,8 @@
  (date 12 2019)
  (awards "Won HiPC Best Paper award")
  (pdf "distributed-ra.pdf")
- (selected)]
+ (selected)
+ (doi "10.1109/HiPC.2019.00014")]
 
 [(title "Size-Change Termination as a Contract")
  (authors "Phúc C. Nguyễn" "Thomas Gilray" "Sam Tobin-Hochstadt" "David Van Horn")
@@ -142,13 +157,15 @@
  (date 6 2019)
  (awards "Invited to the Journal of Functional Programming")
  (pdf "termination-contract.pdf")
- (selected)]
+ (selected)
+ (doi "10.1145/3314221.3314643")]
  
 [(title "Symbolic Path Tracing to Find Android Permission-Use Triggers")
  (authors "Kristopher Micinski" "Thomas Gilray" "Daniel Votipka" "Jeffrey S. Foster" "Michelle L. Mazurek")
  (work bar)
  (date 1 2019)
- (pdf "permission-use-triggers.pdf")]
+ (pdf "permission-use-triggers.pdf")
+ (doi "10.14722/bar.2019.23083")]
  
 [(title "Racets: Faceted Execution in Racket")
  (authors "Kristopher Micinski" "Zhanpeng Wang" "Thomas Gilray")
@@ -163,7 +180,8 @@
  (awards "Invited to the Journal of Functional Programming")
  (pdf "abstract-allocation.pdf")
  (conf-pdf "allocation-polyvariance.pdf")
- (invited)]
+ (invited)
+ (doi "10.1017/s0956796818000138")]
  
 [(title "User Comfort with Android Background Resource Accesses in Different Contexts")
  (authors "Daniel Votipka" "Seth M. Rabin" "Kristopher Micinski" "Thomas Gilray" "Michelle L. Mazurek" "Jeffrey S. Foster")
@@ -176,7 +194,8 @@
  (conf popl 23)
  (date 1 2018)
  (pdf "stateful-scv.pdf")
- (selected)]
+ (selected)
+ (doi "10.1145/3158139")]
  
 [(title "Toward Parallel CFA with Datalog, MPI, and CUDA")
  (authors "Thomas Gilray" "Sidharth Kumar")
@@ -198,7 +217,8 @@
  (pdf "allocation-polyvariance.pdf")
  (invited-journal-pdf "abstract-allocation.pdf")
  (selected)
- (talk "Nara, Japan")]
+ (talk "Nara, Japan")
+ (doi "https://doi.org/10.1145/3022670.2951936")]
  
 [(title "Dynamic Sparse-Matrix Allocation on GPUs")
  (authors "James King" "Thomas Gilray" "Robert M. Kirby" "Matthew Might")
@@ -207,7 +227,8 @@
  (pdf "dynamic-csr.pdf")
  (extended-pdf "dynamic-csr-extended.pdf")
  (awards "Won PRACE ISC best paper award")
- (selected)]
+ (selected)
+ (doi "10.1007/978-3-319-41321-1_4")]
  
 [(title "Pushdown Control-Flow Analysis for Free")
  (authors "Thomas Gilray" "Steven Lyde" "Michael D. Adams" "Matthew Might" "David Van Horn")
@@ -215,7 +236,8 @@
  (date 1 2016)
  (pdf "pushdown-for-free.pdf")
  (selected)
- (talk "St. Petersburg, FL")]
+ (talk "St. Petersburg, FL")
+ (doi "10.1145/2837614.2837631")]
  
 [(title "A Linear Encoding of Pushdown Control-Flow Analysis")
  (authors "Steven Lyde" "Thomas Gilray" "Matthew Might")
@@ -243,7 +265,8 @@
 [(title "Sound and Precise Malware Analysis for Android via Pushdown Reachability and Entry-Point Saturation")
  (authors "Shuying Liang" "Andrew W. Keep" "Matthew Might" "David Van Horn" "Steven Lyde" "Thomas Gilray" "Petey Aldous")
  (work spsm)
- (date 11 2013)]
+ (date 11 2013)
+ (doi "10.1145/2516760.2516769")]
  
 [(title "A Survey of Polyvariance in Abstract Interpretations")
  (authors "Thomas Gilray" "Matthew Might")

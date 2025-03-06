@@ -1,4 +1,39 @@
 [
+
+#;
+ [(name "Landon Dyken")
+  ;(website "")
+  (start-year 2022)
+  ;(end-year 2019)
+  (kind PhD)
+  (mentor)]
+  
+
+ [(name "Zachary Werle")
+  ;(website "")
+  (start-year 2025)
+  ;(end-year 2019)
+  (kind PhD)
+  (mentor)
+  (note "Plans to join as a PhD advisee, Fall 2025.")]
+  
+
+ [(name "Hunter Smith")
+  ;(website "")
+  (start-year 2024)
+  ;(end-year 2019)
+  (kind MS)
+  (advisor)]
+  
+ 
+ 
+ [(name "Akash Rao")
+  ;(website "")
+  (start-year 2024)
+  ;(end-year 2019)
+  (kind PhD)
+  (advisor)]
+
  [(name "Sowmith Kunapaneni")
   ;(website "")
   (start-year 2023)
@@ -7,9 +42,9 @@
   (advisor)]
 
  [(name "Yihao Sun")
-  ;(website "")
+					;(website "")
   (start-year 2020)
-  ;(end-year 2019)
+					;(end-year 2019)
   (kind PhD)
   (committee)
   (note "At Syracuse University.")]
@@ -17,41 +52,34 @@
  [(name "Arash Sahebolamri")
   ;(website "")
   (start-year 2019)
-  ;(end-year 2019)
+  (end-year 2023)
   (kind PhD)
   (committee)
   (note "At Syracuse University.")]
  
- [(name "Landon Dyken")
-  ;(website "")
-  (start-year 2022)
-  ;(end-year 2019)
-  (kind PhD)
-  (mentor)]
- 
  [(name "Akshar Patel")
   ;(website "")
   (start-year 2022)
-  ;(end-year 2019)
+  (end-year 2024)
   (kind MS)
   (advisor)]
  
  [(name "Michael Gathara")
   ;(website "")
   (start-year 2022)
-  ;(end-year 2019)
+  (end-year 2024)
   (kind MS)
   (advisor)]
 
  [(name "Ke Fan")
   ;(website "")
   (start-year 2019)
-  ;(end-year 2019)
+  (end-year 2025)
   (kind PhD)
   (committee)
   (note "At University of Illinois Chicago.")]
 
- [(name "Akmedur Rahman Shovon")
+ [(name "Ahmedur Rahman Shovon")
   ;(website "")
   (start-year 2021)
   ;(end-year 2019)
@@ -61,25 +89,33 @@
 
  [(name "Nick Netterville")
   ;(website "")
-  (start-year 2022)
-  ;(end-year 2019)
+  (start-year 2021)
+  (end-year 2023)
   (kind MS)
   (advisor)]
 
  [(name "Ashraful Islam")
   ;(website "")
   (start-year 2022)
-  ;(end-year 2019)
-  (kind PhD)
+  (end-year 2024)
+  (kind MS)
   (advisor)]
-  
- [(name "Kyle Headley")
-  (website "http://kyleheadley.github.io/PHDWebsite/")
-  (start-year 2019)
-  (end-year 2020)
+
+ [(name "John-Paul Robinson")
+  ;(website "")
+  (start-year 2022)
+  (end-year 2024)
   (kind PhD)
-  (advisor)
-  (note "Left for personal reasons at the start of the pandemic.")]
+  (mentor)]
+
+ #;
+ [(name "Kyle Headley")			; ;
+ (website "http://kyleheadley.github.io/PHDWebsite/") ; ;
+ (start-year 2019)			; ;
+ (end-year 2020)			; ;
+ (kind PhD)				; ;
+ (advisor)				; ;
+ (note "Left for personal reasons at the start of the pandemic.")]
 
  [(name "Leif Andersen")
   (website "http://leifandersen.net/")
@@ -110,22 +146,6 @@
   (kind PhD)
   (mentor)
   (note "Now at Google, inc.")]
-
- [(name "David Darais")
-  (website "http://david.darais.com/")
-  (start-year 2016)
-  (end-year 2018)
-  (kind PhD)
-  (mentor)
-  (note "Now at Galois, inc.")]
-
- [(name "Kristopher Micinski")
-  (website "https://kmicinksi.com/")
-  (start-year 2016)
-  (end-year 2018)
-  (kind PhD)
-  (mentor)
-  (note "Now a faculty member at Syracuse University.")]
 
  [(name "Javran Cheng")
   (start-year 2016)
