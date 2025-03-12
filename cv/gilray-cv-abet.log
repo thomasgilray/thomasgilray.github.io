@@ -2,8 +2,8 @@ This is XeTeX, Version 3.141592653-2.6-0.999995 (TeX Live 2023/Debian) (preloade
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
-**gilray-cv
-(./gilray-cv.tex
+**gilray-cv-abet
+(./gilray-cv-abet.tex
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-01-22>
 (./res.cls
@@ -295,7 +295,7 @@ File: l3backend-xetex.def 2024-01-04 L3 backend support: XeTeX
 \g__pdf_backend_annotation_int=\count291
 \g__pdf_backend_link_int=\count292
 )
-No file gilray-cv.aux.
+No file gilray-cv-abet.aux.
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 20.
 LaTeX Font Info:    ... okay on input line 20.
 LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 20.
@@ -334,47 +334,26 @@ LaTeX Font Info:    External font `cmex10' loaded for size
 (Font)              <5> on input line 43.
  [1
 
-] [2] [3] (./awards.tex
-Overfull \hbox (18.63pt too wide) in paragraph at lines 3--4
-[][][][] [] [][][] [] [][][] [] [][][][][] [] [][][][][][][] [] [][][][][] [] [
-][][][][][][][] [] [][][][] [] [][][][][][][][][][][][][][][][][] [] [][][]$[] 
-\TU/lmr/m/n/10 (page 37) (2020). 
- []
-
-) (./students.tex [4
-
-
-
-]) (./pending-pubs.tex) (./conference-pubs.tex)
-Overfull \hbox (0.70517pt too wide) in paragraph at lines 1--249
-\TU/lmr/bx/n/10 8\TU/lmr/m/n/10 . \TU/lmr/m/it/10 Communication-Avoiding Recurs
-ive Aggregation. \TU/lmr/m/n/10 Yihao Sun$\OMS/cmsy/m/n/10 z$\TU/lmr/m/n/10 , S
-idharth Kumar, \TU/lmr/bx/n/10 Thomas Gilray\TU/lmr/m/n/10 ,
- []
-
-
-Overfull \hbox (11.69002pt too wide) in paragraph at lines 1--249
+] (./selected-conference-pubs.tex)
+Overfull \hbox (11.69002pt too wide) in paragraph at lines 1--157
 \TU/lmr/m/n/10 (ICFP—31% acceptance) Sep 2016. []$[][][][][] [] [] [] [][][] []
  [][][] [] [][][][][] [] [] [] [][][] [] [][][] [] [][] [] [][][][] [] [][][][]
 [][][] [] [][][][][][][]$[] 
  []
 
-[5
-
-] [6] (./workshop-pubs.tex) [7] (./journal-pubs.tex) (./thesis-pubs.tex)
-[8] (./contributed-talks.tex) [9]
+[2] (./contributed-talks.tex) [3]
  ***********
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-01-22>
  ***********
  ) 
 Here is how much of TeX's memory you used:
- 8592 strings out of 474878
- 135914 string characters out of 5762517
- 1947627 words of memory out of 5000000
- 30544 multiletter control sequences out of 15000+600000
- 558493 words of font info for 45 fonts, out of 8000000 for 9000
+ 8541 strings out of 474878
+ 135008 string characters out of 5762517
+ 1938627 words of memory out of 5000000
+ 30513 multiletter control sequences out of 15000+600000
+ 558485 words of font info for 44 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
- 72i,5n,79p,703b,487s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 72i,5n,79p,598b,377s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on gilray-cv.pdf (9 pages).
+Output written on gilray-cv-abet.pdf (3 pages).

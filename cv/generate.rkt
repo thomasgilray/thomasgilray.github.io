@@ -333,6 +333,10 @@
 				 (equal? 'conf (first (pub->venue pub)))))
                           (sort pubs > #:key pub->date-ord)))
 
+(print-latex-pubs "selected-conference-pubs.tex"
+                  (filter pub->selected?
+                          (sort pubs > #:key pub->date-ord)))
+
 (print-latex-pubs "workshop-pubs.tex"
                   (filter (lambda (pub)
 			    (and (not (pub->insubmission? pub))
@@ -452,5 +456,7 @@
 
 
 (system "xelatex gilray-cv")
+
+(system "xelatex gilray-cv-abet")
 
 
