@@ -1,0 +1,281 @@
+% LaTeX file for resume / cv 
+% This file uses the resume document class (res.cls)
+
+
+\documentclass[line]{res} 
+\usepackage{color}
+\usepackage{randtext}
+\usepackage{multicol}
+\usepackage{hyperref}
+
+\usepackage{enumitem}
+
+%\setlength{\textheight}{9.5in} % increase text height to fit on 1-page 
+
+\newcounter{problemcounter}
+\newcommand{\paper}{%
+  \stepcounter{problemcounter}%
+  \textbf{\theproblemcounter}}
+
+\begin{document}
+
+\name{Thomas Gilray}  
+
+\address{\bf gilray.org
+\ \ \ \ \ \ \ \ \randomize{thomas.gilray@wsu.edu}}
+                                  
+\begin{resume}        
+
+\vspace{-0.1in}  
+I am currently an Associate Professor in Computer Science at Washington State University, and was previously Assistant Professor at the University of Alabama at Birmingham and a Victor Basili Fellow at the University of Maryland, at College Park.
+
+My research interests center around the design and (scalable) implementation of high-level programming languages and systems for reasoning automatically about programs. I have contributed to the design of tunable whole-program control-flow analyses, information-flow analyses, contract verification systems, and have invented novel Datalog-based languages for implementing these analyses efficiently---and declaratively. I have also contributed to high-performance-computing techniques for accelerating data-parallel relational algebra and sparse linear algebra on supercomputers.
+
+\section{\large Education}          
+    \vspace{-0.1cm}	
+    \begin{tabbing}
+    \hspace{2.25in}\= \hspace{2.25in}\= \kill % set up two tab positions
+    {\bf University of Utah} \>Ph.D.     \>2017
+    \end{tabbing}\vspace{-0.5cm}
+    Developed a unified methodology for polyvariant (\textit{e.g.}, flow/call/arg/obj sensitive) program analysis.% and applied the approach to produce a 
+    %specific adaptive style of polyvariance, obtaining a form of perfect precision at no asymptotic cost to analysis complexity. 
+    
+    I applied this framework to produce a self-reflective form of polyvariance for continuations that avoids all return-flow conflation of values (a long-standing problem for control-flow analyses), guaranteeing ideal stack precision at no cost to average or worst-case model complexity, and at in terms of human labor to implement ($\sim{}\!\!1$LOC in proposed framework).
+    %
+    Proved that the precision is equal to an incomputable analysis with an unbounded stack and mechanically verified the proof using the Coq proof assistant.
+    %
+    My dissertation is titled \textit{``Introspective Polyvariance for Control-Flow Analyses''}.
+    %
+   \vspace{-0.2cm} 
+    \begin{tabbing}
+    \hspace{2.25in}\= \hspace{2.25in}\= \kill % set up two tab positions
+    {\bf University of Utah} \>M.S.     \>2012
+    \end{tabbing}\vspace{-0.5cm}
+%    Worked as a department TA and then as an RA in Matt Might's U-combinator lab.
+    %
+    \vspace{-0.2cm} 
+    \begin{tabbing}
+    \hspace{2.25in}\= \hspace{2.25in}\= \kill % set up two tab positions
+    {\bf University of Oregon} \>B.S.     \>2010
+    \end{tabbing}\vspace{-0.5cm}
+%    Received a B.S. in Computer Science, Spring 2010, with a minor in Business Administration.
+    %
+%    Focused undergraduate studies on programming languages, interpreters, compilers, and data structures.
+
+\vspace{0.1in}
+\section{\large Employment}
+   \vspace{-0.05in}  
+   \begin{tabbing}
+    \hspace{2.25in}\= \hspace{2.25in}\= \kill % set up two tab positions
+    {\bf Associate Professor} \>Washington State University  \>2024 - \textit{Present}
+   \end{tabbing}\vspace{-0.5cm}      % suppress blank line after tabbing
+   Working on research into scalable, tunable program analysis, program verification, logic solvers on high performance computers and clusters, and linguistic mechanisms for enforcing correctness, security/privacy, and termination properties of software; regularly teaching undergraduate and graduate-level classes in compilers and programming languages. Won an ARPA-H subaward to investigate private and secure querying for EHR systems, contracting with with Galois, inc.
+   %
+   \vspace{-0.2cm}  
+   \begin{tabbing}
+    \hspace{2.25in}\= \hspace{2.25in}\= \kill % set up two tab positions
+    {\bf Assistant Professor} \>U. of Alabama, Birmingham  \>2018 - 2024
+   \end{tabbing}\vspace{-0.5cm}      % suppress blank line after tabbing
+   Developed my research program in high-performance reasoning and program analysis; regularly taught undergraduate and graduate-level classes in automata theory, programming languages, and automated reasoning. Won NSF PPoSS Large, NSF PPoSS Planning, and DARPA VSPELLS grants, bringing a total of \$3.12M in new research money to UAB.
+   %
+   \vspace{-0.2cm}  
+   \begin{tabbing}
+    \hspace{2.25in}\= \hspace{2.25in}\= \kill % set up two tab positions
+    {\bf Victor Basili Fellow} \>U. of Maryland, College Park  \>2016 - 2018
+   \end{tabbing}\vspace{-0.5cm}      % suppress blank line after tabbing
+   Joined UMD's PLUM lab with Michael W. Hicks, Jeffery Foster, and David Van Horn; worked on various collaborative projects including: soft contract verification, approximating permission-use provenance in Android, accelerating flow analyses in Datalog, and verification of faceted programs, among others. A departmental fellowship granted me great freedom to pursue long-term research.
+   %
+   \vspace{-0.2cm}  
+   \begin{tabbing}
+    \hspace{2.25in}\= \hspace{2.25in}\= \kill % set up two tab positions
+    {\bf Instructor} \>U. of Maryland, College Park  \>2017 - 2018
+   \end{tabbing}\vspace{-0.5cm}      % suppress blank line after tabbing
+   While at UMD, I taught a section of the Intro to Programming Languages course and developed a new Compilers course in which my students built an R\textsuperscript{7}RS Scheme Compiler from scratch. 
+   %
+   \vspace{-0.2cm}
+   \newpage
+   \begin{tabbing}
+    \hspace{2.25in}\= \hspace{2.25in}\= \kill % set up two tab positions
+    {\bf Analysis Developer} \>HP, inc. (was: Fortify, inc.)     \>2013 - 2015
+   \end{tabbing}\vspace{-0.5cm}      % suppress blank line after tabbing
+   Following a graduate internship in Summer 2013, I was hired to work remotely, concurrent with my work in the U-combinator lab.
+   I implemented a new inter-procedural must-alias analysis based on the theory of \emph{abstract counting} to supplement existing analyses in the Fortify source-code analyzer (SCA).
+   I successfully addressed various bug reports and lead an architectural review of SCA's ``phase 0'' preprocessing code which performs SSA conversion and intra-procedural analysis.
+    %
+   \vspace{-0.2cm}  
+   \begin{tabbing}
+    \hspace{2.25in}\= \hspace{2.25in}\= \kill % set up two tab positions
+    {\bf Research Assistant} \>U. of Utah     \>2011 - 2016
+   \end{tabbing}\vspace{-0.5cm}      % suppress blank line after tabbing
+    I studied polyvariant program analysis in Matt Might's U-combinator lab, implementing analyses as
+    traditional operational semantics (abstract interpreters) and as linear algebra, to exploit inherent parallelism, and designing a new dynamic sparse-matrix format for SIMD hardware (such as GPUs).
+    %
+    I worked on Android analysis and timed challenge events for DARPA's APAC program. 
+    %
+   \vspace{-0.2cm}  
+   \begin{tabbing}
+    \hspace{2.25in}\= \hspace{2.25in}\= \kill % set up two tab positions
+    {\bf Teaching Assistant} \>U. of Utah     \>2010 \& 2012
+   \end{tabbing}\vspace{-0.5cm}      % suppress blank line after tabbing
+    I taught three sections of 200-level \textit{Discrete Structures} as a teaching assistant and also helped to develop projects and tests for \textit{Compilers} and \textit{Advanced Compilers}, taught by my advisor.
+    %
+   \vspace{-0.2cm}  
+   \begin{tabbing}
+    \hspace{2.25in}\= \hspace{2.25in}\= \kill % set up two tab positions
+    {\bf Co-founder, Developer} \>Peculi, llc.    \> 2006 - 2009
+   \end{tabbing}\vspace{-0.5cm}      % suppress blank line after tabbing
+   Helped to raise \$3,000 in start-up funds to build an art-sharing platform. Built out a high-performance backend and AJAST-style
+   load-balancing to handle requests from a web-gallery front-end in Javascript. The site was home to more than $14,000$ works of art contributed
+   by roughly $800$ active users. Wrote a message-board engine with social-media features. Wrote a secure CAPTCHA and various image processing
+   scripts. Served as system administrator for the site's lifetime.
+    %
+   \vspace{-0.2cm}  
+   \begin{tabbing}
+    \hspace{2.25in}\= \hspace{2.25in}\= \kill % set up two tab positions
+    {\bf Intern, Freelance, \textit{etc.}} \>Various     \> 2005 - 2010
+   \end{tabbing}\vspace{-0.5cm}      % suppress blank line after tabbing
+    Before my graduation from UO in 2010, I worked a variety of jobs: for HP, inc. developing tooling and a tutorial for using 3DSMAX to visualize Autodesk Inventor models; for Prof. Ostroverkhova (at OSU) developing a Latex-based CMS for PhD students in Physics; for fourteen companies or individuals (some repeatedly) as a freelance developer, mostly creating dynamic websites, implementing CSS designs, and customizing CMS deployments; for a startup VizMe, inc. co-founded by Prof. Eric Wills (from UO), setting up a Solr-based search engine in Java and writing Python scripts to manage MySQL databases, site-localization, and image analyses.
+    
+\section{\large Teaching} \vspace{0.2in}
+    
+\textbf{(WSU) CptS 580: Advanced Programming Languages} (Spring 2025)
+
+I am currently teaching an Advanced Programming Languages course for graduate students at WSU, Spring 2025. The course focuses on programming language theory, lambda calculus, formal semantics, interpreters, type systems, and program analyses.
+    
+\textbf{(WSU) CptS 452: Compilers} (Fall 2024)
+
+I designed and taught a course on compiler implementation at WSU. The class was based around a central project, composed of managable pieces, where students build their own Scheme-to-C compiler from scratch. The course covered standard intermediate representations, implementation of various constructs via first-class control, implementation of lambdas as closures, and a runtime that integrates the Boehm garbage collector. 
+
+\newpage
+\textbf{(UAB) CS 660/760: Artificial Intelligence} (Fall 2019--2021, 2023)
+
+I designed and taught a course that focuses on symbolic AI, planning, logic, and automated reasoning (UAB had six other courses focusing on Machine Learning, which is outside my primary areas of expertise). We focused on problem solving by search, adversarial search and games, automated constraint solving, SAT solving, and logic. %Students complete group projects focusing on A*, two-player Reversi, and Sudoku solving and complete an individual term project. As my own research in Datalog falls within the scope of this course, I spend at least a week near the end of the term focusing on logic programming and HornSAT/Datalog after the students have implemented DPLL.
+
+\textbf{(UAB) CS 401/501: Programming Languages} (Spring 2019--2024)
+
+I designed and taught a Programming Languages course for undergraduates at UAB. The course surveys a variety of languages features and paradigms, focusing especially on introducing functional and declarative programming, language design, type systems, semantics, and interpreters. The class is programming intensive, with a series of six projects and biweekly exercises, and includes a modest focus on implementation strategies. Students build a Church compiler, small-step and big-step interpreters, and a purely functional implementation of PageRank, among other unique projects.
+
+\textbf{(UAB) CS 350/550: Automata and Formal Languages} (Fall 2018--2023)
+
+I improved UAB's course on automata, formal languages, and the theory of computation by adding two substantial coding projects to supplement the class' theoretical focus. I added a project where students build an automata library to convert a given regular expression to an NFA, convert this to a DFA, and then minimize the DFA. This library can match strings using any intermediate model of regular languages and can visualize any NFA/DFA using Graphviz so students can visually inspect the NFAs and DFAs they are building. I have also increased the class' focus on parsing and added a project where students write their own recursive-descent parser for a small language.
+
+\textbf{(UMD) CMSC 330: Intro to Programming Languages} (Spring 2018)
+
+I taught a spring section of CMSC 330, UMD's core Programming Languages course which covers a series of languages and paradigms (using Ruby, OCaml, Rust, Prolog) and core PL theory on lambda calculus, semantics, and type systems. 
+
+\textbf{(UMD) CMSC 430: Compilers} (Fall 2017)
+
+I designed and taught an elective course on compiler implementation at UMD. The class was based around a central project, composed of bite-sized chunks, where students build their own Scheme-to-LLVM-IR compiler, from scratch. 
+
+
+\section{\large Service} \vspace{0.15in}
+\begin{itemize}
+    \item PC member, ICSE 2025.
+    \item Faculty Search Committee, WSU EECS, 2024.
+    \item NSF Panelist, SHF CS2 Prograxm, 2024.
+    \item NSF Panelist, PPoSS Program, 2024.
+    \item External reviewer, TOPLAS 2023
+    \item PC member, PLDI Student Research Competition (SRC) 2022
+    \item Curriculum committee member 2018-2022, UAB CS Department.
+    \item PC member, Dynamic Languages Symposium (DLS) 2021 co-located with SPLASH.
+    \item Co-organizer, UAB HSPC 2019-2021 (High School Programming Contest).
+    \item PC member, Symposium On Applied Computing (SAC) 2021.
+    \item NSF Panelist, PPoSS Program, 2021.
+    \item External reviewer, POPL 2020.
+    \item PC chair, Scheme and Functional Programming Workshop, 2019.
+    \item PC member, IEEE TCBBSI 2019.
+    \item PC member, MiniKanren Workshop, 2019.
+    \item Faculty advisor to the UAB ACM \& ACM-W student chapter, 2018-2024.
+    \item Lead a student team in developing an automated grading system for UAB in 2019.
+    \item External reviewer, POPL 2019. 
+    \item External reviewer, POPL 2018. 
+    \item Artifact evaluation committee, ECOOP 2018.
+\end{itemize}
+
+\section{\large Awards \& Recognition} \vspace{0.2in}
+\input{awards}
+
+\section{\large Mentoring \& Advising}
+
+\input{students}
+
+\section{\large Awarded Grant Proposals} \vspace{0.45cm}
+
+\begin{itemize}
+  \item
+  ARPA-H: HealthyDocs: Secure Interoperable Health Data Management. 2024. (co-PI, in collaboration with Matthew Might, Taisa Kushner, David Darais, Gregory Forlenza, Paul Wadwa, Todd Alonso, Cari Berget) \textbf{(My lab's share: \$1.29M)} 
+  \item
+  NSF: PPoSS: Large: A Full-stack Approach to Declarative Analytics at Scale. 2023-2028. (Lead PI, in collaboration with Sidharth Kumar, Kristopher Micinski, Swarat Chaudhuri, Suren Byna, Ananth Kalyanaraman, and Matthew Might) \textbf{(Total: \$5M; My lab's share: \$1.05M)} 
+  \item
+  NSF: PPoSS: Planning: A Full-stack Approach to Declarative Analytics at Scale. 2022-2023. (co-PI, with Sidharth Kumar and Kristopher Micinski) \textbf{(Total: \$250,000; My lab's share: \$83,116)} 
+  \item
+  DARPA: VSPELLS: Promotion to Optimal Languages Yielding Modular Operator-driven Replacements and Programmatic Hooks (POLYMORPH). 2021-2025. (PI, via subcontract with Galois, inc) \textbf{(Total: \$8M; My lab's share: \$400,000)}
+\end{itemize}
+
+%% \section{\large Pending Grant Proposals} \vspace{0.45cm}
+
+%% \begin{itemize}
+%%  \item ...
+%% \end{itemize}
+
+%% \section{\large Declined Grant Proposals} \vspace{0.5cm}
+
+%% \begin{itemize}  
+%%   \item
+%%   CAREER: Automating Declarative Program Analysis. 2023. (PI) 
+%%   \item
+%%   ARAPA-H: HealthyDocs (abstract only). 2023. (PI, via subcontract with Galois, inc).
+%%   \item
+%%   CAREER: Automating Declarative Program Analysis. 2022. (PI, declined with scores very good, very good/good, good, and good/fair, with quite encouraging feedback.) 
+%%   \item
+%%   SHF: Small: Parallel Relational Algebra for Logical Inference at Scale. 2020. (co-PI, with Sidharth Kumar) 
+%%   \item
+%%   SHF: Small: Parallel Relational Algebra for Logical Inference at Scale. 2019. (co-PI, with Sidharth Kumar)
+%%   \item
+%%   DOE INCITE 2019. Request for 14,000,000 compute hours. (co-PI, with Sidharth Kumar)  
+%% \end{itemize}
+
+\section{\large Papers Currently Under Review}
+\indent $\dagger$ Indicates a student advisee and $\ddagger$ indicates a student mentee.
+
+\vspace{-0.2cm}
+\input{pending-pubs}
+\vspace{-0.4cm}
+
+\section{\large Conference Papers} 
+\vspace{0.1cm}
+\input{conference-pubs}
+\vspace{-0.4cm}
+
+\section{\large Workshop Papers} \vspace{0.3cm}
+\input{workshop-pubs}
+\vspace{-0.4cm}
+
+\section{\large Journal Papers} \vspace{0.3cm}
+\input{journal-pubs}
+\vspace{-0.4cm}
+
+\section{\large Doctoral Theses} \vspace{0.3cm}
+\input{thesis-pubs}
+\vspace{-0.4cm}
+
+\section{\large Invited Talks} \vspace{0.2in}
+\begin{itemize}
+\item Challenges in High-performance Deductive Programming. AP2S: Automated Program and Proof Synthesis. Vancouver, BC. AAAI Bridge. 2024. 
+\item Formal Methods: Theory and Practice \textit{(invited panel discussion)}. Ljubljana, Slovenia. PLMW at ICFP 2022.
+\item Challenges Scaling Declarative Program Analysis. University of Illinois at Chicago. 2022.
+\item Declarative Program Analysis at Scale. Syracuse University. 2022.
+\item Contracts for Correctness (today and tomorrow). Jet, inc. 2019.
+\item The Best of Both Worlds: Tunable, Correct-by-design Static Analysis. University of Alabama at Birmingham. 2018.
+\item Static Analysis with Introspective Polyvariance. Indiana University. 2016.
+\item Static Analysis with Introspective Polyvariance. University of Maryland. 2016.
+\end{itemize}
+
+\section{\large Contributed Talks} \vspace{0.2in}
+\input{contributed-talks}
+
+
+\end{resume}
+
+\center{\scriptsize{An updated publication list, personal references, and other materials are available upon request.}}
+\end{document}
