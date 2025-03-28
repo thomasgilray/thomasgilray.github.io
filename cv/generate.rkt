@@ -78,14 +78,14 @@
 (define (date->year date)
   (last date))
 
-(define (pub-is-student? pub)
-  (and (> (date->year (pub->date pub)) 2019)
-       (not (equal? (first (pub->authors pub)) "Thomas Gilray"))
-       (not (equal? (first (pub->authors pub)) "Sidharth Kumar"))
-       (not (equal? (first (pub->authors pub)) "Kristopher Micinski"))))
-
 (define (pub->title pub)
   (define lst (filter (lambda (p) (and (list? p) (> (length p) 1) (equal? 'title (car p)))) pub))
+  (if (null? lst)
+      #f
+      (second (first lst))))
+
+(define (pub->doi pub)
+  (define lst (filter (lambda (p) (and (list? p) (> (length p) 1) (equal? 'doi (car p)))) pub))
   (if (null? lst)
       #f
       (second (first lst))))
@@ -133,130 +133,6 @@
 ;; Read in pubs
 (define pubs (filter pub->title (with-input-from-file "pubs.sexpr" read)))
 
-;; Write out website's main publication list
-(define pub->li
-  (lambda (pub)
-    (define venue (pub->venue pub))
-    (define other-authors
-      (filter (lambda (x) (not (equal? x "Thomas Gilray")))
-              (pub->authors pub)))
-    `(li ()
-         (span ([class "title"]) ,(pub->title pub))
-         ,@(match (length other-authors)
-                  [0 '(". ")]
-                  [1 (list (string-append " with " (first other-authors) ". "))]
-                  [_ (list (string-join
-                            other-authors
-                            ", "
-                            #:before-first " with "
-                            #:before-last ", and "
-                            #:after-last ". "))])
-         ,(string-append (venue->long-name venue) ". ")
-	 "("
-	 (b ,(venue->short-name venue))
-	 ,(if (>= (length venue) 3) (format "—~a% acceptance" (last venue)) "") 
-	 ") " 
-	 ,(date-name (pub->date pub))
-	 ". "
-	 #;
-         ,(if (< (length venue) 3)
-              (format "(~a) ~a. "
-                      (venue->short-name venue)
-                      (date-name (pub->date pub)))
-              (format "(~a—~a% acceptance) ~a. "
-                      (venue->short-name venue)
-                      (last venue)
-                      (date-name (pub->date pub))))
-         ,@(map (lambda (awd) `(b () ,awd ".")) (pub->awards pub))
-         ,(if (pub->insubmission? pub) " (In submission) " " ")
-         ,@(map (lambda (pdfcl)
-                  `(a ([href ,(string-append "/pdf/" (second pdfcl))])
-                      ,(match (first pdfcl)
-                              ['pdf "(pdf)"]
-                              ['extended-pdf "(extended version)"]
-                              ['journal-pdf "(journal version)"]
-                              ['invited-journal-pdf "(invited journal version)"]
-                              ['conf-pdf "(conference version)"])))
-                (pub->pdfs pub)))))
-
-(with-output-to-file
- "all-pubs.html"
- (lambda ()
-   (map (lambda (li)
-          (display (xexpr->string li)))
-        (map pub->li 
-             (sort pubs > #:key pub->date-ord)))
-   (void))
- #:exists 'replace)
-
-(with-output-to-file
- "sel-pubs.html"
- (lambda ()
-   (map (lambda (li)
-          (display (xexpr->string li)))
-        (map pub->li 
-             (filter pub->selected?
-                     (sort pubs > #:key pub->date-ord))))
-   (void))
- #:exists 'replace)
-
-(define (print-latex-pubs filename pubs-list)
-  (with-output-to-file
-   filename
-   (lambda ()
-     (map (lambda (pub)
-            (define venue (pub->venue pub))
-            (display (format "\\paper.~a \\textit{~a.}\n~a\n~a.\n\\\\(~a~a) ~a. ~a\n\\\\~a"
-			     (if (pub-is-student? pub) "$\\dagger$" "")
-                             (pub->title pub)
-                             (let ([authors (map (lambda (auth) (if (equal? auth "Thomas Gilray") "\\textbf{Thomas Gilray}" auth))
-                                                 (pub->authors pub))])
-                               (match (length authors)
-                                      [1 (string-append (first authors) ".") ] 
-                                      [2 (string-append (first authors) " and " (second authors) ".")]
-                                      [_ (string-join
-                                         authors
-                                          ", "
-                                          #:before-last ", and "
-                                          #:after-last ".")]))
-                             (venue->long-name venue)
-                             (venue->short-name venue)
-                             (if (< (length venue) 3)
-                                 ""
-                                 (format "---~a\\% acceptance" (last venue)))
-                             (date-name (pub->date pub))
-                             (if (pub->insubmission? pub) "(In submission)" "")
-			     (let ([awards (pub->awards pub)])
-			       (if (null? awards)
-				   " \\vspace{-0.1cm}\\\\\n"
-				   (format "\\textbf{~a.} \\\\ \\vspace{-0.1cm}\\\\\n"
-					   (first awards)))))))
-          pubs-list)
-     (void))
-   #:exists 'replace))
-
-
-(print-latex-pubs "journal-pubs.tex"
-                  (filter (lambda (pub)
-                            (equal? 'journal (first (pub->venue pub))))
-                          (sort pubs > #:key pub->date-ord)))
-
-(print-latex-pubs "conference-pubs.tex"
-                  (filter (lambda (pub)
-                            (equal? 'conf (first (pub->venue pub))))
-                          (sort pubs > #:key pub->date-ord)))
-
-(print-latex-pubs "workshop-pubs.tex"
-                  (filter (lambda (pub)
-                            (equal? 'work (first (pub->venue pub))))
-                          (sort pubs > #:key pub->date-ord)))
-
-(print-latex-pubs "thesis-pubs.tex"
-                  (filter (lambda (pub)
-                            (equal? 'phd (first (pub->venue pub))))
-                          (sort pubs > #:key pub->date-ord)))
-
-
 ;; Students
 (define (student->name stu)
   (define names (filter (lambda (s) (and (list? s) (equal? 'name (car s)))) stu))
@@ -273,6 +149,12 @@
   (if (null? years)
       'present
       (second (first years))))
+
+(define (student->time stu)
+  (define en (student->end stu))
+  (if (eq? 'present en)
+      (+ 999 (student->start stu))
+      en))
 
 (define (student->website stu)
   (define sites (filter (lambda (s) (and (list? s) (equal? 'website (car s)))) stu))
@@ -310,8 +192,167 @@
          [end #:when (= start end) (format "~a" start)]
          [_ (format "~a--~a" start end)]))
 
+(define (author-is-advisee? author)
+  (match (filter (and/c student->advisor
+			(lambda (s) (equal? author (student->name s))))
+		 students)
+    [`(,s) #t]
+    [_ #f]))
+
+(define (author-is-mentee? author)
+  (match (filter (and/c (or/c student->committee student->mentor)
+			(lambda (s) (equal? author (student->name s))))
+		 students)
+    [`(,s) #t]
+    [_ #f]))
+
+
 ; Read students.sexpr
 (define students (filter student->name (with-input-from-file "students.sexpr" read)))
+
+
+;; Write out website's main publication list
+(define pub->li
+  (lambda (pub)
+    (define venue (pub->venue pub))
+    (define other-authors
+      (filter (lambda (x) (not (equal? x "Thomas Gilray")))
+              (pub->authors pub)))
+    `(li ()
+         (span ([class "title"]) ,(pub->title pub))
+         ,@(match (length other-authors)
+             [0 '(". ")]
+             [1 (list (string-append " with " (first other-authors) ". "))]
+             [_ (list (string-join
+                       other-authors
+                       ", "
+                       #:before-first " with "
+                       #:before-last ", and "
+                       #:after-last ". "))])
+         ,(string-append (venue->long-name venue) ". ")
+	 "("
+	 (b ,(venue->short-name venue))
+	 ,(if (>= (length venue) 3) (format "—~a% acceptance" (last venue)) "") 
+	 ") " 
+	 ,(date-name (pub->date pub))
+	 ". "
+	 #;
+         ,(if (< (length venue) 3)	; ; ; ; ; ;
+         (format "(~a) ~a. "		; ; ; ; ; ;
+         (venue->short-name venue)	; ; ; ; ; ;
+         (date-name (pub->date pub)))	; ; ; ; ; ;
+         (format "(~a—~a% acceptance) ~a. " ; ; ; ; ; ;
+         (venue->short-name venue)	; ; ; ; ; ;
+         (last venue)			; ; ; ; ; ;
+         (date-name (pub->date pub))))
+         ,@(map (lambda (awd) `(b () ,awd ".")) (pub->awards pub))
+         ,(if (pub->insubmission? pub) " (In submission) " " ")
+         ,@(map (lambda (pdfcl)
+                  `(a ([href ,(string-append "/pdf/" (second pdfcl))])
+                      ,(match (first pdfcl)
+                         ['pdf "(pdf)"]
+                         ['extended-pdf "(extended version)"]
+                         ['journal-pdf "(journal version)"]
+                         ['invited-journal-pdf "(invited journal version)"]
+                         ['conf-pdf "(conference version)"])))
+                (pub->pdfs pub)))))
+
+(with-output-to-file
+ "all-pubs.html"
+ (lambda ()
+   (map (lambda (li)
+          (display (xexpr->string li)))
+        (map pub->li 
+             (sort pubs > #:key pub->date-ord)))
+   (void))
+ #:exists 'replace)
+
+(with-output-to-file
+ "sel-pubs.html"
+ (lambda ()
+   (map (lambda (li)
+          (display (xexpr->string li)))
+        (map pub->li 
+             (filter pub->selected?
+                     (sort pubs > #:key pub->date-ord))))
+   (void))
+ #:exists 'replace)
+
+(define (print-latex-pubs filename pubs-list)
+  (with-output-to-file
+   filename
+   (lambda ()
+     (map (lambda (pub)
+            (define venue (pub->venue pub))
+            (display (format "\\paper. \\textit{~a.}\n~a\n~a.\n\\\\(~a~a) ~a.~a~a\n\\\\~a"
+                             (pub->title pub)
+                             (let ([authors (map (lambda (auth)
+						   (if (equal? auth "Thomas Gilray")
+						       "\\textbf{Thomas Gilray}"
+						       (if (author-is-advisee? auth)
+							   (string-append auth "$\\dagger$")
+							   (if (author-is-mentee? auth)
+							       (string-append auth "$\\ddagger$")
+							       auth))))
+                                                 (pub->authors pub))])
+                               (match (length authors)
+                                      [1 (string-append (first authors) ".") ] 
+                                      [2 (string-append (first authors) " and " (second authors) ".")]
+                                      [_ (string-join
+                                         authors
+                                          ", "
+                                          #:before-last ", and "
+                                          #:after-last ".")]))
+                             (venue->long-name venue)
+                             (venue->short-name venue)
+                             (if (< (length venue) 3)
+                                 ""
+                                 (format "---~a\\% acceptance" (last venue)))
+                             (date-name (pub->date pub))
+                             (if (pub->insubmission? pub) " (In submission)" "")
+			     (if (pub->doi pub) (format " \\url{https://doi.org/~a}" (pub->doi pub)) "")
+			     (let ([awards (pub->awards pub)])
+			       (if (null? awards)
+				   " \\vspace{-0.1cm}\\\\\n"
+				   (format "\\textbf{~a.} \\\\ \\vspace{-0.1cm}\\\\\n"
+					   (first awards)))))))
+          pubs-list)
+     (void))
+   #:exists 'replace))
+
+
+(print-latex-pubs "journal-pubs.tex"
+                  (filter (lambda (pub)
+			    (and (not (pub->insubmission? pub))
+				 (equal? 'journal (first (pub->venue pub)))))
+                          (sort pubs > #:key pub->date-ord)))
+
+(print-latex-pubs "conference-pubs.tex"
+                  (filter (lambda (pub)
+			    (and (not (pub->insubmission? pub))
+				 (equal? 'conf (first (pub->venue pub)))))
+                          (sort pubs > #:key pub->date-ord)))
+
+(print-latex-pubs "selected-conference-pubs.tex"
+                  (filter pub->selected?
+                          (sort pubs > #:key pub->date-ord)))
+
+(print-latex-pubs "workshop-pubs.tex"
+                  (filter (lambda (pub)
+			    (and (not (pub->insubmission? pub))
+				 (equal? 'work (first (pub->venue pub)))))
+                          (sort pubs > #:key pub->date-ord)))
+
+(print-latex-pubs "thesis-pubs.tex"
+                  (filter (lambda (pub)
+			    (and (not (pub->insubmission? pub))
+				 (equal? 'phd (first (pub->venue pub)))))
+                          (sort pubs > #:key pub->date-ord)))
+
+(print-latex-pubs "pending-pubs.tex"
+                  (filter pub->insubmission?
+                          (sort pubs > #:key pub->date-ord)))
+
 
 (define (print-one-student stu)
   (display (format "\\item ~a ~a (~a)~a\n"
@@ -326,20 +367,28 @@
 (with-output-to-file
    "students.tex"
   (lambda ()
-     (display "\\paragraph{MS/PhD Advisees (As Committee Chair)}\n")
+     (display "\\paragraph{PhD Advisees (As Committee Chair)}\n")
      (display "\\begin{itemize}\n\\vspace{0.15cm}")
      (map (lambda (stu)
-	    (when (student->advisor stu)
+	    (when (and (eq? (student->kind stu) 'PhD) (student->advisor stu))
               (print-one-student stu)))
-          (sort students > #:key student->start))
+          (sort students > #:key student->time))
      (display "\\end{itemize}\n")
      
-     (display "\\paragraph{MS/PhD Advisees (As Committee Member)}\n")
+     (display "\\paragraph{MS Advisees (As Committee Chair)}\n")
      (display "\\begin{itemize}\n\\vspace{0.15cm}")
      (map (lambda (stu)
-	    (when (and (eq? 'PhD (student->kind stu)) (student->committee stu))
+	    (when (and (eq? (student->kind stu) 'MS) (student->advisor stu))
               (print-one-student stu)))
-          (sort students > #:key student->start))
+          (sort students > #:key student->time))
+     (display "\\end{itemize}\n")
+     
+     (display "\\paragraph{MS/PhD Mentees (As Committee Member)}\n")
+     (display "\\begin{itemize}\n\\vspace{0.15cm}")
+     (map (lambda (stu)
+	    (when (and (student->committee stu))
+              (print-one-student stu)))
+          (sort students > #:key student->time))
      (display "\\end{itemize}\n")
 
      (display "\\paragraph{Other Mentees}\n")
@@ -347,14 +396,13 @@
      (map (lambda (stu)
 	    (when (student->mentor stu)
               (print-one-student stu)))
-          (sort students > #:key student->start))
+          (sort students > #:key student->time))
      (display "\\end{itemize}\n")
 
      (void))
    #:exists 'replace)
 
 
-; Read students.sexpr
 (define awards (foldl (lambda (pub lst)
                         (foldl (lambda (a lst)
                                  (cons `[(name ,a)
@@ -408,5 +456,7 @@
 
 
 (system "xelatex gilray-cv")
+
+(system "xelatex gilray-cv-abet")
 
 
