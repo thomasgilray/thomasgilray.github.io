@@ -22,7 +22,7 @@
 [(title "Multi-Node Mutli-GPU Datalog")
  (authors "Ahmedur Rahman Shovon" "Yihao Sun" "Thomas Gilray" "Sidharth Kumar" "Kristopher Micinski")
  (conf ics)
- (date 2 2025)
+ (date 6 2025)
  (pdf "multi-node-gpu-datalog.pdf")
  (selected)]
 
