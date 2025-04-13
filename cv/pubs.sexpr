@@ -14,8 +14,8 @@
 
 [(title "Parallel Prefix Joins for Linear Recursive Datalog Rules")
  (authors "Akash Rao" "Thomas Gilray" "Ananth Kalyanaraman")
- (conf ics)
- (date 2 2025)
+ (conf sc)
+ (date 4 2025)
  (pdf "")
  (submitted)]
 
@@ -23,8 +23,8 @@
  (authors "Ahmedur Rahman Shovon" "Yihao Sun" "Thomas Gilray" "Sidharth Kumar" "Kristopher Micinski")
  (conf ics)
  (date 2 2025)
- (pdf "")
- (submitted)]
+ (pdf "multi-node-gpu-datalog.pdf")
+ (selected)]
 
 [(title "Datalog with First-class Facts")
  (authors "Thomas Gilray" "Arash Sahebolamri" "Yihao Sun" "Sowmith Kunapaneni" "Sidharth Kumar" "Kristopher Micinski")
