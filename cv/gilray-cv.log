@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999995 (TeX Live 2023/Debian) (preloaded format=xelatex 2024.9.9)  13 APR 2025 11:40
+This is XeTeX, Version 3.141592653-2.6-0.999995 (TeX Live 2023/Debian) (preloaded format=xelatex 2024.9.9)  15 APR 2025 21:25
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -327,7 +327,7 @@ Package hyperref Info: Link coloring OFF on input line 20.
 
 Package hyperref Warning: Rerun to get /PageLabels entry.
 
-Randomizer initialized to 822791640.
+Randomizer initialized to 1505320694.
 LaTeX Font Info:    External font `cmex10' loaded for size
 (Font)              <7> on input line 43.
 LaTeX Font Info:    External font `cmex10' loaded for size
@@ -345,15 +345,15 @@ Overfull \hbox (18.63pt too wide) in paragraph at lines 3--4
 
 
 
-]) (./pending-pubs.tex) (./conference-pubs.tex)
-Overfull \hbox (0.70517pt too wide) in paragraph at lines 1--250
-\TU/lmr/bx/n/10 8\TU/lmr/m/n/10 . \TU/lmr/m/it/10 Communication-Avoiding Recurs
+]) (./conference-pubs.tex)
+Overfull \hbox (0.70517pt too wide) in paragraph at lines 1--252
+\TU/lmr/bx/n/10 7\TU/lmr/m/n/10 . \TU/lmr/m/it/10 Communication-Avoiding Recurs
 ive Aggregation. \TU/lmr/m/n/10 Yihao Sun$\OMS/cmsy/m/n/10 z$\TU/lmr/m/n/10 , S
 idharth Kumar, \TU/lmr/bx/n/10 Thomas Gilray\TU/lmr/m/n/10 ,
  []
 
 
-Overfull \hbox (11.69002pt too wide) in paragraph at lines 1--250
+Overfull \hbox (11.69002pt too wide) in paragraph at lines 1--252
 \TU/lmr/m/n/10 (ICFP—31% acceptance) Sep 2016. []$[][][][][] [] [] [] [][][] []
  [][][] [] [][][][][] [] [] [] [][][] [] [][][] [] [][] [] [][][][] [] [][][][]
 [][][] [] [][][][][][][]$[] 
@@ -362,19 +362,19 @@ Overfull \hbox (11.69002pt too wide) in paragraph at lines 1--250
 [5
 
 ] [6] (./workshop-pubs.tex) [7] (./journal-pubs.tex) (./thesis-pubs.tex)
-[8] (./contributed-talks.tex) [9]
+(./contributed-talks.tex [8]) [9]
  ***********
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-01-22>
  ***********
  ) 
 Here is how much of TeX's memory you used:
- 8592 strings out of 474878
- 135914 string characters out of 5762517
- 1947627 words of memory out of 5000000
- 30544 multiletter control sequences out of 15000+600000
+ 8584 strings out of 474878
+ 135746 string characters out of 5762517
+ 1946627 words of memory out of 5000000
+ 30539 multiletter control sequences out of 15000+600000
  558493 words of font info for 45 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
- 72i,5n,79p,703b,487s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 72i,5n,79p,703b,514s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
 Output written on gilray-cv.pdf (9 pages).
