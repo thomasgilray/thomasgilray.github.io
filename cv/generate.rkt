@@ -265,7 +265,7 @@
    (map (lambda (li)
           (display (xexpr->string li)))
         (map pub->li 
-             (sort pubs > #:key pub->date-ord)))
+             (sort (filter (not/c pub->insubmission?)  pubs) > #:key pub->date-ord)))
    (void))
  #:exists 'replace)
 
