@@ -1,4 +1,4 @@
-% LaTeX file for resume / cv 
+% LaTeX file for resume / cv A
 % This file uses the resume document class (res.cls)
 
 
@@ -29,7 +29,8 @@
 \vspace{-0.1in}  
 I am currently an Associate Professor in Computer Science at Washington State University, and was previously Assistant Professor at the University of Alabama at Birmingham and a Victor Basili Fellow at the University of Maryland, at College Park.
 
-My research interests center around the design and (scalable) implementation of high-level programming languages and systems for reasoning automatically about programs. I have contributed to the design of tunable whole-program control-flow analyses, information-flow analyses, contract verification systems, and have invented novel Datalog-based languages for implementing these analyses efficiently---and declaratively. I have also contributed to high-performance-computing techniques for accelerating data-parallel relational algebra and sparse linear algebra on supercomputers.
+\section{\large Research Summary} \vspace{0.1cm}   
+My research interests center around the design and (scalable) implementation of high-level programming languages and systems for reasoning automatically about programs. I have contributed to the design of tunable whole-program control-flow analyses, information-flow analyses, contract verification systems, and have invented novel Datalog-based languages for specifying these analyses declaratively and implementing them efficiently. I develop high-performance-computing techniques for accelerating data-parallel relational algebra and sparse linear algebra on clusters and GPUs.
 
 \section{\large Education}          
     \vspace{-0.1cm}	
@@ -134,19 +135,23 @@ My research interests center around the design and (scalable) implementation of 
     \hspace{2.25in}\= \hspace{2.25in}\= \kill % set up two tab positions
     {\bf Intern, Freelance, \textit{etc.}} \>Various     \> 2005 - 2010
    \end{tabbing}\vspace{-0.5cm}      % suppress blank line after tabbing
-    Before my graduation from UO in 2010, I worked a variety of jobs: for HP, inc. developing tooling and a tutorial for using 3DSMAX to visualize Autodesk Inventor models; for Prof. Ostroverkhova (at OSU) developing a Latex-based CMS for PhD students in Physics; for fourteen companies or individuals (some repeatedly) as a freelance developer, mostly creating dynamic websites, implementing CSS designs, and customizing CMS deployments; for a startup VizMe, inc. co-founded by Prof. Eric Wills (from UO), setting up a Solr-based search engine in Java and writing Python scripts to manage MySQL databases, site-localization, and image analyses.
+   Before my graduation from UO in 2010, I worked a variety of jobs: for HP, inc. developing tooling and a tutorial for using 3DSMAX to visualize Autodesk Inventor models; for Prof. Ostroverkhova (at OSU) developing a Latex-based CMS for PhD students in Physics; for fourteen companies or individuals (some repeatedly) as a freelance developer, mostly creating dynamic websites, implementing CSS designs, and customizing CMS deployments; for a startup VizMe, inc. co-founded by Prof. Eric Wills (from UO), setting up a Solr-based search engine in Java and writing Python scripts to manage MySQL databases, site-localization, and image analyses.
+
+   
+\section{\large Awards \& Recognition} \vspace{0.2in}
+\input{awards}
+
     
 \section{\large Teaching} \vspace{0.2in}
     
 \textbf{(WSU) CptS 580: Advanced Programming Languages} (Spring 2025)
 
-I am currently teaching an Advanced Programming Languages course for graduate students at WSU, Spring 2025. The course focuses on programming language theory, lambda calculus, formal semantics, interpreters, type systems, and program analyses.
+I designed from scratch, and taught, an advanced programming-language theory course for graduate students at WSU, Spring 2025. The course focused on programming language theory, the lambda calculus, different styles of formal semantics, especially operational semantics, interpreters, type systems and let polymorphism, and several styles of program analysis.
     
 \textbf{(WSU) CptS 452: Compilers} (Fall 2024)
 
-I designed and taught a course on compiler implementation at WSU. The class was based around a central project, composed of managable pieces, where students build their own Scheme-to-C compiler from scratch. The course covered standard intermediate representations, implementation of various constructs via first-class control, implementation of lambdas as closures, and a runtime that integrates the Boehm garbage collector. 
+I designed from scratch, and taught, a course on compiler implementation at WSU. The class was based around a central project, composed of managable pieces, where students build their own Scheme-to-C compiler from scratch. The course covered standard intermediate representations, implementation of various constructs via first-class control, implementation of lambdas as closures, and a runtime that integrates the Boehm garbage collector. 
 
-\newpage
 \textbf{(UAB) CS 660/760: Artificial Intelligence} (Fall 2019--2021, 2023)
 
 I designed and taught a course that focuses on symbolic AI, planning, logic, and automated reasoning (UAB had six other courses focusing on Machine Learning, which is outside my primary areas of expertise). We focused on problem solving by search, adversarial search and games, automated constraint solving, SAT solving, and logic. %Students complete group projects focusing on A*, two-player Reversi, and Sudoku solving and complete an individual term project. As my own research in Datalog falls within the scope of this course, I spend at least a week near the end of the term focusing on logic programming and HornSAT/Datalog after the students have implemented DPLL.
@@ -167,34 +172,32 @@ I taught a spring section of CMSC 330, UMD's core Programming Languages course w
 
 I designed and taught an elective course on compiler implementation at UMD. The class was based around a central project, composed of bite-sized chunks, where students build their own Scheme-to-LLVM-IR compiler, from scratch. 
 
+\section{\large Doctoral Theses} \vspace{0.3cm}
+\input{thesis-pubs}
+\vspace{-0.4cm}
 
-\section{\large Service} \vspace{0.15in}
-\begin{itemize}
-    \item PC member, ICSE 2025.
-    \item QE for Anais Barja, Qualifying Exam Committee Chair, WSU EECS, 2025.
-    \item Faculty Search Committee, WSU EECS, 2024.
-    \item NSF Panelist, SHF CS2 Program, 2024.
-    \item NSF Panelist, PPoSS Program, 2024.
-    \item External reviewer, TOPLAS 2023
-    \item PC member, PLDI Student Research Competition (SRC) 2022
-    \item Curriculum committee member 2018-2022, UAB CS Department.
-    \item PC member, Dynamic Languages Symposium (DLS) 2021 co-located with SPLASH.
-    \item Co-organizer, UAB HSPC 2019-2021 (High School Programming Contest).
-    \item PC member, Symposium On Applied Computing (SAC) 2021.
-    \item NSF Panelist, PPoSS Program, 2021.
-    \item External reviewer, POPL 2020.
-    \item PC chair, Scheme and Functional Programming Workshop, 2019.
-    \item PC member, IEEE TCBBSI 2019.
-    \item PC member, MiniKanren Workshop, 2019.
-    \item Faculty advisor to the UAB ACM \& ACM-W student chapter, 2018-2024.
-    \item Lead a student team in developing an automated grading system for UAB in 2019.
-    \item External reviewer, POPL 2019. 
-    \item External reviewer, POPL 2018. 
-    \item Artifact evaluation committee, ECOOP 2018.
-\end{itemize}
+\section{\large Journal Papers (Refereed)} \vspace{0.3cm}
+\indent $\dagger$ Indicates a student advisee and $\ddagger$ indicates a student mentee.
 
-\section{\large Awards \& Recognition} \vspace{0.2in}
-\input{awards}
+\input{journal-pubs}
+\vspace{-0.4cm} 
+
+\section{\large Conference Papers (In Submission)}
+%\indent $\dagger$ Indicates a student advisee and $\ddagger$ indicates a student mentee.
+
+\vspace{0.2cm}
+\input{pending-pubs}
+\vspace{-0.4cm}
+
+
+\section{\large Conference Papers (Refereed)}
+\vspace{0.1cm}
+\input{conference-pubs}
+\vspace{-0.4cm}
+
+\section{\large Workshop Papers (Refereed)} \vspace{0.3cm}
+\input{workshop-pubs}
+\vspace{-0.4cm}
 
 \section{\large Mentoring \& Advising}
 
@@ -204,77 +207,98 @@ I designed and taught an elective course on compiler implementation at UMD. The 
 
 \begin{itemize}
   \item
-  ARPA-H: HealthyDocs: Secure Interoperable Health Data Management. 2024. (co-PI, in collaboration with Matthew Might, Taisa Kushner, David Darais, Gregory Forlenza, Paul Wadwa, Todd Alonso, Cari Berget) \textbf{(My lab's share: \$1.29M)} 
+    ARPA-H: HealthyDocs: Secure Interoperable Health Data Management. 2025-2029. (co-PI, in collaboration with
+    %Matthew Might, Taisa Kushner, David Darais, Gregory Forlenza, Paul Wadwa, Todd Alonso, Cari Berget
+    the University of Colorado Barbara Davis Center, the University of Alabama at Birmingham Precision Medicine Institute, and Galois, inc.) \textbf{(Total: \$10M; My lab's share: \$1.29M)} 
   \item
-  NSF: PPoSS: Large: A Full-stack Approach to Declarative Analytics at Scale. 2023-2028. (Lead PI, in collaboration with Sidharth Kumar, Kristopher Micinski, Swarat Chaudhuri, Suren Byna, Ananth Kalyanaraman, and Matthew Might) \textbf{(Total: \$5M; My lab's share: \$1.05M)} 
+    NSF: PPoSS: Large: A Full-stack Approach to Declarative Analytics at Scale. 2023-2028. (Lead PI, in collaboration with
+    %Sidharth Kumar, Kristopher Micinski, Swarat Chaudhuri, Suren Byna, Ananth Kalyanaraman, and Matthew Might
+    Ohio State University, the University of Texas at Austin, the University of Alabama at Birmingham, the University of Illinois Chicago, and Syracuse University) \textbf{(Total: \$5M; My lab's share: \$1.05M)} 
   \item
-  NSF: PPoSS: Planning: A Full-stack Approach to Declarative Analytics at Scale. 2022-2023. (co-PI, with Sidharth Kumar and Kristopher Micinski) \textbf{(Total: \$250,000; My lab's share: \$83,116)} 
+  NSF: PPoSS: Planning: A Full-stack Approach to Declarative Analytics at Scale. 2022-2023. (co-PI, with Syracuse University) \textbf{(Total: \$250,000; My lab's share: \$83,116)} 
   \item
   DARPA: VSPELLS: Promotion to Optimal Languages Yielding Modular Operator-driven Replacements and Programmatic Hooks (POLYMORPH). 2021-2025. (PI, via subcontract with Galois, inc) \textbf{(Total: \$8M; My lab's share: \$400,000)}
 \end{itemize}
 
-%% \section{\large Pending Grant Proposals} \vspace{0.45cm}
+\section{\large Pending Grant Proposals} \vspace{0.45cm}
 
-%% \begin{itemize}
-%%  \item ...
-%% \end{itemize}
+\begin{itemize}
+\item DOE: SC ASCR: AI-Driven Autonomous Visualization and Data Management for Scientific Discovery on Supercomputers. 2025-2030. (Co-PI, in collaboration with Aric Hagberg, Pascal Grosset, George Stelle, and Terry Turton at LANL) \textbf{(Total: \$19.26M; My lab's share: \$749,999)}
+\item NSF: CICI: Architecting Resilient and Robust Cyberinfrastructure for Secure and Scalable Data Analytics in the Cloud. 2025-2028. (Co-PI, in collaboration with Xu Lin at WSU and Sidharth Kumar and Anrin Chakraborti at UIC) \textbf{(Total: \$1.2M; My lab's share: \$300,000)}
+\end{itemize}
 
-%% \section{\large Declined Grant Proposals} \vspace{0.5cm}
+\section{\large Grant Reviewing} \vspace{0.45cm}
+\begin{itemize}
+  \item NSF Panelist, SHF CS2 Program, 2024
+  \item NSF Panelist, PPoSS Program, 2024
+  \item NSF Panelist, PPoSS Program, 2021
+\end{itemize}
 
-%% \begin{itemize}  
-%%   \item
-%%   CAREER: Automating Declarative Program Analysis. 2023. (PI) 
-%%   \item
-%%   ARAPA-H: HealthyDocs (abstract only). 2023. (PI, via subcontract with Galois, inc).
-%%   \item
-%%   CAREER: Automating Declarative Program Analysis. 2022. (PI, declined with scores very good, very good/good, good, and good/fair, with quite encouraging feedback.) 
-%%   \item
-%%   SHF: Small: Parallel Relational Algebra for Logical Inference at Scale. 2020. (co-PI, with Sidharth Kumar) 
-%%   \item
-%%   SHF: Small: Parallel Relational Algebra for Logical Inference at Scale. 2019. (co-PI, with Sidharth Kumar)
-%%   \item
-%%   DOE INCITE 2019. Request for 14,000,000 compute hours. (co-PI, with Sidharth Kumar)  
-%% \end{itemize}
+\section{\large Journal Reviewing} \vspace{0.45cm}
+\begin{itemize}
+  \item Transactions on Programming Languages and Systems (TOPLAS) 2023.
+  \item Transactions on Computational Biology and Bioinformatics (TCBB) 2019. 
+\end{itemize}
 
-%\section{\large Papers Currently Under Review}
-%\indent $\dagger$ Indicates a student advisee and $\ddagger$ indicates a student mentee.
+\section{\large Conference Program Committees} \vspace{0.45cm}
+\begin{itemize}
+  \item International Conference on Software Engineering (ICSE) 2025.
+  \item International Conference on Compiler Construction (CC) 2025.
+  \item High-Performance Computing (HiPC) 2024.
+  \item High-Performance Computing Student Research Symposium (HiPC SRS) 2023.
+  \item Programming Language Design and Implementation Student Research Competition (PLDI SRC) 2022.
+  \item Dynamic Languages Symposium (DLS) 2021.
+  \item Symposium on Applied Computing (SAC) 2021.
+  \item Principles of Programming Languages (POPL) 2020 (ERC).
+  \item Scheme and Functional Programming Workshop (SW) 2019 (PC Chair).
+  \item MiniKanren Workshop (MW) 2019.
+  \item Principles of Programming Languages (POPL) 2019 (ERC).
+  \item European Conference on Object-Oriented Programming (ECOOP) 2018 (AEC).
+  \item Principles of Programming Languages (POPL) 2018 (ERC).
+\end{itemize}
 
-%\vspace{-0.2cm}
-%\input{pending-pubs}
-%\vspace{-0.4cm}
+\section{\large Departmental (Non-thesis) Committees} \vspace{0.45cm}
+\begin{itemize}
+  \item Qualifying Exam Committee (Chair) for Anais Barja, WSU, 2025.
+  \item Faculty Search Committee, WSU, 2024.
+  \item Graduate Admissions Committee, UAB, 2023-2024.
+  \item Qualifying Exam Committee for Guimu Guo, UAB, 2019.
+  \item Curriculum Committee, UAB, 2018-2023.
+\end{itemize}
 
-\section{\large Conference Papers}
-\indent $\dagger$ Indicates a student advisee and $\ddagger$ indicates a student mentee.
-
-\vspace{0.1cm}
-\input{conference-pubs}
-\vspace{-0.4cm}
-
-\section{\large Workshop Papers} \vspace{0.3cm}
-\input{workshop-pubs}
-\vspace{-0.4cm}
-
-\section{\large Journal Papers} \vspace{0.3cm}
-\input{journal-pubs}
-\vspace{-0.4cm}
-
-\section{\large Doctoral Theses} \vspace{0.3cm}
-\input{thesis-pubs}
-\vspace{-0.4cm}
+\section{\large Community \& Outreach Activities} \vspace{0.45cm}
+\begin{itemize}
+  \item WSU Senior Design Poster Competition Judge, 2025.
+  \item UAB High-School Programming Contest (HSPC) Organizer, 2024.
+  \item High-Performance Computing Student Research Symposium (HiPC SRS) Mentor and Judge, 2023.
+  \item UAB High-School Programming Contest (HSPC) Organizer, 2023.
+  \item ABC's Talk of Alabama (TV Panel Discussion): \href{https://tinyurl.com/abc-talk-of-alabama-gilray}{\emph{Artificial Intelligence \& Your World: What is it, and where is it headed?}}, 2023.
+  \item ABC's Talk of Alabama (TV Interview): \href{https://tinyurl.com/abc-talk-of-alabama-gilray}{\emph{What is Artificial Intelligence?}}, 2023.
+  \item Programming Languages Mentoring Workshop (PLMW) Mentor and Panelist, \emph{``Formal Methods: Theory and Practice''}, 2022.
+  \item UAB High-School Programming Contest (HSPC) Organizer, 2021.
+  \item Organized and ran the Scheme and Functional Programming Workshop, 2019.
+  \item Lead a student team in developing an automated grading system (\href{https://autograde.org}{autograde.org}), 2019.
+  \item UAB High-School Programming Contest (HSPC) Organizer, 2019.  
+  \item Faculty advisor to the UAB student ACM \& ACM-W, 2018-2024.
+  \item ACM and SIGPLAN member since before 2013 or before.
+\end{itemize}
 
 \section{\large Invited Talks} \vspace{0.2in}
 \begin{itemize}
+\item Data-parallel Datalog with First-class Facts. Minnowbrook Logic-programming Seminar. Syracuse University. 2025.
+\item Correctness and Verification using Software Contracts. Cyser Summer Workshop. Washington State University, 2025.
 \item Challenges in High-performance Deductive Programming. AP2S: Automated Program and Proof Synthesis. Vancouver, BC. AAAI Bridge. 2024. 
 \item Formal Methods: Theory and Practice \textit{(invited panel discussion)}. Ljubljana, Slovenia. PLMW at ICFP 2022.
 \item Challenges Scaling Declarative Program Analysis. University of Illinois at Chicago. 2022.
 \item Declarative Program Analysis at Scale. Syracuse University. 2022.
+\item Tunable Abstract Abstract Machines. Workshop on Declarative Program Analysis (co-located with PLDI). 2019.
 \item Contracts for Correctness (today and tomorrow). Jet, inc. 2019.
 \item The Best of Both Worlds: Tunable, Correct-by-design Static Analysis. University of Alabama at Birmingham. 2018.
 \item Static Analysis with Introspective Polyvariance. Indiana University. 2016.
 \item Static Analysis with Introspective Polyvariance. University of Maryland. 2016.
 \end{itemize}
 
-\section{\large Contributed Talks} \vspace{0.2in}
+\section{\large Contributed (Refereed Paper) Talks} \vspace{0.2in}
 \input{contributed-talks}
 
 
@@ -282,3 +306,5 @@ I designed and taught an elective course on compiler implementation at UMD. The 
 
 \center{\scriptsize{An updated publication list, personal references, and other materials are available upon request.}}
 \end{document}
+
+BB

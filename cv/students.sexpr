@@ -9,14 +9,21 @@
   (mentor)]
   
 
- [(name "Zachary Werle")
+ [(name "Henry Olson")
   ;(website "")
   (start-year 2025)
-  ;(end-year 2019)
+  ;(end-year 2030)
   (kind PhD)
-  (mentor)
-  (note "Plans to join as a PhD advisee, Fall 2025.")]
+  (advisor)]
   
+
+ [(name "Nathan Waltz")
+  ;(website "")
+  (start-year 2025)
+  ;(end-year 2027)
+  (kind MS)
+  (advisor)]
+
 
  [(name "Hunter Smith")
   ;(website "")
@@ -62,30 +69,51 @@
   (start-year 2022)
   (end-year 2024)
   (kind MS)
-  (advisor)]
+  (mentor)
+  (note "Now a PhD student at U. Illinois Chicago (UIC).")]
  
  [(name "Michael Gathara")
   ;(website "")
   (start-year 2022)
   (end-year 2024)
   (kind MS)
-  (advisor)]
+  (mentor)]
+  
+ [(name "Sri Varsha Adavath")
+  ;(website "")
+  (start-year 2025)
+  ;(end-year 2024)
+  (kind MS)
+  (mentor)]
+  
+ [(name "Ralph Lewis")
+  ;(website "")
+  (start-year 2024)
+  ;(end-year 2024)
+  (kind BS)
+  (mentor)]
+
+ [(name "Tashi Stirewalt")
+  (start-year 2024)
+  ;;(end-year 2028)
+  (kind PhD)
+  (committee)]
 
  [(name "Ke Fan")
   ;(website "")
   (start-year 2019)
   (end-year 2025)
   (kind PhD)
-  (committee)
-  (note "At University of Illinois Chicago.")]
+  (advisor)
+  (note "Co-advised with Sidharth Kumar, now Asst. Prof. at Temple U.")]
 
  [(name "Ahmedur Rahman Shovon")
   ;(website "")
   (start-year 2021)
-  ;(end-year 2019)
+  ;(end-year 2025)
   (kind PhD)
-  (committee)
-  (note "At University of Illinois Chicago.")]
+  (advisor)
+  (note "At UIC, co-advised with Sidharth Kumar.")]
 
  [(name "Nick Netterville")
   ;(website "")
@@ -93,6 +121,12 @@
   (end-year 2023)
   (kind MS)
   (advisor)]
+
+ [(name "Adrian Gose")
+  (start-year 2019)
+  (end-year 2020)
+  (kind BS)
+  (mentor)]
 
  [(name "Ashraful Islam")
   ;(website "")
@@ -137,7 +171,7 @@
   (end-year 2016)
   (kind MS)
   (mentor)
-  (note "Now a PhD student at Purdue University.")]
+  (note "Now an Assistant Professor at Tufts University.")]
 
  [(name "Phúc C. Nguyễn")
   (website "https://philnguyen.github.io/")

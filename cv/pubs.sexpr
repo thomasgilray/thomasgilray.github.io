@@ -12,8 +12,8 @@
  (date )
  (pdf "")]
 
-[(title "Parallel Prefix Joins for Linear Recursive Datalog Rules")
- (authors "Akash Rao" "Thomas Gilray" "Ananth Kalyanaraman")
+[(title "ParaXJoin: A Communication-free Parallel Algorithm for Linear Recursive Joins")
+ (authors "Akash Rao" "Sowmith Kunapaneni" "Thomas Gilray" "Ananth Kalyanaraman")
  (conf sc)
  (date 4 2025)
  (pdf "")
@@ -28,10 +28,11 @@
 
 [(title "Datalog with First-class Facts")
  (authors "Thomas Gilray" "Arash Sahebolamri" "Yihao Sun" "Sowmith Kunapaneni" "Sidharth Kumar" "Kristopher Micinski")
- (conf vldb )
+ (journal vldb )
  (date 9 2025)
  (pdf "datalog-first-class.pdf")
- (selected)]
+ (selected)
+ (talk "London, UK")]
 
 [(title "Column-Oriented Datalog on the GPU")
  (authors "Yihao Sun" "Sidharth Kumar" "Thomas Gilray" "Kristopher Micinski")

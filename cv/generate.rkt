@@ -432,7 +432,7 @@
             (display (format "\\item ~a (~a).\n"
                              (award->name a)
                              (award->year a))))
-          (sort awards > #:key award->year))
+          (sort awards > #:key (lambda (a) (define y (award->year a)) (if (string? y) 3000 y))))
      (display "\\end{itemize}\n")
      (void))
    #:exists 'replace)

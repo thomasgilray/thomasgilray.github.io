@@ -1,9 +1,9 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025/Homebrew) (preloaded format=pdflatex 2025.3.15)  24 MAY 2025 13:54
+This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025/Homebrew) (preloaded format=pdflatex 2025.3.15)  25 MAY 2025 10:49
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
-**research-statement
-(./research-statement.tex
+**service-statement
+(./service-statement.tex
 LaTeX2e <2024-11-01> patch level 2
 L3 programming layer <2025-01-18>
 
@@ -542,6 +542,10 @@ File: pdftex.def 2024/04/13 v1.2c Graphics/color driver for pdftex
 )
 (/opt/homebrew/Cellar/texlive/20250308_1/share/texmf-dist/tex/latex/graphics/ma
 thcolor.ltx))
+(/opt/homebrew/Cellar/texlive/20250308_1/share/texmf-dist/tex/latex/url/url.sty
+\Urlmuskip=\muskip17
+Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
+)
 (/opt/homebrew/Cellar/texlive/20250308_1/share/texmf-dist/tex/latex/titling/tit
 ling.sty
 Package: titling 2009/09/04 v2.1d maketitle typesetting
@@ -554,8 +558,8 @@ Package: titling 2009/09/04 v2.1d maketitle typesetting
 File: l3backend-pdftex.def 2024-05-08 L3 backend support: PDF output (pdfTeX)
 \l__color_backend_stack_int=\count274
 \l__pdf_internal_box=\box52
-) (./research-statement.aux)
-\openout1 = `research-statement.aux'.
+) (./service-statement.aux)
+\openout1 = `service-statement.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 17.
 LaTeX Font Info:    ... okay on input line 17.
@@ -626,39 +630,48 @@ LaTeX Font Info:    External font `cmex10' loaded for size
 (Font)              <14.4> on input line 21.
 LaTeX Font Info:    External font `cmex10' loaded for size
 (Font)              <7> on input line 21.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <12> on input line 33.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <8> on input line 33.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <6> on input line 33.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <5> on input line 33.
 
 
 [1
 
 {/opt/homebrew/Cellar/texlive/20250308_1/share/texmf-dist/fonts/map/pdftex/updm
-ap/pdftex.map}{/opt/homebrew/Cellar/texlive/20250308_1/share/texmf-dist/fonts/e
-nc/dvips/cm-super/cm-super-ts1.enc}]
+ap/pdftex.map}]
 
-[2] (./research-statement.aux)
+[2] (./service-statement.aux)
  ***********
 LaTeX2e <2024-11-01> patch level 2
 L3 programming layer <2025-01-18>
  ***********
  ) 
 Here is how much of TeX's memory you used:
- 2092 strings out of 473190
- 34275 string characters out of 5704335
- 435676 words of memory out of 5000000
- 25361 multiletter control sequences out of 15000+600000
- 561332 words of font info for 44 fonts, out of 8000000 for 9000
+ 2196 strings out of 473190
+ 35702 string characters out of 5704335
+ 437816 words of memory out of 5000000
+ 25456 multiletter control sequences out of 15000+600000
+ 563607 words of font info for 52 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 57i,6n,65p,2399b,206s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 57i,8n,65p,1083b,283s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </opt/homebrew/Cellar/texlive/20250308_1/share/texmf-dist/fonts/type1/public/
 amsfonts/cm/cmbx12.pfb></opt/homebrew/Cellar/texlive/20250308_1/share/texmf-dis
 t/fonts/type1/public/amsfonts/cm/cmr12.pfb></opt/homebrew/Cellar/texlive/202503
 08_1/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></opt/homebrew/C
-ellar/texlive/20250308_1/share/texmf-dist/fonts/type1/public/cm-super/sfbx1200.
-pfb></opt/homebrew/Cellar/texlive/20250308_1/share/texmf-dist/fonts/type1/publi
-c/cm-super/sfrm1200.pfb>
-Output written on research-statement.pdf (2 pages, 64389 bytes).
+ellar/texlive/20250308_1/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.p
+fb></opt/homebrew/Cellar/texlive/20250308_1/share/texmf-dist/fonts/type1/public
+/amsfonts/cm/cmr8.pfb></opt/homebrew/Cellar/texlive/20250308_1/share/texmf-dist
+/fonts/type1/public/amsfonts/cm/cmti12.pfb></opt/homebrew/Cellar/texlive/202503
+08_1/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb>
+Output written on service-statement.pdf (2 pages, 88734 bytes).
 PDF statistics:
- 37 PDF objects out of 1000 (max. 8388607)
- 22 compressed objects within 1 object stream
+ 46 PDF objects out of 1000 (max. 8388607)
+ 27 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  1 words of extra memory for PDF output out of 10000 (max. 10000000)
 
