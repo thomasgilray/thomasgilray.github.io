@@ -99,6 +99,13 @@
   (kind PhD)
   (committee)]
 
+ [(name "Guimu Guo")
+  (start-year 2019)
+  (end-year 2023)
+  (kind PhD)
+  (committee)
+  (note "Now Assistant Professor at Rowan University.")]
+
  [(name "Ke Fan")
   ;(website "")
   (start-year 2019)
