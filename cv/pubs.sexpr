@@ -24,6 +24,7 @@
  (conf ics)
  (date 6 2025)
  (pdf "multi-node-gpu-datalog.pdf")
+ (doi "10.1145/3721145.3730431")
  (selected)]
 
 [(title "Datalog with First-class Facts")
@@ -31,6 +32,7 @@
  (journal vldb )
  (date 9 2025)
  (pdf "datalog-first-class.pdf")
+ (doi "10.14778/3712221.3712232")
  (selected)
  (talk "London, UK")]
 
@@ -38,6 +40,7 @@
  (authors "Yihao Sun" "Sidharth Kumar" "Thomas Gilray" "Kristopher Micinski")
  (conf aaai 23.4)
  (date 2 2025)
+ (doi "10.1609/aaai.v39i14.33665")
  (pdf "column-datalog-gpu.pdf")
  (selected)]
 
