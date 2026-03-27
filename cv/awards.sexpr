@@ -9,6 +9,9 @@
 [(name "Directors Direction (D.D.) Grants totaling upward of 5M hours on ALCF's Theta")
  (year "2019-2025")]
 
+[(name "Grant Award: DOE: SC ASCR: AI-Driven Autonomous Visualization and Data Management for Scientific Discovery on Supercomputers")
+ (year 2025)]
+
 [(name "Grant Award: ARPA-H: Healthy Docs: Secure Interoperable Health Data Management (\\$1.29M of \\$10M total)")
  (year 2025)]
 

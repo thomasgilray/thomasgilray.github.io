@@ -7,8 +7,20 @@
 \usepackage[left=0.35cm,right=2.95cm,top=2.15cm]{geometry}
 \usepackage{multicol}
 \usepackage{hyperref}
-
+\usepackage[most]{tcolorbox}
 \usepackage{enumitem}
+
+% Define your custom environment here
+\newtcolorbox{mycolorbox}{
+    enhanced,
+    colback=blue!5!white,
+    frame hidden,
+    borderline={1.5pt}{0pt}{blue, dotted},
+    boxrule=0pt,
+    arc=2mm,
+    left=5pt, right=5pt,
+    top=5pt, bottom=5pt
+}
 
 %\setlength{\textheight}{9.5in} % increase text height to fit on 1-page 
 
@@ -20,39 +32,66 @@
 \begin{document}
 \centering
 \textbf{Summary of Accomplishments}
+\vspace{-0.5cm}
+\begin{center}
+\footnotesize{(New accomplishments since last review listed in blue.)}
+\end{center}
 
 \vspace{-0.25cm}
 Thomas Gilray \\
 Associate Professor, EECS
 \vspace{0.25cm}
 
+
 \textbf{Research Contributions}
 
+\begin{mycolorbox}
 \begin{itemize}
+\item Published ``\textit{Optimizing I/O Performance of Parallel Iterated Relational Algebra Applications}'' at CHEOPS 2026 (co-authored with student mentee Ramlah Ilyas). This paper presents a case study in optimizing checkpoints for parallel iterated relational algebra, comparing an existing relation-dumping pipeline against a structured, performance-tuned alternative.
 
-\item Published ``\textit{Configurable Algorithms for All-to-all Collectives.}'' at ISC 2024 (29\% acceptance). \url{https://doi.org/10.23919/ISC.2024.10528936}. This paper presents a mathematical foundation for Bruck-algorithm-based all-to-all communication and develops a variant of two-layer Bruck with a tunable radix, observing an optimal radix value empirically and analytically. 
-
+\item Published ``\emph{Multi-Node Multi-GPU Datalog}'' at ICS 2025 with PhD advisee Ahmedur Rahman Shovon (at UIC). I've been working with Shovon and his co-advisor at UIC for several years. This paper develops the first multi-node implementation of Datalog via data-parallel joins on the GPU.
+\end{itemize}
+\end{mycolorbox}
+\begin{itemize}
+\item Published ``\textit{Datalog with First-class Facts.}'' at VLDB 2025 (co-authored with PhD advisee Sowmith Kunapaneni). This paper presents a theory for uniqueness quantification in bottom-up logic programming as modeling fact identity and develops it into a high-performance system for manipulating (automatically indexed) structured data. 
+  
 \item Published ``\textit{Optimizing Datalog for the GPU.}'' at ASPLOS 2025 (12.7\% acceptance). \url{https://doi.org/10.1145/3669940.3707274}. This paper presents the first GPU-based Datalog engine to beat a state-of-art CPU solver, beating Souffl\'e by up to 45× (NVIDIA H100 GPUlog vs. EPYC 7543P Soufflé). A key innovation is the HISA data structure permitting fast iterated joins, in memory on the device.
 
 \item Published ``\textit{Column-Oriented Datalog on the GPU.}'' at AAAI 2025 (23.4\% acceptance). This paper presents a column-oriented storage format for GPU-based joins. This approach shows significant improvements against leading CPU-based systems Souffl\'e and RDFox at 64 threads and against prior GPU approaches GPUjoin and HISA (our own).
-  
-\item Published ``\textit{Datalog with First-class Facts.}'' at VLDB 2025 (co-authored with PhD advisee Sowmith Kunapaneni). This paper presents a theory for uniqueness quantification in bottom-up logic programming as modeling fact identity and develops it into a high-performance system for manipulating (automatically indexed) structured data. 
+
+\item Published ``\textit{Configurable Algorithms for All-to-all Collectives.}'' at ISC 2024 (29\% acceptance). \url{https://doi.org/10.23919/ISC.2024.10528936}. This paper presents a mathematical foundation for Bruck-algorithm-based all-to-all communication and develops a variant of two-layer Bruck with a tunable radix, observing an optimal radix value empirically and analytically. 
   
 \end{itemize}
 
 \textbf{Teaching and Mentoring Accomplishments}
 
+\begin{mycolorbox}
+\begin{itemize}
+\item Submitted ``\emph{The Stack as Zipper: Improving the Baseline for Algebraic Effect Handlers}'' OOPSLA 2026 with MS advisee Hunter Smith, based on his MS Thesis work, which he is wrapping up this Spring, in collaboration with (all here at WSU).
+\item Submitted ``\emph{An Efficient Parallel Method to Accelerate Iterative Matrix Multiplication}'' to IPDPS 2026 and ``\emph{ParaXJoin: A Communication-Avoiding Parallel Algorithm for Accelerating Linear Recursive Datalog Rules}'' to ASPLOS 2026 with PhD advisees Akash Rao and Sowmith Kunapeneni (here at WSU).
+\item Taught another iteration of both CptS 452 and CptS 580, detailed below, including two new projects and attendant updated material for CptS 580.
+\end{itemize}
+\end{mycolorbox}
 \begin{itemize}
   \item Developed and taught CptS 452 ``\emph{Compilers}'' which covers compilers and language runtimes in a hands-on way through a series of incremental projects where students develop an end-to-end compiler for a functional programming language. The class also covers implementing the call stack, register allocation, garbage collection, and (incidentally, via the class project) test-driven development.
   \item Currently teaching CptS 580 ``Advanced Programming Languages'' which teaches students the theory of programming languages, the lambda calculus, several related types of formal semantics, and leverages this background to teach logic programming, type systems, and program analysis, among other topics.
   \item Submitted ``\emph{Parallel Prefix Joins for Linear Recursive Datalog Rules}'' to ICS 2025 with PhD advisee Akash Rao (here at WSU). I've been working with Akash since joining WSU this fall.
-  \item Submitted ``\emph{Multi-Node Multi-GPU Datalog}'' to ICS 2025 with PhD mentee Ahmedur Rahman Shovon (at UIC). I've been working with Shovon and his advisor for several years.
   \item The four new publications at ISC, ASPLOS, AAAI, and VLDB, highlit in the previous section, are all collaborations with PhD mentees and advisees Ke Fan (at UIC), Ahmedur Rahman Shovon (at UIC), Yihao Sun (at SU), Arash Sahebolamri (at SU), and Sowmith Kunapaneni (here at WSU).
   \item I've been mentoring WSU BS and MS students Hunter Smith, Ralph Lewis in a project on implementing and analyzing effect handlers via delimited continuations in a functional compiler, and Zachary Werle in a project on optimization of tunable program analysis in Datalog.
 \end{itemize}
 
 \textbf{Service Accomplishments}
 
+\begin{mycolorbox}
+\begin{itemize}
+  \item Qualifying Exam Committee (Chair) for Mohamed Shaaban, WSU, 2026.
+  \item Qualifying Exam Committee for Ahmed Abdelnaby, WSU, 2026.
+  \item Grant Award: DOE: SC ASCR: AI-Driven Autonomous Visualization and Data Management for Scientific Discovery on Supercomputers. 2025-2030. (Co-PI, in collaboration with Aric Hagberg, Pascal Grosset, George Stelle, and Terry Turton at LANL) \textbf{(Total: \$19.26M; My lab's share: \$749,999)}
+  \item NSF Panelist, SHF CS2 Program, 2025.
+  \item Faculty Search Committee, WSU EECS, 2025.
+  \item PC member, ICSE 2026.
+\end{itemize}
+\end{mycolorbox}
 \begin{itemize}
     \item NSF Panelist, PPoSS Program, 2024.
     \item ARPA-H Award: HealthyDocs: Secure Interoperable Health Data Management. 2024. (My lab's share: \$1.29M)

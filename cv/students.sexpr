@@ -9,6 +9,20 @@
   (mentor)]
   
 
+ 
+ [(name "Aayush Shrestha")
+  ;(website "")
+  (start-year 2026)
+  ;(end-year 2030)
+  (kind PhD)
+  (advisor)]
+  
+ [(name "Ramlah Ilyas")
+  ;(website "")
+  (start-year 2026)
+  (kind PhD)
+  (mentor)]
+ 
  [(name "Henry Olson")
   ;(website "")
   (start-year 2025)

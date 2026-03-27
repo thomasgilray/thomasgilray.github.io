@@ -6,18 +6,11 @@
  (date )
  (pdf "")]
 
-[(title )
- (authors )
- (conf )
- (date )
+[(title "Optimizing I/O Performance of Parallel Iterated Relational Algebra Applications")
+ (authors "Ramlah Ilyas" "Kristopher Micinksi" "Thomas Gilray" "Sidharth Kumar" "Suren Byna")
+ (conf cheops)
+ (date 4 2026)
  (pdf "")]
-
-[(title "ParaXJoin: A Communication-free Parallel Algorithm for Linear Recursive Joins")
- (authors "Akash Rao" "Sowmith Kunapaneni" "Thomas Gilray" "Ananth Kalyanaraman")
- (conf sc)
- (date 4 2025)
- (pdf "")
- (submitted)]
 
 [(title "Multi-Node Mutli-GPU Datalog")
  (authors "Ahmedur Rahman Shovon" "Yihao Sun" "Thomas Gilray" "Sidharth Kumar" "Kristopher Micinski")
