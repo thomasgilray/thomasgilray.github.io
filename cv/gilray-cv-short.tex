@@ -1,0 +1,126 @@
+% LaTeX file for resume / cv  
+% This file uses the resume document class (res.cls) 
+
+\documentclass[line]{res}  
+\usepackage{color} 
+\usepackage{randtext} 
+\usepackage{multicol} 
+\usepackage{hyperref} 
+\usepackage{enumitem} 
+
+\newcounter{problemcounter} 
+\newcommand{\paper}{% 
+  \stepcounter{problemcounter}% 
+  \textbf{\theproblemcounter}} 
+
+\begin{document} 
+
+\name{Thomas Gilray}   
+
+\address{\bf gilray.org 
+\ \ \ \ \ \ \ \ \randomize{thomas.gilray@wsu.edu}} 
+                                   
+\begin{resume}         
+
+\vspace{-0.1in}   
+I am currently an Associate Professor in Computer Science at Washington State University, and was previously Assistant Professor at the University of Alabama at Birmingham and a Victor Basili Fellow at the University of Maryland, at College Park. 
+
+\section{\large Education}            
+    \vspace{-0.1cm}     
+    \begin{tabbing} 
+    \hspace{2.25in}\= \hspace{2.25in}\= \kill
+    {\bf University of Utah} \>Ph.D.     \>2017 
+    \end{tabbing}\vspace{-0.5cm} 
+    Developed a unified methodology for polyvariant program analysis. Applied this framework to produce a self-reflective form of polyvariance for continuations that avoids all return-flow conflation of values, guaranteeing ideal stack precision. Proved precision is equal to an incomputable analysis with an unbounded stack and mechanically verified the proof using Coq. 
+    \vspace{-0.2cm}  
+    \begin{tabbing} 
+    \hspace{2.25in}\= \hspace{2.25in}\= \kill 
+    {\bf University of Utah} \>M.S.      \>2012 
+    \end{tabbing}\vspace{-0.5cm} 
+    \vspace{-0.2cm}  
+    \begin{tabbing} 
+    \hspace{2.25in}\= \hspace{2.25in}\= \kill 
+    {\bf University of Oregon} \>B.S.    \>2010 
+    \end{tabbing}\vspace{-0.5cm} 
+
+\vspace{0.1in} 
+\section{\large Employment} 
+   \vspace{-0.05in}   
+   \begin{tabbing} 
+    \hspace{2.25in}\= \hspace{2.25in}\= \kill 
+    {\bf Associate Professor} \>Washington State University  \>2024 - \textit{Present} 
+   \end{tabbing}\vspace{-0.5cm}      
+   Working on research into scalable, tunable program analysis, program verification, logic solvers on HPC clusters, and linguistic mechanisms for enforcing correctness, security/privacy, and termination properties of software. Won an ARPA-H subaward to investigate private and secure querying for EHR systems, contracting with Galois, inc. 
+   \vspace{-0.2cm}   
+   \begin{tabbing} 
+    \hspace{2.25in}\= \hspace{2.25in}\= \kill 
+    {\bf Assistant Professor} \>U. of Alabama, Birmingham  \>2018 - 2024 
+   \end{tabbing}\vspace{-0.5cm}      
+   Developed my research program in high-performance reasoning and program analysis. Won NSF PPoSS Large, NSF PPoSS Planning, and DARPA VSPELLS grants, bringing a total of \$3.12M in new research money to UAB. 
+   \vspace{-0.2cm}   
+   \begin{tabbing} 
+    \hspace{2.25in}\= \hspace{2.25in}\= \kill 
+    {\bf Victor Basili Fellow} \>U. of Maryland, College Park  \>2016 - 2018 
+   \end{tabbing}\vspace{-0.5cm}      
+   Joined UMD's PLUM lab; worked on soft contract verification, approximating permission-use provenance in Android, accelerating flow analyses in Datalog, and verification of faceted programs. 
+   \vspace{-0.2cm}   
+   \begin{tabbing} 
+    \hspace{2.25in}\= \hspace{2.25in}\= \kill 
+    {\bf Instructor} \>U. of Maryland, College Park  \>2017 - 2018 
+   \end{tabbing}\vspace{-0.5cm}      
+   \vspace{-0.2cm} 
+   \begin{tabbing} 
+    \hspace{2.25in}\= \hspace{2.25in}\= \kill 
+    {\bf Analysis Developer} \>HP, inc. (was: Fortify, inc.)     \>2013 - 2015 
+   \end{tabbing}\vspace{-0.5cm}      
+   \vspace{-0.2cm}   
+   \begin{tabbing} 
+    \hspace{2.25in}\= \hspace{2.25in}\= \kill 
+    {\bf Research Assistant} \>U. of Utah      \>2011 - 2016 
+   \end{tabbing}\vspace{-0.5cm}      
+
+\section{\large Awarded Grant Proposals} \vspace{0.15in}
+\begin{itemize}[leftmargin=*]
+  \item DOE: SC ASCR: AI-Driven Autonomous Visualization and Data Management for Scientific Discovery on Supercomputers. 2025-2030. \textbf{(Total: \$19.26M; My lab's share: \$749,999)}
+  \item ARPA-H: HealthyDocs: Secure Interoperable Health Data Management. 2025-2029. \textbf{(Total: \$10M; My lab's share: \$1.29M)}
+  \item NSF: PPoSS: Large: A Full-stack Approach to Declarative Analytics at Scale. 2023-2028. \textbf{(Total: \$5M; My lab's share: \$1.05M)}
+  \item NSF: PPoSS: Planning: A Full-stack Approach to Declarative Analytics at Scale. 2022-2023. \textbf{(Total: \$250,000; My lab's share: \$83,116)}
+  \item DARPA: VSPELLS: Promotion to Optimal Languages Yielding Modular Operator-driven Replacements and Programmatic Hooks (POLYMORPH). 2021-2025. \textbf{(Total: \$8M; My lab's share: \$400,000)}
+\end{itemize}
+
+\section{\large Teaching} \vspace{0.2in} 
+\textbf{(WSU) CptS 580: Advanced Programming Languages} (Spring 2025--2026) \\ 
+\textbf{(WSU) CptS 452: Compilers} (Fall 2024--2025) \\ 
+\textbf{(UAB) CS 660/760: Artificial Intelligence} (Fall 2019--2021, 2023) \\ 
+\textbf{(UAB) CS 401/501: Programming Languages} (Spring 2019--2024) \\  
+\textbf{(UAB) CS 350/550: Automata and Formal Languages} (Fall 2018--2023) \\ 
+\textbf{(UMD) CMSC 330: Intro to Programming Languages} (Spring 2018) \\ 
+\textbf{(UMD) CMSC 430: Compilers} (Fall 2017) 
+
+\section{\large Service \& Prof. Development} \vspace{0.15in} 
+      ACM and SIGPLAN member; 
+      PC member, AAAI 2026, ICSE 2026, CC 2025; 
+      NSF Panelist, SHF CS2 Program, 2025 \& 2024; 
+      NSF Panelist, PPoSS Program, 2024 \& 2021; 
+      Faculty Search Committee, WSU EECS, 2024--2025; 
+      Qualifying Exam Committee Chair (Shaaban, Barja) \& Member (Abdelnaby), WSU, 2025--2026; 
+      External reviewer, TOPLAS 2023; 
+      Curriculum committee member 2018-2022, UAB CS Department; 
+      PC member, Dynamic Languages Symposium (DLS) 2021; 
+      Co-organizer, UAB HSPC 2019-2024; 
+      PC member, Symposium On Applied Computing (SAC) 2021; 
+      PC chair, Scheme and Functional Programming Workshop, 2019; 
+      PC member, IEEE TCBBSI 2019; 
+      PC member, MiniKanren Workshop, 2019; 
+      Lead a student team in developing an automated grading system for UAB in 2019. 
+
+\section{\large Selected Conference Papers}  
+\vspace{0.1cm} 
+\input{selected-conference-pubs} 
+\vspace{-0.4cm} 
+
+\section{\large Contributed Talks} \vspace{0.2in} 
+\input{contributed-talks} 
+
+\end{resume} 
+\end{document}

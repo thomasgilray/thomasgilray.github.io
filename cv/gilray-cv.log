@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999995 (TeX Live 2023/Debian) (preloaded format=xelatex 2024.9.9)  16 MAR 2026 15:54
+This is XeTeX, Version 3.141592653-2.6-0.999995 (TeX Live 2023/Debian) (preloaded format=xelatex 2026.3.27)  1 APR 2026 00:39
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -327,7 +327,7 @@ Package hyperref Info: Link coloring OFF on input line 20.
 
 Package hyperref Warning: Rerun to get /PageLabels entry.
 
-Randomizer initialized to 1119140801.
+Randomizer initialized to 51594207.
 LaTeX Font Info:    External font `cmex10' loaded for size
 (Font)              <7> on input line 44.
 LaTeX Font Info:    External font `cmex10' loaded for size
@@ -347,7 +347,7 @@ elding Modular Operator-
  []
 
 [2]) [3] (./thesis-pubs.tex) (./journal-pubs.tex) (./conference-pubs.tex)
-Overfull \hbox (11.69002pt too wide) in paragraph at lines 1--197
+Overfull \hbox (11.69002pt too wide) in paragraph at lines 1--196
 \TU/lmr/m/n/10 (ICFP—31% acceptance) Sep 2016. []$[][][][][] [] [] [] [][][] []
  [][][] [] [][][][][] [] [] [] [][][] [] [][][] [] [][] [] [][][][] [] [][][][]
 [][][] [] [][][][][][][]$[] 
@@ -368,7 +368,7 @@ L3 programming layer <2024-01-22>
  ) 
 Here is how much of TeX's memory you used:
  8584 strings out of 474878
- 135746 string characters out of 5762517
+ 135746 string characters out of 5762516
  1947627 words of memory out of 5000000
  30539 multiletter control sequences out of 15000+600000
  558493 words of font info for 45 fonts, out of 8000000 for 9000

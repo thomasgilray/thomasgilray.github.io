@@ -461,6 +461,6 @@
 
 (system "xelatex gilray-cv")
 
-(system "xelatex gilray-cv-abet")
+(system "xelatex gilray-cv-short")
 
 
