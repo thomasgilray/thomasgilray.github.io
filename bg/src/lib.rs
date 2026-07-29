@@ -367,6 +367,8 @@ pub struct PropVertex {
     nrm: [f32; 3],
     /// Linear RGB.
     col: [f32; 3],
+    /// Texture coordinate. Ordinary meshes leave it at zero; the bee billboard uses it.
+    uv: [f32; 2],
 }
 
 /// One placed instance of a prop model. Padded out to 16-byte rows so each attribute
@@ -428,12 +430,14 @@ pub const MODEL_EMBER: usize = 1;
 pub const MODEL_ROD: usize = 2;
 /// A unit-radius filled circle in the XY plane.
 pub const MODEL_DISC: usize = 3;
-pub const MODEL_COUNT: usize = 4;
+/// Textured side-profile body; its wings are translucent disc props underneath.
+pub const MODEL_BEE_BODY: usize = 4;
+pub const MODEL_COUNT: usize = 5;
 
 /// Which models are drawn flat and unlit — blended over the scene without writing
 /// depth. Embers are their own light source; line art wants to stay the colour it is
 /// asked for rather than picking up highlights.
-const MODEL_UNLIT: [bool; MODEL_COUNT] = [false, true, true, true];
+const MODEL_UNLIT: [bool; MODEL_COUNT] = [false, true, true, true, true];
 
 /// Where critters drop their prop instances, grouped by model so each group can be
 /// drawn from one range.
@@ -474,6 +478,7 @@ fn prop_model_meshes() -> [(Vec<PropVertex>, Vec<u16>); MODEL_COUNT] {
         build_ember(),
         build_rod(),
         build_disc(),
+        build_bee_body_quad(),
     ]
 }
 
@@ -510,6 +515,7 @@ pub fn build_rod() -> (Vec<PropVertex>, Vec<u16>) {
         pos,
         nrm: n,
         col: white,
+        uv: [0.0; 2],
     })
     .collect();
     (v, vec![0, 1, 2, 0, 2, 3])
@@ -524,6 +530,7 @@ pub fn build_disc() -> (Vec<PropVertex>, Vec<u16>) {
         pos: [0.0, 0.0, 0.0],
         nrm: n,
         col: white,
+        uv: [0.0; 2],
     }];
     let mut idx = Vec::new();
     for i in 0..SEGS {
@@ -533,10 +540,46 @@ pub fn build_disc() -> (Vec<PropVertex>, Vec<u16>) {
             pos: [ca, sa, 0.0],
             nrm: n,
             col: white,
+            uv: [0.0; 2],
         });
         idx.extend_from_slice(&[0, 1 + i as u16, 1 + ((i + 1) % SEGS) as u16]);
     }
     (v, idx)
+}
+
+/// A one-unit-wide billboard matching the generated bee body's 451:256 aspect.
+/// The source faces left, so yaw zero is already the critter's usual travel direction.
+pub fn build_bee_body_quad() -> (Vec<PropVertex>, Vec<u16>) {
+    const HALF_H: f32 = 0.5 * 256.0 / 451.0;
+    let n = [0.0f32, 0.0, 1.0];
+    let white = [1.0f32, 1.0, 1.0];
+    let v = vec![
+        PropVertex {
+            pos: [-0.5, -HALF_H, 0.0],
+            nrm: n,
+            col: white,
+            uv: [0.0, 1.0],
+        },
+        PropVertex {
+            pos: [0.5, -HALF_H, 0.0],
+            nrm: n,
+            col: white,
+            uv: [1.0, 1.0],
+        },
+        PropVertex {
+            pos: [0.5, HALF_H, 0.0],
+            nrm: n,
+            col: white,
+            uv: [1.0, 0.0],
+        },
+        PropVertex {
+            pos: [-0.5, HALF_H, 0.0],
+            nrm: n,
+            col: white,
+            uv: [0.0, 0.0],
+        },
+    ];
+    (v, vec![0, 1, 2, 0, 2, 3])
 }
 
 /// A small four-sided pyramid, apex along +Z, sized about one unit so the per-instance
@@ -571,6 +614,7 @@ pub fn build_ember() -> (Vec<PropVertex>, Vec<u16>) {
                 pos,
                 nrm: n,
                 col: white,
+                uv: [0.0; 2],
             });
         }
     };
@@ -665,6 +709,7 @@ pub fn build_rocket(length: f32) -> (Vec<PropVertex>, Vec<u16>) {
                 pos: [x_of(*u), r * ca, r * sa],
                 nrm: [n[0] / len, n[1] / len, n[2] / len],
                 col: *col,
+                uv: [0.0; 2],
             });
         }
     }
@@ -697,11 +742,13 @@ pub fn build_rocket(length: f32) -> (Vec<PropVertex>, Vec<u16>) {
             pos: [tail_x, tail_r * ca, tail_r * sa],
             nrm: [0.0, ca, sa],
             col: nozzle,
+            uv: [0.0; 2],
         });
         v.push(PropVertex {
             pos: [bell_x, bell_r * ca, bell_r * sa],
             nrm: [0.0, ca, sa],
             col: nozzle,
+            uv: [0.0; 2],
         });
     }
     let bell_c = v.len() as u16;
@@ -709,6 +756,7 @@ pub fn build_rocket(length: f32) -> (Vec<PropVertex>, Vec<u16>) {
         pos: [bell_x, 0.0, 0.0],
         nrm: [-1.0, 0.0, 0.0],
         col: nozzle,
+        uv: [0.0; 2],
     });
     for k in 0..RADIAL {
         let k1 = (k + 1) % RADIAL;
@@ -762,6 +810,7 @@ pub fn build_rocket(length: f32) -> (Vec<PropVertex>, Vec<u16>) {
                         ],
                         nrm: [tan[0] * sgn, tan[1] * sgn, tan[2] * sgn],
                         col: red,
+                        uv: [0.0; 2],
                     });
                 }
             }
@@ -804,6 +853,7 @@ pub fn build_rocket(length: f32) -> (Vec<PropVertex>, Vec<u16>) {
             pos: [win_x, 0.0, z],
             nrm: [0.0, 0.0, 1.0],
             col,
+            uv: [0.0; 2],
         });
         let rim = v.len();
         for k in 0..RADIAL {
@@ -813,11 +863,13 @@ pub fn build_rocket(length: f32) -> (Vec<PropVertex>, Vec<u16>) {
                 pos: [win_x + r * ca, r * sa, z],
                 nrm: [0.0, 0.0, 1.0],
                 col,
+                uv: [0.0; 2],
             });
             v.push(PropVertex {
                 pos: [win_x + r * ca, r * sa, z - length * 0.03],
                 nrm: [ca, sa, 0.0],
                 col,
+                uv: [0.0; 2],
             });
         }
         for k in 0..RADIAL {
@@ -1242,9 +1294,9 @@ pub trait Critter {
 
 // ---------------------------------------------------------------------------
 
-/// A critter is drawn every twelve seconds, starting twelve seconds in. The choice is an
-/// even coin toss between the two kinds; if a walker has no safe entrance on this board,
-/// the rocket is the graceful fallback for that turn.
+/// A critter is drawn every twelve seconds, starting twelve seconds in. The available
+/// kinds are chosen uniformly; if a walker has no safe entrance on this board, the rocket
+/// is the graceful fallback for that turn.
 const FIRST_CRITTER: f64 = 12.0;
 const CRITTER_EVERY: f64 = 12.0;
 
@@ -1252,13 +1304,14 @@ const CRITTER_EVERY: f64 = 12.0;
 enum CritterKind {
     Rocket,
     Walker,
+    Bee,
 }
 
 fn random_critter_kind(rng: &mut Rng) -> CritterKind {
-    if rng.f32() < 0.5 {
-        CritterKind::Rocket
-    } else {
-        CritterKind::Walker
+    match rng.below(3) {
+        0 => CritterKind::Rocket,
+        1 => CritterKind::Walker,
+        _ => CritterKind::Bee,
     }
 }
 
@@ -1796,6 +1849,316 @@ impl Critter for Rocket {
 }
 
 // ---------------------------------------------------------------------------
+// The bumblebee — a textured visitor with procedural wings
+// ---------------------------------------------------------------------------
+
+const BEE_BODY_W: f32 = 70.0;
+const BEE_BODY_H: f32 = BEE_BODY_W * 256.0 / 451.0;
+const BEE_Z: f32 = 48.0;
+const BEE_APPROACH_SPEED: f32 = 104.0;
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+enum BeeAct {
+    Flying,
+    Approach {
+        col: isize,
+        row: isize,
+        x: f32,
+        y: f32,
+    },
+    Landed {
+        col: isize,
+        row: isize,
+        until: f32,
+    },
+}
+
+/// A bee enters low on the right, bumbles generally left and upward, and sometimes
+/// settles on an exposed tile. The body is a generated cutout; wings remain geometry so
+/// flight blur, random angles, and still crisp landing poses do not require sprite sheets.
+pub struct Bee {
+    x: f32,
+    y: f32,
+    vx: f32,
+    vy: f32,
+    want_vx: f32,
+    want_vy: f32,
+    yaw: f32,
+    t: f32,
+    next_turn: f32,
+    next_land_check: f32,
+    wing_phase: f32,
+    next_twitch: f32,
+    vis_left: f32,
+    vis_top: f32,
+    vis_bottom: f32,
+    act: BeeAct,
+    rng: Rng,
+}
+
+impl Bee {
+    pub fn new(view: &LifeView, rng: &mut Rng) -> Bee {
+        let half_w = view.cols() as f32 * CELL_PX * 0.5;
+        let half_h = view.rows() as f32 * CELL_PX * 0.5;
+        let margin = MARGIN as f32 * CELL_PX;
+        let vis_right = half_w - margin;
+        let vis_top = half_h - margin;
+        let vis_bottom = -vis_top;
+        let height = vis_top - vis_bottom;
+        let y = vis_bottom + height * (0.12 + rng.f32() * 0.24);
+        let vx = -(92.0 + rng.f32() * 44.0);
+        let vy = 20.0 + rng.f32() * 34.0;
+        Bee {
+            x: vis_right + BEE_BODY_W * 0.65,
+            y,
+            vx,
+            vy,
+            want_vx: vx,
+            want_vy: vy,
+            yaw: 0.0,
+            t: 0.0,
+            next_turn: 0.35 + rng.f32() * 0.45,
+            next_land_check: 0.9 + rng.f32() * 0.9,
+            wing_phase: rng.f32() * std::f32::consts::TAU,
+            next_twitch: 0.0,
+            vis_left: -vis_right,
+            vis_top,
+            vis_bottom,
+            act: BeeAct::Flying,
+            rng: Rng::new(rng.next_u64()),
+        }
+    }
+
+    fn tile_top(view: &LifeView, col: isize, row: isize) -> f32 {
+        view.cell_center(col as f32, row as f32)[1] + CELL_PX * TILE_FILL * 0.5
+    }
+
+    fn landing_is_live(view: &LifeView, col: isize, row: isize) -> bool {
+        view.alive(col, row, 0) && !view.alive(col, row - 1, 0)
+    }
+
+    /// Pick an exposed tile down-and-left along the current trip. Looking a generation
+    /// ahead avoids beginning a landing on something already committed to disappear.
+    fn landing_ahead(&mut self, view: &LifeView) -> Option<(isize, isize, f32, f32)> {
+        let mut choices = Vec::new();
+        for col in MARGIN as isize..(view.cols() - MARGIN) as isize {
+            for row in MARGIN as isize..(view.rows() - MARGIN) as isize {
+                let stable =
+                    (0..=1).all(|g| view.alive(col, row, g) && !view.alive(col, row - 1, g));
+                if !stable {
+                    continue;
+                }
+                let x = view.cell_center(col as f32, row as f32)[0];
+                let y = Self::tile_top(view, col, row) + BEE_BODY_H * 0.43;
+                let dx = x - self.x;
+                let dy = y - self.y;
+                if !(-CELL_PX * 5.2..=-CELL_PX * 0.35).contains(&dx)
+                    || !(-CELL_PX * 2.8..=CELL_PX * 0.9).contains(&dy)
+                {
+                    continue;
+                }
+                let distance = (dx * dx + dy * dy).sqrt();
+                let score = distance + self.rng.f32() * CELL_PX * 0.8;
+                choices.push((score, col, row, x, y));
+            }
+        }
+        choices
+            .into_iter()
+            .min_by(|a, b| a.0.partial_cmp(&b.0).unwrap())
+            .map(|(_, col, row, x, y)| (col, row, x, y))
+    }
+
+    fn take_off(&mut self, startled: bool) {
+        self.act = BeeAct::Flying;
+        self.want_vx = -(105.0 + self.rng.f32() * 45.0);
+        self.want_vy = if startled {
+            78.0 + self.rng.f32() * 42.0
+        } else {
+            38.0 + self.rng.f32() * 42.0
+        };
+        self.vx = self.want_vx;
+        self.vy = self.want_vy;
+        self.next_land_check = self.t + if startled { 2.2 } else { 1.3 };
+    }
+
+    fn body_y(&self) -> f32 {
+        if matches!(self.act, BeeAct::Landed { .. }) {
+            self.y
+        } else {
+            self.y + (self.t * 8.5).sin() * 1.4
+        }
+    }
+
+    fn wing(
+        out: &mut PropSink,
+        root: [f32; 2],
+        body_yaw: f32,
+        rel: f32,
+        length: f32,
+        width: f32,
+        alpha: f32,
+        z: f32,
+    ) {
+        let a = body_yaw + rel;
+        let (s, c) = a.sin_cos();
+        let centre = [root[0] + c * length * 0.48, root[1] + s * length * 0.48, z];
+        let tint = srgb_hex_to_linear(0xa8bec9);
+        out.push(
+            MODEL_DISC,
+            Prop::stretched(centre, [length * 0.58, width, 1.0], [0.0, 0.0, a]).tinted(tint, alpha),
+        );
+    }
+}
+
+impl Critter for Bee {
+    fn update(&mut self, ctx: &CritterCtx) -> bool {
+        self.t += ctx.dt;
+
+        match self.act {
+            BeeAct::Flying => {
+                if self.t >= self.next_turn {
+                    self.want_vx = -(82.0 + self.rng.f32() * 72.0);
+                    self.want_vy = -18.0 + self.rng.f32() * 92.0;
+                    self.next_turn = self.t + 0.45 + self.rng.f32() * 0.85;
+                }
+                let ease = 1.0 - (-2.8 * ctx.dt).exp();
+                self.vx += (self.want_vx - self.vx) * ease;
+                self.vy += (self.want_vy - self.vy) * ease;
+                self.x += self.vx * ctx.dt;
+                self.y += self.vy * ctx.dt;
+
+                if self.t >= self.next_land_check {
+                    self.next_land_check = self.t + 0.8 + self.rng.f32() * 1.1;
+                    if self.rng.f32() < 0.58 {
+                        if let Some((col, row, x, y)) = self.landing_ahead(&ctx.life) {
+                            self.act = BeeAct::Approach { col, row, x, y };
+                        }
+                    }
+                }
+            }
+            BeeAct::Approach { col, row, x, y } => {
+                if !Self::landing_is_live(&ctx.life, col, row) {
+                    self.take_off(true);
+                } else {
+                    let dx = x - self.x;
+                    let dy = y - self.y;
+                    let distance = (dx * dx + dy * dy).sqrt();
+                    if distance < 2.2 {
+                        self.x = x;
+                        self.y = y;
+                        self.vx = 0.0;
+                        self.vy = 0.0;
+                        self.yaw = 0.0;
+                        self.next_twitch = self.t + 0.7 + self.rng.f32() * 0.7;
+                        self.act = BeeAct::Landed {
+                            col,
+                            row,
+                            until: self.t + 2.5 + self.rng.f32() * 3.5,
+                        };
+                    } else {
+                        let speed = (distance * 2.7).clamp(18.0, BEE_APPROACH_SPEED);
+                        let target_vx = dx / distance * speed;
+                        let target_vy = dy / distance * speed;
+                        let ease = 1.0 - (-6.0 * ctx.dt).exp();
+                        self.vx += (target_vx - self.vx) * ease;
+                        self.vy += (target_vy - self.vy) * ease;
+                        self.x += self.vx * ctx.dt;
+                        self.y += self.vy * ctx.dt;
+                    }
+                }
+            }
+            BeeAct::Landed { col, row, until } => {
+                if !Self::landing_is_live(&ctx.life, col, row) {
+                    self.take_off(true);
+                } else if self.t >= until {
+                    self.take_off(false);
+                } else {
+                    // Stay attached to the current top edge. The grid does not translate,
+                    // but recomputing this makes the invariant explicit.
+                    self.x = ctx.life.cell_center(col as f32, row as f32)[0];
+                    self.y = Self::tile_top(&ctx.life, col, row) + BEE_BODY_H * 0.43;
+                    if self.t >= self.next_twitch {
+                        self.wing_phase = (self.rng.f32() - 0.5) * 0.55;
+                        self.next_twitch = self.t + 0.75 + self.rng.f32() * 0.65;
+                    }
+                }
+            }
+        }
+
+        if !matches!(self.act, BeeAct::Landed { .. }) {
+            // A fresh sample every frame is the irregular blur rather than a clockwork
+            // sine wave. The props method fans several translucent exposures around it.
+            self.wing_phase = self.rng.f32() * std::f32::consts::TAU;
+            if self.vx.abs() + self.vy.abs() > 1.0 {
+                let travel = self.vy.atan2(self.vx);
+                let want = travel - std::f32::consts::PI;
+                let delta = (want - self.yaw + std::f32::consts::PI)
+                    .rem_euclid(std::f32::consts::TAU)
+                    - std::f32::consts::PI;
+                self.yaw += delta * (1.0 - (-7.0 * ctx.dt).exp());
+            }
+        }
+
+        self.x > self.vis_left - BEE_BODY_W
+            && self.y < self.vis_top + BEE_BODY_W
+            && self.y > self.vis_bottom - BEE_BODY_W
+    }
+
+    fn props(&self, _ctx: &CritterCtx, out: &mut PropSink) {
+        let y = self.body_y();
+        let (sy, cy) = self.yaw.sin_cos();
+        // The roots sit a little toward the head and above the body centre in bee-local
+        // space. Lifting them to the top of the thorax keeps a stopped wing from being
+        // completely hidden by the photographed body.
+        let root = [self.x - cy * 7.0 - sy * 5.0, y - sy * 7.0 + cy * 5.0];
+        if matches!(self.act, BeeAct::Landed { .. }) {
+            // A crisp, stationary pair rising dorsally from the thorax. The two wings
+            // overlap like a real side view but use different angles and lengths, while
+            // nested ellipses give each a visible translucent rim.
+            for (base, length) in [(0.72f32, 39.0f32), (1.10, 33.0)] {
+                let rel = base + self.wing_phase * 0.28;
+                Self::wing(out, root, self.yaw, rel, length, 6.4, 0.30, BEE_Z - 0.8);
+                Self::wing(
+                    out,
+                    root,
+                    self.yaw,
+                    rel,
+                    length * 0.90,
+                    4.5,
+                    0.48,
+                    BEE_Z - 0.6,
+                );
+            }
+        } else {
+            // Four faint exposures per wing make a soft dorsal motion envelope. Its
+            // centre is re-randomised on every update, while the slightly different
+            // bases keep both wings legible inside the blur.
+            for wing in 0..2 {
+                for trail in 0..4 {
+                    let flutter = (self.wing_phase + trail as f32 * 1.17).sin() * 0.58;
+                    let rel = 0.60 + wing as f32 * 0.34 + flutter;
+                    let length = 38.0 - wing as f32 * 4.0;
+                    Self::wing(out, root, self.yaw, rel, length, 8.5, 0.10, BEE_Z - 1.0);
+                }
+            }
+        }
+        out.push(
+            MODEL_BEE_BODY,
+            Prop::stretched(
+                [self.x, y, BEE_Z],
+                [BEE_BODY_W, BEE_BODY_W, 1.0],
+                [0.0, 0.0, self.yaw],
+            ),
+        );
+    }
+
+    #[cfg(test)]
+    fn debug_state(&self) -> Option<String> {
+        Some(format!("{:?} x={:.1} y={:.1}", self.act, self.x, self.y))
+    }
+}
+
+// ---------------------------------------------------------------------------
 // The walker — a stick figure that drops onto the field and stands on it
 // ---------------------------------------------------------------------------
 
@@ -1851,6 +2214,12 @@ const WALKER_PLAN_GRAB_CHANCE: f32 = 0.62;
 const WALKER_GRAB_X_TOLERANCE: f32 = 4.0;
 const WALKER_GRAB_MIN_SPEED: f32 = WALKER_RUN_SPEED * 0.68;
 const WALKER_GRAB_MAX_SPEED: f32 = WALKER_RUN_SPEED * 1.18;
+/// Some hangs end in a deliberate throw. The upward kick is just under a running jump,
+/// leaving room to redirect away from the held face without looking superhuman.
+const WALKER_HANG_THROW_CHANCE: f32 = 0.48;
+const WALKER_THROW_V: f32 = 560.0;
+const WALKER_THROW_MIN_SPEED: f32 = 72.0;
+const WALKER_THROW_MAX_SPEED: f32 = 238.0;
 /// A foot may land a little off-centre, then visibly settle during the impact. Wider
 /// corner contacts are allowed to keep falling instead of becoming awkward perches.
 const WALKER_LAND_HALF_WIDTH: f32 = CELL_PX * 0.27;
@@ -1963,6 +2332,17 @@ impl Pose {
             hip: [0.10, -0.12],
             knee: [0.25, -0.20],
         }
+    }
+
+    /// Arms remain locked to the ledge while the torso and legs swing out to preload a
+    /// throw. `amount` rises only over the last beat before release.
+    fn hanging_throw(away: f32, amount: f32) -> Pose {
+        let k = amount.clamp(0.0, 1.0);
+        let mut p = Pose::hanging();
+        p.lean = 0.24 * k;
+        p.hip = [0.10 + 0.78 * k, -0.12 + 0.36 * k];
+        p.knee = [0.25 - 1.12 * k, -0.20 - 0.52 * k];
+        p.facing(away)
     }
 
     /// One stride of a run. `p` is the cycle phase; the legs alternate, the arms
@@ -2091,6 +2471,9 @@ pub struct Walker {
     /// A hard squeeze can send him behind the floor for a beat. During that interval the
     /// tile that displaced him cannot immediately re-catch him and start a hop loop.
     no_land_until: f32,
+    /// Absolute walker time for a voluntary throw, or infinity when this hang waits for
+    /// the ledge to fade.
+    hang_release_at: f32,
     /// Which boxed-in routine was last used: false for hop, true for shove. Alternating
     /// after the first weighted choice keeps either idle from repeating indefinitely.
     last_stuck: Option<bool>,
@@ -2180,6 +2563,7 @@ impl Walker {
             doomed: false,
             grab_plan: None,
             no_land_until: 0.0,
+            hang_release_at: f32::INFINITY,
             last_stuck: None,
             act: Act::Airborne,
             pose: Pose::falling(0.0),
@@ -2421,6 +2805,83 @@ impl Walker {
         self.vy = vy;
         self.vx = vx;
         self.grab_plan = None;
+        self.hang_release_at = f32::INFINITY;
+    }
+
+    /// Commit to the kind of hang this catch will become. Waiting until contact to roll
+    /// this choice keeps the ballistic catch itself deterministic: only the performance
+    /// after the hands are safely on the ledge varies.
+    fn begin_hang(&mut self, col: isize, row: isize) {
+        self.act = Act::Hang { col, row };
+        self.hang_release_at = if self.rng.f32() < WALKER_HANG_THROW_CHANCE {
+            self.t + 1.05 + self.rng.f32() * 2.15
+        } else {
+            f32::INFINITY
+        };
+    }
+
+    /// Find a stable exposed tile away from the held face that the descending throw arc
+    /// can meet near its centre. As with a ledge catch, this changes velocity at launch
+    /// but never changes position later, so a successful landing follows the visible arc.
+    fn plan_hang_throw(&self, view: &LifeView, away: f32) -> Option<f32> {
+        let half_tile = CELL_PX * TILE_FILL * 0.5;
+        // The falling pose reaches almost this far below the hip. The actual collision
+        // still uses the animated feet; this estimate only selects a natural launch.
+        let landing_reach = (WALKER_THIGH + WALKER_SHIN) * 0.94;
+        let mut best: Option<(f32, f32)> = None;
+
+        for col in MARGIN as isize..(view.cols() - MARGIN) as isize {
+            let target_x = Self::cell_x(view, col);
+            let dx = target_x - self.x;
+            let along = dx * away;
+            if !(CELL_PX * 0.45..=CELL_PX * 6.2).contains(&along) {
+                continue;
+            }
+
+            for row in MARGIN as isize..(view.rows() - MARGIN) as isize {
+                let stable_floor = (0..=WALKER_PLAN_GENS)
+                    .all(|g| view.alive(col, row, g) && !view.alive(col, row - 1, g));
+                if !stable_floor {
+                    continue;
+                }
+
+                let top = view.cell_center(col as f32, row as f32)[1] + half_tile;
+                let target_hip_y = top + landing_reach;
+                let dy = target_hip_y - self.hip_y;
+                let disc = WALKER_THROW_V * WALKER_THROW_V - 2.0 * WALKER_GRAVITY * dy;
+                if disc <= 0.0 {
+                    continue;
+                }
+                let landing_t = (WALKER_THROW_V + disc.sqrt()) / WALKER_GRAVITY;
+                if !(0.38..=1.35).contains(&landing_t) {
+                    continue;
+                }
+                let vx = dx / landing_t;
+                if vx * away <= 0.0
+                    || !(WALKER_THROW_MIN_SPEED..=WALKER_THROW_MAX_SPEED).contains(&vx.abs())
+                {
+                    continue;
+                }
+
+                // Prefer an ordinary running pace, with a slight preference for the
+                // nearer place when two arcs require essentially the same kick.
+                let score = (vx.abs() - WALKER_RUN_SPEED * 0.82).abs() + along * 0.015;
+                if best.is_none_or(|(old, _)| score < old) {
+                    best = Some((score, vx));
+                }
+            }
+        }
+
+        best.map(|(_, vx)| vx)
+    }
+
+    fn throw_from_hang(&mut self, view: &LifeView) {
+        let away = -self.facing;
+        let vx = self
+            .plan_hang_throw(view, away)
+            .unwrap_or(away * WALKER_RUN_SPEED * 0.72);
+        self.facing = away;
+        self.leave_ground(WALKER_THROW_V, vx);
     }
 
     /// A newly born tile has occupied the body cell. Step into a supported clear neighbour
@@ -2538,13 +2999,19 @@ impl Walker {
                 WALKER_EASE_RUN,
             ),
             Act::Hang { .. } => {
-                let mut p = Pose::hanging();
-                // A slow swing, so he is not a coat on a hook.
-                let sway = (self.t * 2.1 + self.seed).sin() * 0.11;
-                p.hip[0] += sway;
-                p.hip[1] += sway;
-                p.knee[0] -= sway * 0.5;
-                (p, 7.0)
+                let remaining = self.hang_release_at - self.t;
+                if remaining.is_finite() && remaining < 0.44 {
+                    let amount = 1.0 - (remaining / 0.44).clamp(0.0, 1.0);
+                    (Pose::hanging_throw(-self.facing, amount), WALKER_EASE_RUN)
+                } else {
+                    let mut p = Pose::hanging();
+                    // A slow swing, so he is not a coat on a hook.
+                    let sway = (self.t * 2.1 + self.seed).sin() * 0.11;
+                    p.hip[0] += sway;
+                    p.hip[1] += sway;
+                    p.knee[0] -= sway * 0.5;
+                    (p, 7.0)
+                }
             }
         }
     }
@@ -2706,6 +3173,9 @@ impl Critter for Walker {
                     self.vy = 0.0;
                     self.vx = 0.0;
                     self.grab_plan = None;
+                    self.hang_release_at = f32::INFINITY;
+                } else if self.t >= self.hang_release_at {
+                    self.throw_from_hang(&ctx.life);
                 }
             }
             Act::Airborne => {}
@@ -2812,10 +3282,7 @@ impl Critter for Walker {
                                 self.vx = 0.0;
                                 self.vy = 0.0;
                                 self.facing = (plan.col - self.col) as f32;
-                                self.act = Act::Hang {
-                                    col: plan.col,
-                                    row: plan.row,
-                                };
+                                self.begin_hang(plan.col, plan.row);
                             }
                             // Crossing once is the only opportunity. A horizontal miss is
                             // a real miss and continues down unchanged.
@@ -3158,6 +3625,8 @@ struct Globals {
 };
 
 @group(0) @binding(0) var<uniform> g : Globals;
+@group(1) @binding(0) var bee_tex : texture_2d<f32>;
+@group(1) @binding(1) var bee_sampler : sampler;
 
 const SPRING_DECAY : f32 = SPRING_DECAY_LIT;
 const SPRING_OMEGA : f32 = SPRING_OMEGA_LIT;
@@ -3309,6 +3778,7 @@ struct PIn {
   @location(5) scale : vec3<f32>,
   @location(6) rot   : vec3<f32>,
   @location(7) tint  : vec3<f32>,
+  @location(8) uv    : vec2<f32>,
 };
 
 struct POut {
@@ -3317,6 +3787,7 @@ struct POut {
   @location(1) nrm   : vec3<f32>,
   @location(2) col   : vec3<f32>,
   @location(3) alpha : f32,
+  @location(4) uv    : vec2<f32>,
 };
 
 /// Roll about +X, then pitch about +Y, then yaw about +Z. For a model built nose-first
@@ -3341,6 +3812,7 @@ fn vs_prop(in : PIn) -> POut {
   out.nrm = rot_xyz(normalize(in.nrm / max(in.scale, vec3<f32>(1e-4))), in.rot);
   out.col   = in.col * in.tint;
   out.alpha = in.alpha;
+  out.uv    = in.uv;
   return out;
 }
 
@@ -3365,6 +3837,19 @@ fn fs_unlit(in : POut) -> @location(0) vec4<f32> {
   var o = clamp(in.col * facing, vec3<f32>(0.0), vec3<f32>(1.0));
   if (g.p1.w > 0.5) { o = lin_to_srgb(o); }
   return vec4<f32>(o * in.alpha, in.alpha);
+}
+
+/// The generated bee is authored in sRGB and uploaded through an sRGB texture, so the
+/// sampler hands us linear colour. Preserve its photographed detail, then encode only
+/// when the surface itself is a raw non-sRGB target.
+@fragment
+fn fs_bee(in : POut) -> @location(0) vec4<f32> {
+  let texel = textureSample(bee_tex, bee_sampler, in.uv);
+  let alpha = texel.a * in.alpha;
+  if (alpha < 0.01) { discard; }
+  var o = clamp(texel.rgb * in.col, vec3<f32>(0.0), vec3<f32>(1.0));
+  if (g.p1.w > 0.5) { o = lin_to_srgb(o); }
+  return vec4<f32>(o * alpha, alpha);
 }
 
 // ---------------------------------------------------------------------------
@@ -3599,6 +4084,24 @@ fn shader_source() -> String {
         .replace("SPIN_LIFT_LIT", &format!("{:?}", SPIN_LIFT))
 }
 
+/// Decode the generated body asset once while constructing the scene. PNG decoding is
+/// deliberately kept out of the frame loop, and `include_bytes` makes the same asset
+/// available to native previews, WebGPU, and the WebGL2 fallback.
+fn bee_body_pixels() -> (Vec<u8>, u32, u32) {
+    let decoder = png::Decoder::new(std::io::Cursor::new(include_bytes!(
+        "../../img/bumblebee-body.png"
+    )));
+    let mut reader = decoder.read_info().expect("decode bumblebee body header");
+    let mut pixels = vec![0; reader.output_buffer_size()];
+    let info = reader
+        .next_frame(&mut pixels)
+        .expect("decode bumblebee body pixels");
+    assert_eq!(info.bit_depth, png::BitDepth::Eight);
+    assert_eq!(info.color_type, png::ColorType::Rgba);
+    pixels.truncate(info.buffer_size());
+    (pixels, info.width, info.height)
+}
+
 // ---------------------------------------------------------------------------
 // Scene: everything needed to draw the field into any colour target
 // ---------------------------------------------------------------------------
@@ -3617,6 +4120,8 @@ pub struct Scene {
     /// everything without writing any.
     pipeline_prop: wgpu::RenderPipeline,
     pipeline_unlit: wgpu::RenderPipeline,
+    pipeline_bee: wgpu::RenderPipeline,
+    bee_bind_group: wgpu::BindGroup,
     prop_v: wgpu::Buffer,
     prop_i: wgpu::Buffer,
     /// Where each model's indices start in the shared buffer, and how many. The
@@ -3702,6 +4207,91 @@ impl Scene {
             label: None,
             bind_group_layouts: &[Some(&bgl)],
             immediate_size: 0,
+        });
+
+        let bee_bgl = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+            label: Some("bee-texture-layout"),
+            entries: &[
+                wgpu::BindGroupLayoutEntry {
+                    binding: 0,
+                    visibility: wgpu::ShaderStages::FRAGMENT,
+                    ty: wgpu::BindingType::Texture {
+                        sample_type: wgpu::TextureSampleType::Float { filterable: true },
+                        view_dimension: wgpu::TextureViewDimension::D2,
+                        multisampled: false,
+                    },
+                    count: None,
+                },
+                wgpu::BindGroupLayoutEntry {
+                    binding: 1,
+                    visibility: wgpu::ShaderStages::FRAGMENT,
+                    ty: wgpu::BindingType::Sampler(wgpu::SamplerBindingType::Filtering),
+                    count: None,
+                },
+            ],
+        });
+        let bee_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
+            label: Some("bee-pipeline-layout"),
+            bind_group_layouts: &[Some(&bgl), Some(&bee_bgl)],
+            immediate_size: 0,
+        });
+        let (bee_pixels, bee_width, bee_height) = bee_body_pixels();
+        let bee_texture = device.create_texture(&wgpu::TextureDescriptor {
+            label: Some("bumblebee-body"),
+            size: wgpu::Extent3d {
+                width: bee_width,
+                height: bee_height,
+                depth_or_array_layers: 1,
+            },
+            mip_level_count: 1,
+            sample_count: 1,
+            dimension: wgpu::TextureDimension::D2,
+            format: wgpu::TextureFormat::Rgba8UnormSrgb,
+            usage: wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_DST,
+            view_formats: &[],
+        });
+        queue.write_texture(
+            wgpu::TexelCopyTextureInfo {
+                texture: &bee_texture,
+                mip_level: 0,
+                origin: wgpu::Origin3d::ZERO,
+                aspect: wgpu::TextureAspect::All,
+            },
+            &bee_pixels,
+            wgpu::TexelCopyBufferLayout {
+                offset: 0,
+                bytes_per_row: Some(bee_width * 4),
+                rows_per_image: Some(bee_height),
+            },
+            wgpu::Extent3d {
+                width: bee_width,
+                height: bee_height,
+                depth_or_array_layers: 1,
+            },
+        );
+        let bee_view = bee_texture.create_view(&wgpu::TextureViewDescriptor::default());
+        let bee_sampler = device.create_sampler(&wgpu::SamplerDescriptor {
+            label: Some("bee-sampler"),
+            address_mode_u: wgpu::AddressMode::ClampToEdge,
+            address_mode_v: wgpu::AddressMode::ClampToEdge,
+            address_mode_w: wgpu::AddressMode::ClampToEdge,
+            mag_filter: wgpu::FilterMode::Linear,
+            min_filter: wgpu::FilterMode::Linear,
+            ..Default::default()
+        });
+        let bee_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
+            label: Some("bee-texture"),
+            layout: &bee_bgl,
+            entries: &[
+                wgpu::BindGroupEntry {
+                    binding: 0,
+                    resource: wgpu::BindingResource::TextureView(&bee_view),
+                },
+                wgpu::BindGroupEntry {
+                    binding: 1,
+                    resource: wgpu::BindingResource::Sampler(&bee_sampler),
+                },
+            ],
         });
 
         let (verts, indices) = build_tile_mesh();
@@ -3886,7 +4476,8 @@ impl Scene {
                         array_stride: std::mem::size_of::<PropVertex>() as u64,
                         step_mode: wgpu::VertexStepMode::Vertex,
                         attributes: &wgpu::vertex_attr_array![
-                            0 => Float32x3, 1 => Float32x3, 2 => Float32x3
+                            0 => Float32x3, 1 => Float32x3, 2 => Float32x3,
+                            8 => Float32x2
                         ],
                     }),
                     Some(wgpu::VertexBufferLayout {
@@ -3969,6 +4560,13 @@ impl Scene {
         }
         let pipeline_unlit = device.create_render_pipeline(&prop_desc);
 
+        prop_desc.label = Some("bumblebee-body");
+        prop_desc.layout = Some(&bee_layout);
+        if let Some(f) = prop_desc.fragment.as_mut() {
+            f.entry_point = Some("fs_bee");
+        }
+        let pipeline_bee = device.create_render_pipeline(&prop_desc);
+
         let (depth, msaa) = make_targets(device, format, samples, width, height);
 
         let clear = if encode_srgb {
@@ -4005,6 +4603,8 @@ impl Scene {
             quad_i,
             pipeline_prop,
             pipeline_unlit,
+            pipeline_bee,
+            bee_bind_group,
             prop_v,
             prop_i,
             prop_ranges,
@@ -4145,11 +4745,16 @@ impl Scene {
                 if count == 0 {
                     continue;
                 }
-                pass.set_pipeline(if MODEL_UNLIT[m] {
-                    &self.pipeline_unlit
+                if m == MODEL_BEE_BODY {
+                    pass.set_pipeline(&self.pipeline_bee);
+                    pass.set_bind_group(1, &self.bee_bind_group, &[]);
                 } else {
-                    &self.pipeline_prop
-                });
+                    pass.set_pipeline(if MODEL_UNLIT[m] {
+                        &self.pipeline_unlit
+                    } else {
+                        &self.pipeline_prop
+                    });
+                }
                 // Rebind at a byte offset rather than passing a non-zero
                 // `first_instance`: WebGL2 has no base-instance draw either, and the
                 // draw call would be rejected outright.
@@ -4353,13 +4958,14 @@ impl Driver {
             let mut rng = Rng::new(self.life.rng.next_u64());
             let view = self.life.view();
             // Choose before asking whether the board has a walker entrance, so every
-            // twelve-second turn is a true 50/50 draw. A refused walker becomes a rocket
-            // rather than delaying or silently losing the scheduled arrival.
+            // twelve-second turn is a uniform three-way draw. A refused walker becomes a
+            // rocket rather than delaying or silently losing the scheduled arrival.
             let critter: Box<dyn Critter> = match random_critter_kind(&mut rng) {
                 CritterKind::Rocket => Box::new(Rocket::new(&view, &mut rng)),
                 CritterKind::Walker => Walker::new(&view, &mut rng)
                     .map(|w| Box::new(w) as Box<dyn Critter>)
                     .unwrap_or_else(|| Box::new(Rocket::new(&view, &mut rng))),
+                CritterKind::Bee => Box::new(Bee::new(&view, &mut rng)),
             };
             self.critters_sent += 1;
             self.viz.add_critter(critter);
@@ -5565,6 +6171,120 @@ mod tests {
         assert_eq!(base, verts.len(), "vertex spans do not cover the buffer");
     }
 
+    /// The generated cutout is deliberately a body-only image: transparent corners let
+    /// the procedural wings show cleanly behind it, while the quad's UVs cover the whole
+    /// texture without relying on any atlas state.
+    #[test]
+    fn bee_body_asset_and_quad_are_well_formed() {
+        let (pixels, width, height) = bee_body_pixels();
+        assert_eq!((width, height), (451, 256));
+        assert_eq!(pixels.len(), width as usize * height as usize * 4);
+
+        let mut transparent = 0usize;
+        let mut visible = 0usize;
+        for pixel in pixels.chunks_exact(4) {
+            transparent += usize::from(pixel[3] == 0);
+            visible += usize::from(pixel[3] > 180);
+        }
+        let samples = width as usize * height as usize;
+        assert!(
+            transparent > samples / 3,
+            "the bee cutout has too little transparent padding"
+        );
+        assert!(
+            visible > samples / 12,
+            "the bee body is missing or nearly transparent"
+        );
+
+        let (quad, indices) = build_bee_body_quad();
+        assert_eq!(quad.len(), 4);
+        assert_eq!(indices, [0, 1, 2, 0, 2, 3]);
+        let mut uvs: Vec<[f32; 2]> = quad.iter().map(|v| v.uv).collect();
+        uvs.sort_by(|a, b| a.partial_cmp(b).unwrap());
+        assert_eq!(uvs, [[0.0, 0.0], [0.0, 1.0], [1.0, 0.0], [1.0, 1.0]]);
+    }
+
+    #[test]
+    fn bee_flies_from_lower_right_toward_the_left_and_retires() {
+        let life = planted(32, 22, &[]);
+        let mut rng = Rng::new(0xbeef);
+        let mut bee = Bee::new(&life.view(), &mut rng);
+        let start = [bee.x, bee.y];
+        assert!(bee.x > 0.0 && bee.y < 0.0, "did not begin at lower right");
+        assert!(
+            bee.vx < 0.0 && bee.vy > 0.0,
+            "did not enter left and upward"
+        );
+
+        let mut t = 0.0f32;
+        let mut alive = true;
+        for _ in 0..2400 {
+            alive = bee.update(&walker_ctx(&life, t));
+            t += 1.0 / 60.0;
+            if !alive {
+                break;
+            }
+        }
+        assert!(!alive, "bee never retired after leaving the frame");
+        assert!(
+            bee.x < start[0] - CELL_PX * 4.0,
+            "bee did not make meaningful leftward progress"
+        );
+    }
+
+    #[test]
+    fn landed_bee_has_crisp_twitching_wings_and_startles_when_its_tile_goes() {
+        let (cols, rows) = (24usize, 18usize);
+        let life = planted(cols, rows, &[(10, 10), (11, 10), (10, 11), (11, 11)]);
+        let view = life.view();
+        let mut rng = Rng::new(92);
+        let mut bee = Bee::new(&view, &mut rng);
+        bee.t = 5.0;
+        bee.x = view.cell_center(10.0, 10.0)[0];
+        bee.y = Bee::tile_top(&view, 10, 10) + BEE_BODY_H * 0.43;
+        bee.next_twitch = bee.t;
+        bee.act = BeeAct::Landed {
+            col: 10,
+            row: 10,
+            until: 50.0,
+        };
+
+        bee.update(&walker_ctx(&life, 5.0));
+        let first_crisp_pose = bee.wing_phase;
+        let mut landed = PropSink::default();
+        bee.props(&walker_ctx(&life, 5.0), &mut landed);
+        assert_eq!(
+            landed.group(MODEL_DISC).len(),
+            4,
+            "landed wings should be two crisp nested pairs"
+        );
+        assert_eq!(landed.group(MODEL_BEE_BODY).len(), 1);
+
+        for frame in 1..30 {
+            bee.update(&walker_ctx(&life, 5.0 + frame as f32 / 60.0));
+        }
+        assert_eq!(
+            bee.wing_phase, first_crisp_pose,
+            "crisp wings changed between their roughly one-second twitches"
+        );
+
+        let empty = planted(cols, rows, &[]);
+        bee.update(&walker_ctx(&empty, 5.5));
+        assert_eq!(bee.act, BeeAct::Flying, "bee stayed on a vanished tile");
+        assert!(
+            bee.vx < -100.0 && bee.vy > 70.0,
+            "startle did not launch it sharply left and upward"
+        );
+        let mut flying = PropSink::default();
+        bee.props(&walker_ctx(&empty, 5.5), &mut flying);
+        assert_eq!(
+            flying.group(MODEL_DISC).len(),
+            8,
+            "flying wings should fan into several blurred exposures"
+        );
+        assert_eq!(flying.group(MODEL_BEE_BODY).len(), 1);
+    }
+
     /// The rocket must never snap round.
     ///
     /// Attitude is derived from the path, and deriving it from the *instantaneous*
@@ -5855,6 +6575,7 @@ mod tests {
             doomed: false,
             grab_plan: None,
             no_land_until: 0.0,
+            hang_release_at: f32::INFINITY,
             last_stuck: None,
             act: Act::Airborne,
             pose: Pose::falling(0.0),
@@ -6609,6 +7330,100 @@ mod tests {
         );
     }
 
+    /// Once safely caught, both outcomes remain available. A voluntary release has a
+    /// visible wind-up and carries a continuous ballistic path away from the held face;
+    /// on this board that natural path should bring him back to the block he launched
+    /// from, without a position correction on release.
+    #[test]
+    fn hanging_can_wait_or_throw_away_onto_another_block() {
+        let (cols, rows) = (24usize, 22usize);
+        let life = planted(
+            cols,
+            rows,
+            &[
+                (4, 12),
+                (5, 12),
+                (4, 13),
+                (5, 13),
+                (7, 12),
+                (8, 12),
+                (7, 13),
+                (8, 13),
+            ],
+        );
+
+        // The post-catch coin must genuinely contain both performances.
+        let mut outcomes = [0usize; 2];
+        let mut sample = drop_walker(&life, 6, 4.0);
+        for seed in 0..100u64 {
+            sample.rng = Rng::new(seed * 131 + 17);
+            sample.t = 1.0;
+            sample.begin_hang(7, 12);
+            outcomes[usize::from(sample.hang_release_at.is_finite())] += 1;
+        }
+        assert!(
+            outcomes[0] > 25 && outcomes[1] > 25,
+            "hang outcomes split {outcomes:?}"
+        );
+
+        let (mut w, _) = planned_ledge_jump(&life);
+        let mut t = 0.0f32;
+        for _ in 0..180 {
+            assert!(w.update(&walker_ctx(&life, t)), "left before catching");
+            t += 1.0 / 60.0;
+            if matches!(w.act, Act::Hang { .. }) {
+                break;
+            }
+        }
+        assert!(matches!(w.act, Act::Hang { .. }), "never caught the ledge");
+        assert!(
+            w.plan_hang_throw(&life.view(), -w.facing).is_some(),
+            "the launch planner overlooked the block behind him"
+        );
+
+        w.hang_release_at = w.t + 0.52;
+        let held_x = w.x;
+        let mut saw_windup = false;
+        let mut released = false;
+        for _ in 0..90 {
+            let old_x = w.x;
+            w.update(&walker_ctx(&life, t));
+            t += 1.0 / 60.0;
+            if matches!(w.act, Act::Hang { .. }) {
+                saw_windup |= w.pose.lean.abs() > 0.035;
+                assert_eq!(w.x, held_x, "wind-up pulled the hands off the ledge");
+            } else if w.vy > 0.0 {
+                released = true;
+                assert!(
+                    (w.x - old_x).abs() <= w.vx.abs() / 60.0 + 0.05,
+                    "release snapped horizontally"
+                );
+                assert!(w.vx < 0.0, "did not throw away from the right-hand ledge");
+                break;
+            }
+        }
+        assert!(saw_windup, "release had no visible backward swing");
+        assert!(released, "never threw off the ledge");
+
+        let mut landed = false;
+        for _ in 0..180 {
+            if !w.update(&walker_ctx(&life, t)) {
+                break;
+            }
+            t += 1.0 / 60.0;
+            if w.support.is_some() {
+                landed = true;
+                break;
+            }
+        }
+        assert!(landed, "the planned throw missed every landing");
+        assert!(
+            matches!(w.col, 4 | 5),
+            "landed in column {}, not on the block behind him",
+            w.col
+        );
+    }
+
     /// And he lets go the moment the ledge stops being one.
     #[test]
     fn walker_drops_when_his_ledge_vanishes() {
@@ -6692,26 +7507,31 @@ mod tests {
         assert!(saw_strain, "never bent over into the push");
     }
 
-    /// The public cadence request is literal, and the selector itself is an even split.
+    /// The public cadence request is literal, and the selector itself is uniform.
     #[test]
-    fn critters_arrive_every_twelve_seconds_with_an_even_choice() {
+    fn critters_arrive_every_twelve_seconds_with_a_uniform_three_way_choice() {
         assert_eq!(FIRST_CRITTER, 12.0);
         assert_eq!(CRITTER_EVERY, 12.0);
 
         let mut rng = Rng::new(0x5eed_cafe);
-        let mut rockets = 0usize;
-        let draws = 20_000usize;
+        let mut counts = [0usize; 3];
+        let draws = 30_000usize;
         for _ in 0..draws {
-            if random_critter_kind(&mut rng) == CritterKind::Rocket {
-                rockets += 1;
-            }
+            let slot = match random_critter_kind(&mut rng) {
+                CritterKind::Rocket => 0,
+                CritterKind::Walker => 1,
+                CritterKind::Bee => 2,
+            };
+            counts[slot] += 1;
         }
-        let share = rockets as f32 / draws as f32;
-        assert!(
-            (share - 0.5).abs() < 0.015,
-            "rocket selector produced {:.1}%",
-            share * 100.0
-        );
+        for (kind, count) in ["rocket", "walker", "bee"].into_iter().zip(counts) {
+            let share = count as f32 / draws as f32;
+            assert!(
+                (share - 1.0 / 3.0).abs() < 0.015,
+                "{kind} selector produced {:.1}%",
+                share * 100.0
+            );
+        }
     }
 
     /// The clock must be monotonic and deliver the rate the constants declare,
