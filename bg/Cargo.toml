@@ -1,0 +1,54 @@
+[package]
+name = "conwaybg"
+version = "0.1.0"
+edition = "2021"
+authors = ["Thomas Gilray"]
+description = "GPU-accelerated Conway's Game of Life page background (wgpu -> WebGPU/WebGL2 via wasm)"
+license = "MIT"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[features]
+default = ["webgl"]
+# WebGL2 fallback for browsers without WebGPU. Costs ~2MB of wasm (wgpu-core +
+# naga), so `--no-default-features` builds a much smaller WebGPU-only module.
+webgl = ["wgpu/webgl"]
+
+[dependencies]
+wgpu = { version = "30", default-features = false, features = ["wgsl"] }
+bytemuck = { version = "1", features = ["derive"] }
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wgpu = { version = "30", default-features = false, features = ["webgpu"] }
+wasm-bindgen = "0.2.126"
+wasm-bindgen-futures = "0.4"
+js-sys = "0.3"
+
+[target.'cfg(target_arch = "wasm32")'.dependencies.web-sys]
+version = "0.3"
+features = [
+  "Window",
+  "Document",
+  "Element",
+  "HtmlElement",
+  "HtmlCanvasElement",
+  "CssStyleDeclaration",
+  "Performance",
+  "MediaQueryList",
+  "console",
+]
+
+# Native-only: `cargo run --bin preview` renders frames to PNG so the look can be
+# checked without a browser.
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+wgpu = { version = "30", default-features = false, features = ["vulkan", "metal", "dx12", "gles"] }
+pollster = "0.4"
+png = "0.17"
+
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true

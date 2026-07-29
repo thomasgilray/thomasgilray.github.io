@@ -1,113 +1,50 @@
-<!DOCTYPE html> 
-
-<html>
+<!DOCTYPE html>
+<html lang="en-US">
 	<head>
-		<meta charset="UTF-8" />
-		<meta name="author" content="Thomas Gilray" />
-		<meta name="copyright" content="(c) Thomas Gilray, 2018-2025" />
-		<meta name="robots" content="index, follow" />
-		<meta name="description" content="Thomas Gilray's personal website, publication list, etc." />
-		<meta name="keywords" content="thomas gilray, publications, computer science, programming, static analysis, abstract interpretation, programming languages, functional programming, research, racket, functional programming" />
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="author" content="Thomas Gilray">
+		<meta name="copyright" content="(c) Thomas Gilray, 2018-2025">
+		<meta name="robots" content="index, follow">
+		<meta name="description" content="Thomas Gilray's personal website, publication list, etc.">
+		<meta name="keywords" content="thomas gilray, publications, computer science, programming, static analysis, abstract interpretation, programming languages, functional programming, research, racket, functional programming">
 
 		<title>Thomas Gilray's Research</title>
 
-		<link rel="Shortcut Icon" href="favicon.ico" type="image/x-icon" />
-		<link rel="stylesheet" href="screen.css" type="text/css" media="print" />
-		<link rel="stylesheet" href="screen.css" type="text/css" media="screen,projection" />
-		<script src="conway.js" type="text/javascript"></script>
-		<script type="text/javascript">
-			function popopenimages()
-			{
-				document.getElementById('photoswrapper').style['display'] = 'block';
-			}
-			function closeimages()
-			{
-				document.getElementById('photoswrapper').style['display'] = 'none';
-			}
-			var old = function(){};
-			if (window.onload)
-				old = window.onload;
-			window.onload = function() 
-			{ 
-				document.getElementById('footeryear').innerHTML = ''+((new Date()).getFullYear()); 
-
-				var pgheight = Math.max(document.body.scrollHeight, document.body.offsetHeight, 
-			                      	 	document.documentElement.clientHeight, document.documentElement.scrollHeight, 
-										document.documentElement.offsetHeight);
-				document.getElementById('photoswrapper').style.height = (pgheight+5) + 'px';
-				
-				old(); 
-			};
-
-			function viewselpubs()
-			{
-			  document.getElementById("allpubsbox").style.display = "none";
-			  document.getElementById("selpubsbox").style.display = "block";
-			}
-
-			function viewallpubs()
-			{
-			  document.getElementById("allpubsbox").style.display = "block";
-			  document.getElementById("selpubsbox").style.display = "none";
-			}
-			
-		  function loadallpubs()
-                  {
-                      function reqListener () {
-                          document.getElementById("allpubs").innerHTML = this.responseText;
-                      }
-                      
-                      var xhr = new XMLHttpRequest();
-                      xhr.addEventListener("load", reqListener);
-                      xhr.open("GET", "/cv/all-pubs.html");
-                      xhr.send();
-                  };
-                  setTimeout(loadallpubs, 10);
-
-                  function loadselpubs()
-                  {
-                      function reqListener () {
-                          document.getElementById("selpubs").innerHTML = this.responseText;
-                      }
-                      
-                      var xhr = new XMLHttpRequest();
-                      xhr.addEventListener("load", reqListener);
-                      xhr.open("GET", "/cv/sel-pubs.html");
-                      xhr.send();
-                  };
-                  setTimeout(loadselpubs, 10);
-		</script>
+		<link rel="icon" href="/favicon.ico" sizes="any">
+		<link rel="stylesheet" href="/screen.css">
+		<script type="module" src="/js/background.js?v=8e793a087d"></script>
 	</head>
 
-	<body class="" lang="en-US">
-	<a href="https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life" onclick="javascript:crazyConway();" target="_blank" class="conwaylink">(what?)</a>
-	<div id="conway"></div>
-	<div id="photoswrapper" onclick="javascript:closeimages();">
+	<body>
+	<canvas id="bgcanvas" aria-hidden="true"></canvas>
+	<a href="https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life" target="_blank" rel="noopener"
+	   class="conwaylink" onclick="window.crazyConway &amp;&amp; window.crazyConway();">(what?)</a>
+	<div id="photoswrapper" onclick="closeimages();">
 		<div class="whitexout">X</div>
 		<div class="photo" style="background:url(/img/tom-photo-2.jpg);height:400px;width:571px;">
-			<img src="/img/taj-note.jpg" style="left:580px;"></img>
+			<img src="/img/taj-note.jpg" alt="" style="left:580px;">
 		</div>
 		<div class="photo" style="background:url(/img/tom-photo-1.jpg);height:550px;width:400px;">
-			<img src="/img/wedding-note.jpg" style="right:412px;"></img>
+			<img src="/img/wedding-note.jpg" alt="" style="right:412px;">
 		</div>
 		<div class="photo" style="background:url(/img/tom-photo-0.jpg);height:400px;width:450px;">
-			<img src="/img/hiking-note.jpg" style="left:462px;"></img>
+			<img src="/img/hiking-note.jpg" alt="" style="left:462px;">
 		</div>
 	</div>
 	<div id="wrapper">
 		<div class="rounded">
 		    <div class="content">
 				<div id="contact">
-                                        <div id="photo" onclick="javascript:/*popopenimages()*/;"></div>
+					<div id="photo"></div>
 					<div>Office: EME B49 (<a href="https://maps.app.goo.gl/7BPBrT7mZp3tjz6K8">map</a>)</div>
-					<div><span style="font-family:monospace;font-size:15px;">thomas.gilra<img style="position:relative;top:4px;"  src="data:image/gif;base64,R0lGODlhEwAQAMZQAAABAAIJKycIBAEPPAAZU0cYDjQZPwE2lTowLXYqHRBGl2pDGyFQnj5UV4xDJEdWX49OKjBioVZfYF1eV1xhcDNqr4RgRE1znJ9mMJ92RKh2NVKRxmqMtbGKaaGSecaZTnGo03+mvreffcqeV3+qzMyia8ynaNGmasSojZawyp2ypay2t6C7uMS2kKK62tq6kdTDo+TAoKzN5rXN1+PGmavW89vT1+vUqsTZ9brd8e7VscDd8dja1sHf+fTesvDdzOTg3s7p+u/q3fzsxPDw7d70/uP09P3z1ur3/f713f738Or9/f/+9/r///7//P///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEKAH8ALAAAAAATABAAAAeygE6Cg4SEQjxIhYqELwCOO4uKQwAyThoVkYUnDE1ONwdNTB0SExxNMQ+loRAgSRYAnE4oAgApTj8LACROTA4zCRctCp1OJgNFvBiYvBAqBks+oIJJBRtOOgCQvA4sBUE00oIlBEbKxL0hGY4ByIJHBQ3ZhCOYQEQ2TU+DJQARxILYehDSBxBAjkJMMAxY4cEFoYT+FDERgYACDkFKgMDQ9S+Tkw+OHNXwKOiJyZMoU6IMBAA7"></img>wsu.edu</span></div>
-					<script type="text/javascript">setTimeout(function(){document.getElementById('hemail').innerHTML = "g6h7".charAt(1+eval("1"+""));},800);</script>
+					<div><span style="font-family:monospace;font-size:15px;">thomas.gilra<img style="position:relative;top:4px;" alt="y@" src="data:image/gif;base64,R0lGODlhEwAQAMZQAAABAAIJKycIBAEPPAAZU0cYDjQZPwE2lTowLXYqHRBGl2pDGyFQnj5UV4xDJEdWX49OKjBioVZfYF1eV1xhcDNqr4RgRE1znJ9mMJ92RKh2NVKRxmqMtbGKaaGSecaZTnGo03+mvreffcqeV3+qzMyia8ynaNGmasSojZawyp2ypay2t6C7uMS2kKK62tq6kdTDo+TAoKzN5rXN1+PGmavW89vT1+vUqsTZ9brd8e7VscDd8dja1sHf+fTesvDdzOTg3s7p+u/q3fzsxPDw7d70/uP09P3z1ur3/f713f738Or9/f/+9/r///7//P///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEKAH8ALAAAAAATABAAAAeygE6Cg4SEQjxIhYqELwCOO4uKQwAyThoVkYUnDE1ONwdNTB0SExxNMQ+loRAgSRYAnE4oAgApTj8LACROTA4zCRctCp1OJgNFvBiYvBAqBks+oIJJBRtOOgCQvA4sBUE00oIlBEbKxL0hGY4ByIJHBQ3ZhCOYQEQ2TU+DJQARxILYehDSBxBAjkJMMAxY4cEFoYT+FDERgYACDkFKgMDQ9S+Tkw+OHNXwKOiJyZMoU6IMBAA7">wsu.edu</span></div>
 					<div><a href="http://twitter.com/tomgilray">@tomgilray</a></div>
 			    </div>
 				<h1>Thomas Gilray</h1>
 				<div class="subtitle">Computer Scientist</div>
 				<div class="position">Associate Professor at <a href="https://school.eecs.wsu.edu/">Washington State University</a></div>
-				<p>My research focuses on the design and implementation of scalable systems for reasoning about code. I work on <a href="/pdf/pushdown-for-free.pdf">foundations</a> of <a href="/pdf/abstract-allocation.pdf">tunable</a>, correct-by-design <a href="/pdf/stateful-scv.pdf">program analysis</a> and on declarative logic-programming languages that help to bridge the gap between specifying such reasoning systems and implementing them in a <a href="/pdf/load-balancing-ra.pdf">scalable parallel manner</a>. Recently, my work has focused on improving the <a href="/pdf/datalog-first-class.pdf">expressivity</a> of Datalog and on how to accelerate such languages <a href="/pdf/optimizing-bruck.pdf">on supercomputers</a> and <a href="/pdf/datalog-gpu.pdf">using GPUs</a>. More broadly, I am very interested in compilers, verification, optimization, and programming language design and implementation. Please reach out if you want to chat!</p> 
+				<p>My research focuses on the design and implementation of scalable systems for reasoning about code. I work on <a href="/pdf/pushdown-for-free.pdf">foundations</a> of <a href="/pdf/abstract-allocation.pdf">tunable</a>, correct-by-design <a href="/pdf/stateful-scv.pdf">program analysis</a> and on declarative logic-programming languages that help to bridge the gap between specifying such reasoning systems and implementing them in a <a href="/pdf/load-balancing-ra.pdf">scalable parallel manner</a>. Recently, my work has focused on improving the <a href="/pdf/datalog-first-class.pdf">expressivity</a> of Datalog and on how to accelerate such languages <a href="/pdf/optimizing-bruck.pdf">on supercomputers</a> and <a href="/pdf/datalog-gpu.pdf">using GPUs</a>. More broadly, I am very interested in compilers, verification, optimization, and programming language design and implementation. Please reach out if you want to chat!</p>
 	 	    </div>
 	 		<div class="a"></div>
 			<div class="b"></div>
@@ -122,7 +59,7 @@
 			<li>I have moved to Washington State University in Pullman, WA, starting Fall 2024. I am hiring!</li>
 			<li>The HARP lab, with key collaborators at WSU, OSU, and UT, has won a PPoSS (Principles and Practice of Scalable Systems) Large award from the NSF, to develop Slog and related techniques into a full-stack approach to modern declarative programming. This ~$5M award will provide reliable support to roughly ten PhD students and seven faculty for its five year duration.  <a href="/news/pposs.html">Read more &#8608;</a></li>
 			<li>The HARP lab has won a PPoSS (Principles and Practice of Scalable Systems) planning-grant award from the NSF, to develop a Large proposal on scaling Datalog-based compute platforms like Slog. See our <a href="https://arxiv.org/abs/2211.11573">preprint on the Slog language</a> for more details.</li>
-                        <li>The HARP lab has won an award, through subcontract with <a href="https://galois.com/project/polymorph/">Galois, inc.</a>, to work on the DARPA <a href="https://www.darpa.mil/news-events/2020-07-30">V-SPELLS program</a>: <i>Verified Security and Performance Enhancement of Large Legacy Software</i>. We will be exploring the use of AI-based programming languages for reasoning about code at scale&mdash;in the cloud and on supercomputers. <a href="/news/vspells.html">Read more &#8608;</a></li>
+			<li>The HARP lab has won an award, through subcontract with <a href="https://galois.com/project/polymorph/">Galois, inc.</a>, to work on the DARPA <a href="https://www.darpa.mil/news-events/2020-07-30">V-SPELLS program</a>: <i>Verified Security and Performance Enhancement of Large Legacy Software</i>. We will be exploring the use of AI-based programming languages for reasoning about code at scale&mdash;in the cloud and on supercomputers. <a href="/news/vspells.html">Read more &#8608;</a></li>
 		      </ul>
 	 	    </div>
 	 	    <div class="a"></div>
@@ -135,13 +72,13 @@
 		  <div class="content">
 		    <a style="float:right;margin:8px 8px 0 0;" href="/cv/gilray-cv.pdf">(view cv&thinsp;.pdf)</a>
 		    <div id="selpubsbox">
-					<h2>Selected Publications <a style="margin-left:20px;font-size:18px;" href="javascript:viewallpubs();">(view all publications)</a></h2>
+					<h2>Selected Publications <a style="margin-left:20px;font-size:18px;" href="#" onclick="viewallpubs();return false;">(view all publications)</a></h2>
 					<ul class="nodot" id="selpubs">
 					</ul>
 		    </div>
 		    <div id="allpubsbox" style="display:none;">
-					<h2>All Publications <a style="margin-left:20px;font-size:18px;" href="javascript:viewselpubs();">(view selected publications)</a></h2>
-					<ol reversed="reversed" id="allpubs">
+					<h2>All Publications <a style="margin-left:20px;font-size:18px;" href="#" onclick="viewselpubs();return false;">(view selected publications)</a></h2>
+					<ol reversed id="allpubs">
 					</ol>
 		    </div>
 		 	    </div>
@@ -151,10 +88,45 @@
 				<div class="d"></div>
 			</div>
 			<div id="footer">
-				Copyright (c) Thomas Gilray, <span id="footeryear">2025</span>, <a target="_blank" href="https://creativecommons.org/licenses/by-nc/4.0/">Some Rights Reserved</a>. 
+				Copyright (c) Thomas Gilray, <span id="footeryear">2025</span>, <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc/4.0/">Some Rights Reserved</a>.
 			</div>
 		</div>
 	</div>
-	</body>
 
+	<script>
+		function popopenimages() {
+			document.getElementById('photoswrapper').style.display = 'block';
+		}
+		function closeimages() {
+			document.getElementById('photoswrapper').style.display = 'none';
+		}
+		function viewselpubs() {
+			document.getElementById('allpubsbox').style.display = 'none';
+			document.getElementById('selpubsbox').style.display = 'block';
+		}
+		function viewallpubs() {
+			document.getElementById('allpubsbox').style.display = 'block';
+			document.getElementById('selpubsbox').style.display = 'none';
+		}
+
+		async function loadInto(url, id) {
+			try {
+				const res = await fetch(url);
+				if (res.ok) document.getElementById(id).innerHTML = await res.text();
+			} catch (e) {
+				console.warn('could not load', url, e);
+			}
+		}
+		loadInto('/cv/all-pubs.html', 'allpubs');
+		loadInto('/cv/sel-pubs.html', 'selpubs');
+
+		document.addEventListener('DOMContentLoaded', () => {
+			document.getElementById('footeryear').textContent = new Date().getFullYear();
+			const pgheight = Math.max(document.body.scrollHeight, document.body.offsetHeight,
+				document.documentElement.clientHeight, document.documentElement.scrollHeight,
+				document.documentElement.offsetHeight);
+			document.getElementById('photoswrapper').style.height = (pgheight + 5) + 'px';
+		});
+	</script>
+	</body>
 </html>
