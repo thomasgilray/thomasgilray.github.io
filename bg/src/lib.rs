@@ -367,7 +367,7 @@ pub struct PropVertex {
     nrm: [f32; 3],
     /// Linear RGB.
     col: [f32; 3],
-    /// Texture coordinate. Ordinary meshes leave it at zero; the bee billboard uses it.
+    /// Texture coordinate. Ordinary meshes leave it at zero; sprite billboards use it.
     uv: [f32; 2],
 }
 
@@ -430,14 +430,16 @@ pub const MODEL_EMBER: usize = 1;
 pub const MODEL_ROD: usize = 2;
 /// A unit-radius filled circle in the XY plane.
 pub const MODEL_DISC: usize = 3;
-/// Textured side-profile body; its wings are translucent disc props underneath.
+/// Textured top-down body; its wings are translucent disc props underneath.
 pub const MODEL_BEE_BODY: usize = 4;
-pub const MODEL_COUNT: usize = 5;
+/// Oversized carved mask replacing the walker's former disc head.
+pub const MODEL_TIKI_MASK: usize = 5;
+pub const MODEL_COUNT: usize = 6;
 
 /// Which models are drawn flat and unlit — blended over the scene without writing
 /// depth. Embers are their own light source; line art wants to stay the colour it is
 /// asked for rather than picking up highlights.
-const MODEL_UNLIT: [bool; MODEL_COUNT] = [false, true, true, true, true];
+const MODEL_UNLIT: [bool; MODEL_COUNT] = [false, true, true, true, true, true];
 
 /// Where critters drop their prop instances, grouped by model so each group can be
 /// drawn from one range.
@@ -479,6 +481,7 @@ fn prop_model_meshes() -> [(Vec<PropVertex>, Vec<u16>); MODEL_COUNT] {
         build_rod(),
         build_disc(),
         build_bee_body_quad(),
+        build_tiki_mask_quad(),
     ]
 }
 
@@ -547,39 +550,48 @@ pub fn build_disc() -> (Vec<PropVertex>, Vec<u16>) {
     (v, idx)
 }
 
-/// A one-unit-wide billboard matching the generated bee body's 451:256 aspect.
-/// The source faces left, so yaw zero is already the critter's usual travel direction.
-pub fn build_bee_body_quad() -> (Vec<PropVertex>, Vec<u16>) {
-    const HALF_H: f32 = 0.5 * 256.0 / 451.0;
+/// A one-unit-wide textured billboard. The source image's aspect is carried in the
+/// mesh so callers can use one uniform scale for both dimensions.
+fn build_textured_quad(height_over_width: f32) -> (Vec<PropVertex>, Vec<u16>) {
+    let half_h = 0.5 * height_over_width;
     let n = [0.0f32, 0.0, 1.0];
     let white = [1.0f32, 1.0, 1.0];
     let v = vec![
         PropVertex {
-            pos: [-0.5, -HALF_H, 0.0],
+            pos: [-0.5, -half_h, 0.0],
             nrm: n,
             col: white,
             uv: [0.0, 1.0],
         },
         PropVertex {
-            pos: [0.5, -HALF_H, 0.0],
+            pos: [0.5, -half_h, 0.0],
             nrm: n,
             col: white,
             uv: [1.0, 1.0],
         },
         PropVertex {
-            pos: [0.5, HALF_H, 0.0],
+            pos: [0.5, half_h, 0.0],
             nrm: n,
             col: white,
             uv: [1.0, 0.0],
         },
         PropVertex {
-            pos: [-0.5, HALF_H, 0.0],
+            pos: [-0.5, half_h, 0.0],
             nrm: n,
             col: white,
             uv: [0.0, 0.0],
         },
     ];
     (v, vec![0, 1, 2, 0, 2, 3])
+}
+
+/// The top-down source faces left, so yaw zero is already its usual travel direction.
+pub fn build_bee_body_quad() -> (Vec<PropVertex>, Vec<u16>) {
+    build_textured_quad(269.0 / 420.0)
+}
+
+pub fn build_tiki_mask_quad() -> (Vec<PropVertex>, Vec<u16>) {
+    build_textured_quad(512.0 / 223.0)
 }
 
 /// A small four-sided pyramid, apex along +Z, sized about one unit so the per-instance
@@ -1853,7 +1865,7 @@ impl Critter for Rocket {
 // ---------------------------------------------------------------------------
 
 const BEE_BODY_W: f32 = 70.0;
-const BEE_BODY_H: f32 = BEE_BODY_W * 256.0 / 451.0;
+const BEE_BODY_H: f32 = BEE_BODY_W * 269.0 / 420.0;
 const BEE_Z: f32 = 48.0;
 const BEE_APPROACH_SPEED: f32 = 104.0;
 
@@ -1873,9 +1885,11 @@ enum BeeAct {
     },
 }
 
-/// A bee enters low on the right, bumbles generally left and upward, and sometimes
-/// settles on an exposed tile. The body is a generated cutout; wings remain geometry so
-/// flight blur, random angles, and still crisp landing poses do not require sprite sheets.
+/// A top-down bee enters low on the right, bumbles generally left and upward, and
+/// sometimes settles on the visible face of a tile. The walker treats tile edges as
+/// ground in a perpendicular side-view world, so their two performances never collide.
+/// The body is a generated cutout; wings remain geometry so flight blur, random angles,
+/// and still crisp landing poses do not require sprite sheets.
 pub struct Bee {
     x: f32,
     y: f32,
@@ -1929,27 +1943,26 @@ impl Bee {
         }
     }
 
-    fn tile_top(view: &LifeView, col: isize, row: isize) -> f32 {
-        view.cell_center(col as f32, row as f32)[1] + CELL_PX * TILE_FILL * 0.5
+    fn tile_face(view: &LifeView, col: isize, row: isize) -> [f32; 2] {
+        view.cell_center(col as f32, row as f32)
     }
 
     fn landing_is_live(view: &LifeView, col: isize, row: isize) -> bool {
-        view.alive(col, row, 0) && !view.alive(col, row - 1, 0)
+        view.alive(col, row, 0)
     }
 
-    /// Pick an exposed tile down-and-left along the current trip. Looking a generation
-    /// ahead avoids beginning a landing on something already committed to disappear.
+    /// Pick a tile face down-and-left along the current trip. It need not have an exposed
+    /// screen-top edge: the bee lands orthogonally on the square face itself. Looking a
+    /// generation ahead avoids approaching something already committed to disappear.
     fn landing_ahead(&mut self, view: &LifeView) -> Option<(isize, isize, f32, f32)> {
         let mut choices = Vec::new();
         for col in MARGIN as isize..(view.cols() - MARGIN) as isize {
             for row in MARGIN as isize..(view.rows() - MARGIN) as isize {
-                let stable =
-                    (0..=1).all(|g| view.alive(col, row, g) && !view.alive(col, row - 1, g));
+                let stable = (0..=1).all(|g| view.alive(col, row, g));
                 if !stable {
                     continue;
                 }
-                let x = view.cell_center(col as f32, row as f32)[0];
-                let y = Self::tile_top(view, col, row) + BEE_BODY_H * 0.43;
+                let [x, y] = Self::tile_face(view, col, row);
                 let dx = x - self.x;
                 let dy = y - self.y;
                 if !(-CELL_PX * 5.2..=-CELL_PX * 0.35).contains(&dx)
@@ -2073,10 +2086,9 @@ impl Critter for Bee {
                 } else if self.t >= until {
                     self.take_off(false);
                 } else {
-                    // Stay attached to the current top edge. The grid does not translate,
-                    // but recomputing this makes the invariant explicit.
-                    self.x = ctx.life.cell_center(col as f32, row as f32)[0];
-                    self.y = Self::tile_top(&ctx.life, col, row) + BEE_BODY_H * 0.43;
+                    // Stay centred on the square face, not its screen-top edge. The grid
+                    // does not translate, but recomputing this makes the plane explicit.
+                    [self.x, self.y] = Self::tile_face(&ctx.life, col, row);
                     if self.t >= self.next_twitch {
                         self.wing_phase = (self.rng.f32() - 0.5) * 0.55;
                         self.next_twitch = self.t + 0.75 + self.rng.f32() * 0.65;
@@ -2100,45 +2112,32 @@ impl Critter for Bee {
         }
 
         self.x > self.vis_left - BEE_BODY_W
-            && self.y < self.vis_top + BEE_BODY_W
-            && self.y > self.vis_bottom - BEE_BODY_W
+            && self.y < self.vis_top + BEE_BODY_H
+            && self.y > self.vis_bottom - BEE_BODY_H
     }
 
     fn props(&self, _ctx: &CritterCtx, out: &mut PropSink) {
         let y = self.body_y();
         let (sy, cy) = self.yaw.sin_cos();
-        // The roots sit a little toward the head and above the body centre in bee-local
-        // space. Lifting them to the top of the thorax keeps a stopped wing from being
-        // completely hidden by the photographed body.
-        let root = [self.x - cy * 7.0 - sy * 5.0, y - sy * 7.0 + cy * 5.0];
+        // Both wings meet at the dorsal thorax, slightly headward in bee-local space.
+        let root = [self.x - cy * 7.0, y - sy * 7.0];
         if matches!(self.act, BeeAct::Landed { .. }) {
-            // A crisp, stationary pair rising dorsally from the thorax. The two wings
-            // overlap like a real side view but use different angles and lengths, while
-            // nested ellipses give each a visible translucent rim.
-            for (base, length) in [(0.72f32, 39.0f32), (1.10, 33.0)] {
-                let rel = base + self.wing_phase * 0.28;
-                Self::wing(out, root, self.yaw, rel, length, 6.4, 0.30, BEE_Z - 0.8);
-                Self::wing(
-                    out,
-                    root,
-                    self.yaw,
-                    rel,
-                    length * 0.90,
-                    4.5,
-                    0.48,
-                    BEE_Z - 0.6,
-                );
+            // In dorsal view the crisp pair opens to opposite sides of the body. Two
+            // nested ellipses give each wing a translucent rim; the angle changes only
+            // on the roughly one-second twitch.
+            for side in [-1.0f32, 1.0] {
+                let rel = side * (0.82 + self.wing_phase * 0.22);
+                Self::wing(out, root, self.yaw, rel, 38.0, 6.4, 0.30, BEE_Z - 0.8);
+                Self::wing(out, root, self.yaw, rel, 34.0, 4.5, 0.48, BEE_Z - 0.6);
             }
         } else {
-            // Four faint exposures per wing make a soft dorsal motion envelope. Its
-            // centre is re-randomised on every update, while the slightly different
-            // bases keep both wings legible inside the blur.
-            for wing in 0..2 {
+            // Four faint exposures on either side make the randomized top-down flight
+            // blur. `wing_phase` is freshly sampled on every update.
+            for side in [-1.0f32, 1.0] {
                 for trail in 0..4 {
-                    let flutter = (self.wing_phase + trail as f32 * 1.17).sin() * 0.58;
-                    let rel = 0.60 + wing as f32 * 0.34 + flutter;
-                    let length = 38.0 - wing as f32 * 4.0;
-                    Self::wing(out, root, self.yaw, rel, length, 8.5, 0.10, BEE_Z - 1.0);
+                    let flutter = (self.wing_phase + trail as f32 * 1.17).sin() * 0.45;
+                    let rel = side * (0.72 + flutter);
+                    Self::wing(out, root, self.yaw, rel, 38.0, 8.5, 0.10, BEE_Z - 1.0);
                 }
             }
         }
@@ -2166,14 +2165,22 @@ impl Critter for Bee {
 const WALKER_H: f32 = 82.0;
 const WALKER_LINE: f32 = 3.4;
 /// Segment lengths, as fractions of the standing height.
-const WALKER_HEAD_R: f32 = 0.105 * WALKER_H;
-const WALKER_NECK: f32 = 0.03 * WALKER_H;
 const WALKER_TORSO: f32 = 0.32 * WALKER_H;
 const WALKER_SHOULDER: f32 = 0.095 * WALKER_H;
 const WALKER_UPPER_ARM: f32 = 0.185 * WALKER_H;
 const WALKER_FOREARM: f32 = 0.17 * WALKER_H;
 const WALKER_THIGH: f32 = 0.205 * WALKER_H;
 const WALKER_SHIN: f32 = 0.205 * WALKER_H;
+/// The mask is intentionally absurdly larger than the old head. Its bottom overlaps
+/// the upper torso, hiding any neck and making it feel worn rather than balanced there.
+const WALKER_MASK_W: f32 = 34.0;
+const WALKER_MASK_H: f32 = WALKER_MASK_W * 512.0 / 223.0;
+const WALKER_MASK_CHEST_OVERLAP: f32 = WALKER_TORSO * 0.30;
+const WALKER_MASKED_H: f32 =
+    WALKER_THIGH + WALKER_SHIN + WALKER_TORSO + WALKER_MASK_H - WALKER_MASK_CHEST_OVERLAP;
+/// Ledge physics still belong to the slim side-view body beneath the costume. Letting
+/// the decorative mask widen this clearance would erase otherwise natural catches.
+const WALKER_GRAB_BODY_CLEARANCE: f32 = 0.105 * WALKER_H;
 
 const WALKER_GRAVITY: f32 = 1450.0;
 /// Just clear of the tile tops, so he reads as standing on them.
@@ -2532,7 +2539,7 @@ impl Walker {
             }
 
             let surface = view.cell_center(col as f32, row as f32)[1] + half_tile;
-            let clear_of_top = surface <= vis_top - WALKER_H;
+            let clear_of_top = surface <= vis_top - WALKER_MASKED_H;
             let clear_of_bottom = surface >= vis_bottom + WALKER_H * 0.15;
             if clear_of_top && clear_of_bottom {
                 if x.abs() >= WALKER_KEEP_CLEAR {
@@ -2643,7 +2650,7 @@ impl Walker {
 
             // Hang just outside the near face. In the final V-shaped arm pose the near
             // hand then reaches comfortably onto the top without the torso entering it.
-            let hip_x = tile_x - dir * (half_tile + WALKER_HEAD_R * 1.05);
+            let hip_x = tile_x - dir * (half_tile + WALKER_GRAB_BODY_CLEARANCE * 1.05);
             let dx = hip_x - self.x;
             if dx * dir <= 0.0 {
                 continue;
@@ -3016,8 +3023,9 @@ impl Walker {
         }
     }
 
-    /// Emits the figure: one rod per limb segment, a torso, a shoulder bar, and a disc
-    /// for the head. All from the same two models under different stretches.
+    /// Emits the figure: one rod per limb segment and the oversized mask over the upper
+    /// torso. The mask is closer to the camera than the strokes, so it really replaces
+    /// the head and covers the neck/chest lines underneath.
     fn draw_figure(&self, out: &mut PropSink) {
         let ink = [0.0f32, 0.0, 0.0];
         let mut rod = |from: [f32; 2], dir: [f32; 2], len: f32| {
@@ -3083,18 +3091,18 @@ impl Walker {
             );
         }
 
-        let head = [
-            shoulder[0] + torso_dir[0] * (WALKER_NECK + WALKER_HEAD_R),
-            shoulder[1] + torso_dir[1] * (WALKER_NECK + WALKER_HEAD_R),
+        let mask_from_shoulder = WALKER_MASK_H * 0.5 - WALKER_MASK_CHEST_OVERLAP;
+        let mask = [
+            shoulder[0] + torso_dir[0] * mask_from_shoulder,
+            shoulder[1] + torso_dir[1] * mask_from_shoulder,
         ];
         out.push(
-            MODEL_DISC,
+            MODEL_TIKI_MASK,
             Prop::stretched(
-                [head[0], head[1], WALKER_Z],
-                [WALKER_HEAD_R, WALKER_HEAD_R, 1.0],
-                [0.0; 3],
-            )
-            .tinted(ink, 1.0),
+                [mask[0], mask[1], WALKER_Z + 1.0],
+                [WALKER_MASK_W, WALKER_MASK_W, 1.0],
+                [0.0, 0.0, -lean],
+            ),
         );
     }
 }
@@ -3625,8 +3633,8 @@ struct Globals {
 };
 
 @group(0) @binding(0) var<uniform> g : Globals;
-@group(1) @binding(0) var bee_tex : texture_2d<f32>;
-@group(1) @binding(1) var bee_sampler : sampler;
+@group(1) @binding(0) var prop_tex : texture_2d<f32>;
+@group(1) @binding(1) var prop_sampler : sampler;
 
 const SPRING_DECAY : f32 = SPRING_DECAY_LIT;
 const SPRING_OMEGA : f32 = SPRING_OMEGA_LIT;
@@ -3839,12 +3847,12 @@ fn fs_unlit(in : POut) -> @location(0) vec4<f32> {
   return vec4<f32>(o * in.alpha, in.alpha);
 }
 
-/// The generated bee is authored in sRGB and uploaded through an sRGB texture, so the
-/// sampler hands us linear colour. Preserve its photographed detail, then encode only
-/// when the surface itself is a raw non-sRGB target.
+/// Generated sprite art is authored in sRGB and uploaded through an sRGB texture, so
+/// the sampler hands us linear colour. Preserve its detail, then encode only when the
+/// surface itself is a raw non-sRGB target.
 @fragment
-fn fs_bee(in : POut) -> @location(0) vec4<f32> {
-  let texel = textureSample(bee_tex, bee_sampler, in.uv);
+fn fs_textured(in : POut) -> @location(0) vec4<f32> {
+  let texel = textureSample(prop_tex, prop_sampler, in.uv);
   let alpha = texel.a * in.alpha;
   if (alpha < 0.01) { discard; }
   var o = clamp(texel.rgb * in.col, vec3<f32>(0.0), vec3<f32>(1.0));
@@ -4084,22 +4092,104 @@ fn shader_source() -> String {
         .replace("SPIN_LIFT_LIT", &format!("{:?}", SPIN_LIFT))
 }
 
-/// Decode the generated body asset once while constructing the scene. PNG decoding is
-/// deliberately kept out of the frame loop, and `include_bytes` makes the same asset
-/// available to native previews, WebGPU, and the WebGL2 fallback.
-fn bee_body_pixels() -> (Vec<u8>, u32, u32) {
-    let decoder = png::Decoder::new(std::io::Cursor::new(include_bytes!(
-        "../../img/bumblebee-body.png"
-    )));
-    let mut reader = decoder.read_info().expect("decode bumblebee body header");
+/// Decode generated sprite art once while constructing the scene. PNG decoding stays
+/// out of the frame loop, and `include_bytes` makes both assets available to native
+/// previews, WebGPU, and the WebGL2 fallback.
+fn sprite_pixels(bytes: &[u8], label: &str) -> (Vec<u8>, u32, u32) {
+    let decoder = png::Decoder::new(std::io::Cursor::new(bytes));
+    let mut reader = decoder
+        .read_info()
+        .unwrap_or_else(|_| panic!("decode {label} header"));
     let mut pixels = vec![0; reader.output_buffer_size()];
     let info = reader
         .next_frame(&mut pixels)
-        .expect("decode bumblebee body pixels");
+        .unwrap_or_else(|_| panic!("decode {label} pixels"));
     assert_eq!(info.bit_depth, png::BitDepth::Eight);
     assert_eq!(info.color_type, png::ColorType::Rgba);
     pixels.truncate(info.buffer_size());
     (pixels, info.width, info.height)
+}
+
+fn bee_body_pixels() -> (Vec<u8>, u32, u32) {
+    sprite_pixels(
+        include_bytes!("../../img/bumblebee-body.png"),
+        "bumblebee body",
+    )
+}
+
+fn tiki_mask_pixels() -> (Vec<u8>, u32, u32) {
+    sprite_pixels(
+        include_bytes!("../../img/tiki-warrior-mask.png"),
+        "tiki mask",
+    )
+}
+
+fn sprite_bind_group(
+    device: &wgpu::Device,
+    queue: &wgpu::Queue,
+    layout: &wgpu::BindGroupLayout,
+    label: &str,
+    pixels: &[u8],
+    width: u32,
+    height: u32,
+) -> wgpu::BindGroup {
+    let texture = device.create_texture(&wgpu::TextureDescriptor {
+        label: Some(label),
+        size: wgpu::Extent3d {
+            width,
+            height,
+            depth_or_array_layers: 1,
+        },
+        mip_level_count: 1,
+        sample_count: 1,
+        dimension: wgpu::TextureDimension::D2,
+        format: wgpu::TextureFormat::Rgba8UnormSrgb,
+        usage: wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_DST,
+        view_formats: &[],
+    });
+    queue.write_texture(
+        wgpu::TexelCopyTextureInfo {
+            texture: &texture,
+            mip_level: 0,
+            origin: wgpu::Origin3d::ZERO,
+            aspect: wgpu::TextureAspect::All,
+        },
+        pixels,
+        wgpu::TexelCopyBufferLayout {
+            offset: 0,
+            bytes_per_row: Some(width * 4),
+            rows_per_image: Some(height),
+        },
+        wgpu::Extent3d {
+            width,
+            height,
+            depth_or_array_layers: 1,
+        },
+    );
+    let view = texture.create_view(&wgpu::TextureViewDescriptor::default());
+    let sampler = device.create_sampler(&wgpu::SamplerDescriptor {
+        label: Some(label),
+        address_mode_u: wgpu::AddressMode::ClampToEdge,
+        address_mode_v: wgpu::AddressMode::ClampToEdge,
+        address_mode_w: wgpu::AddressMode::ClampToEdge,
+        mag_filter: wgpu::FilterMode::Linear,
+        min_filter: wgpu::FilterMode::Linear,
+        ..Default::default()
+    });
+    device.create_bind_group(&wgpu::BindGroupDescriptor {
+        label: Some(label),
+        layout,
+        entries: &[
+            wgpu::BindGroupEntry {
+                binding: 0,
+                resource: wgpu::BindingResource::TextureView(&view),
+            },
+            wgpu::BindGroupEntry {
+                binding: 1,
+                resource: wgpu::BindingResource::Sampler(&sampler),
+            },
+        ],
+    })
 }
 
 // ---------------------------------------------------------------------------
@@ -4120,8 +4210,9 @@ pub struct Scene {
     /// everything without writing any.
     pipeline_prop: wgpu::RenderPipeline,
     pipeline_unlit: wgpu::RenderPipeline,
-    pipeline_bee: wgpu::RenderPipeline,
+    pipeline_textured: wgpu::RenderPipeline,
     bee_bind_group: wgpu::BindGroup,
+    tiki_bind_group: wgpu::BindGroup,
     prop_v: wgpu::Buffer,
     prop_i: wgpu::Buffer,
     /// Where each model's indices start in the shared buffer, and how many. The
@@ -4209,8 +4300,8 @@ impl Scene {
             immediate_size: 0,
         });
 
-        let bee_bgl = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
-            label: Some("bee-texture-layout"),
+        let texture_bgl = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+            label: Some("sprite-texture-layout"),
             entries: &[
                 wgpu::BindGroupLayoutEntry {
                     binding: 0,
@@ -4230,69 +4321,31 @@ impl Scene {
                 },
             ],
         });
-        let bee_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-            label: Some("bee-pipeline-layout"),
-            bind_group_layouts: &[Some(&bgl), Some(&bee_bgl)],
+        let texture_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
+            label: Some("sprite-pipeline-layout"),
+            bind_group_layouts: &[Some(&bgl), Some(&texture_bgl)],
             immediate_size: 0,
         });
         let (bee_pixels, bee_width, bee_height) = bee_body_pixels();
-        let bee_texture = device.create_texture(&wgpu::TextureDescriptor {
-            label: Some("bumblebee-body"),
-            size: wgpu::Extent3d {
-                width: bee_width,
-                height: bee_height,
-                depth_or_array_layers: 1,
-            },
-            mip_level_count: 1,
-            sample_count: 1,
-            dimension: wgpu::TextureDimension::D2,
-            format: wgpu::TextureFormat::Rgba8UnormSrgb,
-            usage: wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_DST,
-            view_formats: &[],
-        });
-        queue.write_texture(
-            wgpu::TexelCopyTextureInfo {
-                texture: &bee_texture,
-                mip_level: 0,
-                origin: wgpu::Origin3d::ZERO,
-                aspect: wgpu::TextureAspect::All,
-            },
+        let bee_bind_group = sprite_bind_group(
+            device,
+            queue,
+            &texture_bgl,
+            "bumblebee-body",
             &bee_pixels,
-            wgpu::TexelCopyBufferLayout {
-                offset: 0,
-                bytes_per_row: Some(bee_width * 4),
-                rows_per_image: Some(bee_height),
-            },
-            wgpu::Extent3d {
-                width: bee_width,
-                height: bee_height,
-                depth_or_array_layers: 1,
-            },
+            bee_width,
+            bee_height,
         );
-        let bee_view = bee_texture.create_view(&wgpu::TextureViewDescriptor::default());
-        let bee_sampler = device.create_sampler(&wgpu::SamplerDescriptor {
-            label: Some("bee-sampler"),
-            address_mode_u: wgpu::AddressMode::ClampToEdge,
-            address_mode_v: wgpu::AddressMode::ClampToEdge,
-            address_mode_w: wgpu::AddressMode::ClampToEdge,
-            mag_filter: wgpu::FilterMode::Linear,
-            min_filter: wgpu::FilterMode::Linear,
-            ..Default::default()
-        });
-        let bee_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
-            label: Some("bee-texture"),
-            layout: &bee_bgl,
-            entries: &[
-                wgpu::BindGroupEntry {
-                    binding: 0,
-                    resource: wgpu::BindingResource::TextureView(&bee_view),
-                },
-                wgpu::BindGroupEntry {
-                    binding: 1,
-                    resource: wgpu::BindingResource::Sampler(&bee_sampler),
-                },
-            ],
-        });
+        let (tiki_pixels, tiki_width, tiki_height) = tiki_mask_pixels();
+        let tiki_bind_group = sprite_bind_group(
+            device,
+            queue,
+            &texture_bgl,
+            "tiki-warrior-mask",
+            &tiki_pixels,
+            tiki_width,
+            tiki_height,
+        );
 
         let (verts, indices) = build_tile_mesh();
         let vbuf = init_buffer(
@@ -4560,12 +4613,12 @@ impl Scene {
         }
         let pipeline_unlit = device.create_render_pipeline(&prop_desc);
 
-        prop_desc.label = Some("bumblebee-body");
-        prop_desc.layout = Some(&bee_layout);
+        prop_desc.label = Some("textured-sprites");
+        prop_desc.layout = Some(&texture_layout);
         if let Some(f) = prop_desc.fragment.as_mut() {
-            f.entry_point = Some("fs_bee");
+            f.entry_point = Some("fs_textured");
         }
-        let pipeline_bee = device.create_render_pipeline(&prop_desc);
+        let pipeline_textured = device.create_render_pipeline(&prop_desc);
 
         let (depth, msaa) = make_targets(device, format, samples, width, height);
 
@@ -4603,8 +4656,9 @@ impl Scene {
             quad_i,
             pipeline_prop,
             pipeline_unlit,
-            pipeline_bee,
+            pipeline_textured,
             bee_bind_group,
+            tiki_bind_group,
             prop_v,
             prop_i,
             prop_ranges,
@@ -4745,9 +4799,13 @@ impl Scene {
                 if count == 0 {
                     continue;
                 }
-                if m == MODEL_BEE_BODY {
-                    pass.set_pipeline(&self.pipeline_bee);
-                    pass.set_bind_group(1, &self.bee_bind_group, &[]);
+                if let Some(texture) = match m {
+                    MODEL_BEE_BODY => Some(&self.bee_bind_group),
+                    MODEL_TIKI_MASK => Some(&self.tiki_bind_group),
+                    _ => None,
+                } {
+                    pass.set_pipeline(&self.pipeline_textured);
+                    pass.set_bind_group(1, texture, &[]);
                 } else {
                     pass.set_pipeline(if MODEL_UNLIT[m] {
                         &self.pipeline_unlit
@@ -6177,7 +6235,7 @@ mod tests {
     #[test]
     fn bee_body_asset_and_quad_are_well_formed() {
         let (pixels, width, height) = bee_body_pixels();
-        assert_eq!((width, height), (451, 256));
+        assert_eq!((width, height), (420, 269));
         assert_eq!(pixels.len(), width as usize * height as usize * 4);
 
         let mut transparent = 0usize;
@@ -6202,6 +6260,34 @@ mod tests {
         let mut uvs: Vec<[f32; 2]> = quad.iter().map(|v| v.uv).collect();
         uvs.sort_by(|a, b| a.partial_cmp(b).unwrap());
         assert_eq!(uvs, [[0.0, 0.0], [0.0, 1.0], [1.0, 0.0], [1.0, 1.0]]);
+    }
+
+    #[test]
+    fn tiki_mask_asset_and_quad_are_well_formed() {
+        let (pixels, width, height) = tiki_mask_pixels();
+        assert_eq!((width, height), (223, 512));
+        assert_eq!(pixels.len(), width as usize * height as usize * 4);
+        let transparent = pixels.chunks_exact(4).filter(|pixel| pixel[3] == 0).count();
+        let visible = pixels
+            .chunks_exact(4)
+            .filter(|pixel| pixel[3] > 180)
+            .count();
+        let samples = width as usize * height as usize;
+        assert!(
+            transparent > samples / 20,
+            "the mask has no transparent silhouette"
+        );
+        assert!(visible > samples / 2, "the mask is missing or too faint");
+
+        let (quad, indices) = build_tiki_mask_quad();
+        assert_eq!(quad.len(), 4);
+        assert_eq!(indices, [0, 1, 2, 0, 2, 3]);
+        let width = quad[1].pos[0] - quad[0].pos[0];
+        let height = quad[3].pos[1] - quad[0].pos[1];
+        assert!(
+            (height / width - 512.0 / 223.0).abs() < 1e-5,
+            "mask quad lost the asset aspect"
+        );
     }
 
     #[test]
@@ -6240,16 +6326,24 @@ mod tests {
         let mut rng = Rng::new(92);
         let mut bee = Bee::new(&view, &mut rng);
         bee.t = 5.0;
-        bee.x = view.cell_center(10.0, 10.0)[0];
-        bee.y = Bee::tile_top(&view, 10, 10) + BEE_BODY_H * 0.43;
+        // Row 11 has another live tile immediately above it. That made it ineligible
+        // under the old side-view edge landing, but its visible square face is valid.
+        bee.x = 0.0;
+        bee.y = 0.0;
         bee.next_twitch = bee.t;
         bee.act = BeeAct::Landed {
             col: 10,
-            row: 10,
+            row: 11,
             until: 50.0,
         };
 
         bee.update(&walker_ctx(&life, 5.0));
+        let face = Bee::tile_face(&view, 10, 11);
+        assert_eq!([bee.x, bee.y], face, "bee did not land on the tile face");
+        assert!(
+            matches!(bee.act, BeeAct::Landed { row: 11, .. }),
+            "the occupied screen-top edge incorrectly startled the bee"
+        );
         let first_crisp_pose = bee.wing_phase;
         let mut landed = PropSink::default();
         bee.props(&walker_ctx(&life, 5.0), &mut landed);
@@ -6620,7 +6714,7 @@ mod tests {
     }
 
     /// Every rod the figure draws, as (start, end, length).
-    fn walker_segments(w: &Walker) -> (Vec<([f32; 2], [f32; 2], f32)>, [f32; 3]) {
+    fn walker_segments(w: &Walker) -> (Vec<([f32; 2], [f32; 2], f32)>, Prop) {
         let mut sink = PropSink::default();
         w.draw_figure(&mut sink);
         let rods = sink
@@ -6637,8 +6731,16 @@ mod tests {
                 )
             })
             .collect();
-        let head = sink.group(MODEL_DISC)[0].pos;
-        (rods, head)
+        assert!(
+            sink.group(MODEL_DISC).is_empty(),
+            "the old disc head is still present"
+        );
+        assert_eq!(
+            sink.group(MODEL_TIKI_MASK).len(),
+            1,
+            "walker should wear exactly one mask"
+        );
+        (rods, sink.group(MODEL_TIKI_MASK)[0])
     }
 
     /// He has to come to rest with his feet on the surface of the tile he landed on, and
@@ -6775,7 +6877,7 @@ mod tests {
         while checked < 420 && w.update(&walker_ctx(&life, t)) {
             t += 1.0 / 60.0;
 
-            let (rods, head) = walker_segments(&w);
+            let (rods, mask) = walker_segments(&w);
             assert_eq!(rods.len(), 10, "expected ten strokes, got {}", rods.len());
             let mut got: Vec<f32> = rods.iter().map(|(_, _, l)| *l).collect();
             got.sort_by(|a, b| a.partial_cmp(b).unwrap());
@@ -6791,16 +6893,20 @@ mod tests {
                     assert!(d < WALKER_H, "a limb reaches {d:.0}px from the hip");
                 }
             }
-            let hd = ((head[0] - hip[0]).powi(2) + (head[1] - hip[1]).powi(2)).sqrt();
-            assert!(hd < WALKER_H, "the head is {hd:.0}px from the hip");
+            let md = ((mask.pos[0] - hip[0]).powi(2) + (mask.pos[1] - hip[1]).powi(2)).sqrt();
+            assert!(
+                md < WALKER_MASKED_H,
+                "the mask centre is {md:.0}px from the hip"
+            );
             checked += 1;
         }
         assert!(checked > 120, "only got {checked} frames of him");
     }
 
-    /// Standing, he should be a little taller than a tile is wide, as asked.
+    /// Standing, the replacement is unmistakably oversized: broader than the old head,
+    /// over the shoulder line, and tall enough to make the whole figure nearly two tiles.
     #[test]
-    fn walker_stands_taller_than_a_tile() {
+    fn walker_mask_covers_the_neck_and_upper_chest() {
         let (cols, rows) = (24usize, 18usize);
         let life = planted(cols, rows, &[(5, 9), (6, 9), (5, 10), (6, 10)]);
         let mut w = drop_walker(&life, 5, 1.0);
@@ -6821,7 +6927,7 @@ mod tests {
             t += 1.0 / 60.0;
         }
 
-        let (rods, head) = walker_segments(&w);
+        let (rods, mask) = walker_segments(&w);
         let (mut lo, mut hi) = (f32::MAX, f32::MIN);
         for (a, b, _) in &rods {
             for pt in [a, b] {
@@ -6829,13 +6935,23 @@ mod tests {
                 hi = hi.max(pt[1]);
             }
         }
-        hi = hi.max(head[1] + WALKER_HEAD_R);
-        lo = lo.min(head[1] - WALKER_HEAD_R);
+        hi = hi.max(mask.pos[1] + WALKER_MASK_H * 0.5);
+        lo = lo.min(mask.pos[1] - WALKER_MASK_H * 0.5);
+
+        let shoulder_y = w.hip_y + WALKER_TORSO;
+        assert!(
+            mask.pos[1] - WALKER_MASK_H * 0.5 < shoulder_y - WALKER_LINE,
+            "mask bottom does not overlap the chest"
+        );
+        assert!(
+            mask.scale[0] > WALKER_LINE * 9.0,
+            "mask is not oversized relative to the line figure"
+        );
 
         let tile = CELL_PX * TILE_FILL;
         let height = hi - lo;
         assert!(
-            height > tile * 1.05 && height < tile * 1.45,
+            height > tile * 1.8 && height < tile * 2.2,
             "stands {height:.0}px against a {tile:.0}px tile"
         );
     }
