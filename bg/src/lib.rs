@@ -430,19 +430,27 @@ pub const MODEL_EMBER: usize = 1;
 pub const MODEL_ROD: usize = 2;
 /// A unit-radius filled circle in the XY plane.
 pub const MODEL_DISC: usize = 3;
+/// Six independently pivoted cells from the photographic leg atlas. Keeping them
+/// ahead of the body in model order makes their attachment ends disappear under fur.
+pub const MODEL_BEE_LEG_FIRST: usize = 4;
+pub const MODEL_BEE_LEG_LAST: usize = MODEL_BEE_LEG_FIRST + 5;
 /// Textured top-down body.
-pub const MODEL_BEE_BODY: usize = 4;
+pub const MODEL_BEE_BODY: usize = 10;
 /// Translucent bee wings are a separate late-drawn disc model, so they veil the
 /// thorax like real wings instead of disappearing behind the body cutout.
-pub const MODEL_BEE_WING: usize = 5;
+pub const MODEL_BEE_WING: usize = 11;
 /// Oversized carved mask replacing the walker's former disc head.
-pub const MODEL_TIKI_MASK: usize = 6;
-pub const MODEL_COUNT: usize = 7;
+pub const MODEL_TIKI_MASK: usize = 12;
+/// Alternate oversized astronaut helmet, selected once when a walker arrives.
+pub const MODEL_ASTRONAUT_HELMET: usize = 13;
+pub const MODEL_COUNT: usize = 14;
 
 /// Which models are drawn flat and unlit — blended over the scene without writing
 /// depth. Embers are their own light source; line art wants to stay the colour it is
 /// asked for rather than picking up highlights.
-const MODEL_UNLIT: [bool; MODEL_COUNT] = [false, true, true, true, true, true, true];
+const MODEL_UNLIT: [bool; MODEL_COUNT] = [
+    false, true, true, true, true, true, true, true, true, true, true, true, true, true,
+];
 
 /// Where critters drop their prop instances, grouped by model so each group can be
 /// drawn from one range.
@@ -483,9 +491,16 @@ fn prop_model_meshes() -> [(Vec<PropVertex>, Vec<u16>); MODEL_COUNT] {
         build_ember(),
         build_rod(),
         build_disc(),
+        build_bee_leg_quad(0),
+        build_bee_leg_quad(1),
+        build_bee_leg_quad(2),
+        build_bee_leg_quad(3),
+        build_bee_leg_quad(4),
+        build_bee_leg_quad(5),
         build_bee_body_quad(),
         build_disc(),
         build_tiki_mask_quad(),
+        build_astronaut_helmet_quad(),
     ]
 }
 
@@ -589,6 +604,68 @@ fn build_textured_quad(height_over_width: f32) -> (Vec<PropVertex>, Vec<u16>) {
     (v, vec![0, 1, 2, 0, 2, 3])
 }
 
+const BEE_LEG_CELL_W: f32 = 112.0;
+const BEE_LEG_CELL_H: f32 = 88.0;
+const BEE_LEG_ATLAS_W: f32 = BEE_LEG_CELL_W * 3.0;
+const BEE_LEG_ATLAS_H: f32 = BEE_LEG_CELL_H * 2.0;
+/// Pivot locations inside the six atlas cells, in cell pixels. They sit just inside
+/// the body silhouette, so the overlaid thorax hides every cropped attachment seam.
+const BEE_LEG_CELL_PIVOTS: [[f32; 2]; 6] = [
+    [75.0, 66.0],
+    [35.0, 67.0],
+    [22.0, 69.0],
+    [73.0, 24.0],
+    [33.0, 23.0],
+    [18.0, 26.0],
+];
+
+/// One atlas cell, with its local origin at the leg's body attachment rather than at
+/// the quad centre. Rotating the instance therefore moves only that leg.
+pub fn build_bee_leg_quad(slot: usize) -> (Vec<PropVertex>, Vec<u16>) {
+    assert!(slot < 6);
+    let col = slot % 3;
+    let row = slot / 3;
+    let [pivot_x, pivot_y] = BEE_LEG_CELL_PIVOTS[slot];
+    let left = -pivot_x / BEE_LEG_CELL_W;
+    let right = (BEE_LEG_CELL_W - pivot_x) / BEE_LEG_CELL_W;
+    let top = pivot_y / BEE_LEG_CELL_W;
+    let bottom = (pivot_y - BEE_LEG_CELL_H) / BEE_LEG_CELL_W;
+    // Inset half a texel so linear filtering cannot borrow a neighbouring leg cell.
+    let u0 = (col as f32 * BEE_LEG_CELL_W + 0.5) / BEE_LEG_ATLAS_W;
+    let u1 = ((col + 1) as f32 * BEE_LEG_CELL_W - 0.5) / BEE_LEG_ATLAS_W;
+    let v0 = (row as f32 * BEE_LEG_CELL_H + 0.5) / BEE_LEG_ATLAS_H;
+    let v1 = ((row + 1) as f32 * BEE_LEG_CELL_H - 0.5) / BEE_LEG_ATLAS_H;
+    let n = [0.0f32, 0.0, 1.0];
+    let col = [1.0f32, 1.0, 1.0];
+    let v = vec![
+        PropVertex {
+            pos: [left, bottom, 0.0],
+            nrm: n,
+            col,
+            uv: [u0, v1],
+        },
+        PropVertex {
+            pos: [right, bottom, 0.0],
+            nrm: n,
+            col,
+            uv: [u1, v1],
+        },
+        PropVertex {
+            pos: [right, top, 0.0],
+            nrm: n,
+            col,
+            uv: [u1, v0],
+        },
+        PropVertex {
+            pos: [left, top, 0.0],
+            nrm: n,
+            col,
+            uv: [u0, v0],
+        },
+    ];
+    (v, vec![0, 1, 2, 0, 2, 3])
+}
+
 /// The top-down source faces left, so yaw zero is already its usual travel direction.
 pub fn build_bee_body_quad() -> (Vec<PropVertex>, Vec<u16>) {
     build_textured_quad(269.0 / 420.0)
@@ -596,6 +673,10 @@ pub fn build_bee_body_quad() -> (Vec<PropVertex>, Vec<u16>) {
 
 pub fn build_tiki_mask_quad() -> (Vec<PropVertex>, Vec<u16>) {
     build_textured_quad(512.0 / 223.0)
+}
+
+pub fn build_astronaut_helmet_quad() -> (Vec<PropVertex>, Vec<u16>) {
+    build_textured_quad(1.0)
 }
 
 /// A small four-sided pyramid, apex along +Z, sized about one unit so the per-instance
@@ -1891,13 +1972,25 @@ impl Critter for Rocket {
 // The bumblebee — a textured visitor with procedural wings
 // ---------------------------------------------------------------------------
 
-const BEE_BODY_W: f32 = 70.0;
+const BEE_SIZE: f32 = 0.80;
+const BEE_BODY_W: f32 = 70.0 * BEE_SIZE;
 const BEE_BODY_H: f32 = BEE_BODY_W * 269.0 / 420.0;
 const BEE_Z: f32 = 48.0;
 const BEE_APPROACH_SPEED: f32 = 104.0;
 const BEE_SCUTTLE_RADIUS: f32 = CELL_PX * TILE_FILL * 0.24;
-const BEE_KICK_SECS: f32 = 0.46;
-const BEE_KICK_GROW: f32 = 0.78;
+const BEE_KICK_SECS: f32 = 0.34;
+const BEE_KICK_GROW: f32 = 0.70;
+const BEE_KICK_LOOM_PORTION: f32 = 0.58;
+const BEE_KICK_AWAY: f32 = 44.0;
+/// Attachments in the original 420x269 body coordinate system, in atlas order.
+const BEE_LEG_BODY_PIVOTS: [[f32; 2]; 6] = [
+    [122.0, 61.0],
+    [181.0, 58.0],
+    [270.0, 77.0],
+    [126.0, 210.0],
+    [183.0, 213.0],
+    [271.0, 210.0],
+];
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 enum BeeAct {
@@ -1915,6 +2008,7 @@ enum BeeAct {
     Kicked {
         since: f32,
         origin: [f32; 2],
+        away: [f32; 2],
     },
 }
 
@@ -2041,26 +2135,34 @@ impl Bee {
     }
 
     fn kick_off(&mut self) {
+        let angle = self.rng.f32() * std::f32::consts::TAU;
         self.act = BeeAct::Kicked {
             since: self.t,
             origin: [self.x, self.y],
+            away: [angle.cos(), angle.sin()],
         };
-        self.vx = -90.0;
-        self.vy = 190.0;
+        self.vx = angle.cos() * BEE_KICK_AWAY / BEE_KICK_SECS;
+        self.vy = angle.sin() * BEE_KICK_AWAY / BEE_KICK_SECS;
     }
 
-    fn take_off(&mut self, startled: bool) {
+    fn startled_take_off(&mut self) {
         self.act = BeeAct::Flying;
         self.want_vx = -(105.0 + self.rng.f32() * 45.0);
-        self.want_vy = if startled {
-            78.0 + self.rng.f32() * 42.0
-        } else {
-            38.0 + self.rng.f32() * 42.0
-        };
+        self.want_vy = 78.0 + self.rng.f32() * 42.0;
         self.vx = self.want_vx;
         self.vy = self.want_vy;
         self.next_turn = self.t + 0.32 + self.rng.f32() * 0.38;
-        self.next_land_check = self.t + if startled { 0.75 } else { 0.22 };
+        self.next_land_check = self.t + 0.75;
+    }
+
+    fn recover_from_kick(&mut self) {
+        self.act = BeeAct::Flying;
+        self.want_vx = -(105.0 + self.rng.f32() * 45.0);
+        self.want_vy = 28.0 + self.rng.f32() * 40.0;
+        // Preserve the direction of the shove for a few frames, then the normal flight
+        // steering bends it back toward the next flower without a velocity cut.
+        self.next_turn = self.t + 0.20;
+        self.next_land_check = self.t + 0.08;
     }
 
     fn body_y(&self) -> f32 {
@@ -2074,9 +2176,51 @@ impl Bee {
         match self.act {
             BeeAct::Kicked { since, .. } => {
                 let p = ((self.t - since) / BEE_KICK_SECS).clamp(0.0, 1.0);
-                1.0 + BEE_KICK_GROW * (std::f32::consts::PI * p).sin()
+                let loom = if p < BEE_KICK_LOOM_PORTION {
+                    (std::f32::consts::PI * p / BEE_KICK_LOOM_PORTION).sin()
+                } else {
+                    0.0
+                };
+                1.0 + BEE_KICK_GROW * loom
             }
             _ => 1.0,
+        }
+    }
+
+    fn leg_wiggle(&self, leg: usize) -> f32 {
+        let side = if leg < 3 { 1.0 } else { -1.0 };
+        let phase = leg as f32 * 1.37;
+        match self.act {
+            BeeAct::Landed { .. } => {
+                side * ((self.t * 22.0 + phase).sin() * 0.23
+                    + (self.t * 47.0 + phase * 0.7).sin() * 0.055)
+            }
+            BeeAct::Kicked { .. } => side * (self.t * 29.0 + phase).sin() * 0.34,
+            BeeAct::Flying | BeeAct::Approach { .. } => {
+                side * (self.t * 10.0 + phase).sin() * 0.055
+            }
+        }
+    }
+
+    fn legs(&self, y: f32, scale: f32, out: &mut PropSink) {
+        let pixel = BEE_BODY_W * scale / 420.0;
+        let leg_scale = BEE_BODY_W * scale * BEE_LEG_CELL_W / 420.0;
+        let (sy, cy) = self.yaw.sin_cos();
+        for (leg, [px, py]) in BEE_LEG_BODY_PIVOTS.into_iter().enumerate() {
+            let local = [(px - 210.0) * pixel, (134.5 - py) * pixel];
+            let pivot = [
+                self.x + local[0] * cy - local[1] * sy,
+                y + local[0] * sy + local[1] * cy,
+                BEE_Z - 1.4,
+            ];
+            out.push(
+                MODEL_BEE_LEG_FIRST + leg,
+                Prop::new(
+                    pivot,
+                    leg_scale,
+                    [0.0, 0.0, self.yaw + self.leg_wiggle(leg)],
+                ),
+            );
         }
     }
 
@@ -2127,7 +2271,7 @@ impl Critter for Bee {
             }
             BeeAct::Approach { col, row, x, y } => {
                 if !Self::landing_is_live(&ctx.life, col, row) || ctx.tile_spinning(col, row) {
-                    self.take_off(true);
+                    self.startled_take_off();
                 } else {
                     let dx = x - self.x;
                     let dy = y - self.y;
@@ -2155,7 +2299,7 @@ impl Critter for Bee {
             }
             BeeAct::Landed { col, row } => {
                 if !Self::landing_is_live(&ctx.life, col, row) {
-                    self.take_off(true);
+                    self.startled_take_off();
                 } else if ctx.tile_spinning(col, row) {
                     self.kick_off();
                 } else {
@@ -2185,17 +2329,24 @@ impl Critter for Bee {
                     }
                 }
             }
-            BeeAct::Kicked { since, origin } => {
+            BeeAct::Kicked {
+                since,
+                origin,
+                away,
+            } => {
                 let p = ((self.t - since) / BEE_KICK_SECS).clamp(0.0, 1.0);
                 let old = [self.x, self.y];
-                self.x = origin[0] - 48.0 * p + (p * std::f32::consts::PI * 3.0).sin() * 5.0;
-                self.y = origin[1] + (p * std::f32::consts::PI).sin() * 60.0 - 12.0 * p;
+                let travel = BEE_KICK_AWAY * (1.0 - (1.0 - p).powi(2));
+                let normal = [-away[1], away[0]];
+                let wobble = (p * std::f32::consts::TAU).sin() * 3.5;
+                self.x = origin[0] + away[0] * travel + normal[0] * wobble;
+                self.y = origin[1] + away[1] * travel + normal[1] * wobble;
                 if ctx.dt > 1e-5 {
                     self.vx = (self.x - old[0]) / ctx.dt;
                     self.vy = (self.y - old[1]) / ctx.dt;
                 }
                 if p >= 1.0 {
-                    self.take_off(false);
+                    self.recover_from_kick();
                 }
             }
         }
@@ -2223,16 +2374,38 @@ impl Critter for Bee {
         let y = self.body_y();
         let scale = self.presentation_scale();
         let (sy, cy) = self.yaw.sin_cos();
+        self.legs(y, scale, out);
         // Both wings meet at the dorsal thorax, slightly headward in bee-local space.
-        let root = [self.x - cy * 7.0 * scale, y - sy * 7.0 * scale];
+        let root = [
+            self.x - cy * 7.0 * BEE_SIZE * scale,
+            y - sy * 7.0 * BEE_SIZE * scale,
+        ];
         if matches!(self.act, BeeAct::Landed { .. }) {
             // In dorsal view the crisp pair opens to opposite sides of the body. Two
             // nested ellipses give each wing a translucent rim; the angle changes only
             // on the roughly one-second twitch.
             for side in [-1.0f32, 1.0] {
                 let rel = side * (0.82 + self.wing_phase * 0.22);
-                Self::wing(out, root, self.yaw, rel, 38.0, 6.4, 0.30, BEE_Z - 0.8);
-                Self::wing(out, root, self.yaw, rel, 34.0, 4.5, 0.48, BEE_Z - 0.6);
+                Self::wing(
+                    out,
+                    root,
+                    self.yaw,
+                    rel,
+                    38.0 * BEE_SIZE,
+                    6.4 * BEE_SIZE,
+                    0.30,
+                    BEE_Z - 0.8,
+                );
+                Self::wing(
+                    out,
+                    root,
+                    self.yaw,
+                    rel,
+                    34.0 * BEE_SIZE,
+                    4.5 * BEE_SIZE,
+                    0.48,
+                    BEE_Z - 0.6,
+                );
             }
         } else {
             // Four broad exposures on either side make the randomized top-down flight
@@ -2247,8 +2420,8 @@ impl Critter for Bee {
                         root,
                         self.yaw,
                         rel,
-                        42.0 * scale,
-                        10.5 * scale,
+                        42.0 * BEE_SIZE * scale,
+                        10.5 * BEE_SIZE * scale,
                         0.13,
                         BEE_Z - 1.0,
                     );
@@ -2287,9 +2460,12 @@ const WALKER_THIGH: f32 = 0.205 * WALKER_H;
 const WALKER_SHIN: f32 = 0.205 * WALKER_H;
 /// The mask is intentionally absurdly larger than the old head. Its bottom overlaps
 /// the upper torso, hiding any neck and making it feel worn rather than balanced there.
-const WALKER_MASK_W: f32 = 34.0 * 0.80;
+const WALKER_MASK_W: f32 = 34.0 * 0.80 * 1.10;
 const WALKER_MASK_H: f32 = WALKER_MASK_W * (512.0 / 223.0) * 0.90;
 const WALKER_MASK_CHEST_OVERLAP: f32 = WALKER_TORSO * 0.30;
+const WALKER_HELMET_W: f32 = 42.0;
+const WALKER_HELMET_H: f32 = WALKER_HELMET_W;
+const WALKER_HELMET_CHEST_OVERLAP: f32 = WALKER_TORSO * 0.25;
 const WALKER_MASKED_H: f32 =
     WALKER_THIGH + WALKER_SHIN + WALKER_TORSO + WALKER_MASK_H - WALKER_MASK_CHEST_OVERLAP;
 /// Ledge physics still belong to the slim side-view body beneath the costume. Letting
@@ -2551,6 +2727,20 @@ enum Act {
     Hang { col: isize, row: isize },
 }
 
+#[derive(Clone, Copy, PartialEq, Debug)]
+enum Headgear {
+    Tiki,
+    Astronaut,
+}
+
+fn random_headgear(rng: &mut Rng) -> Headgear {
+    if rng.f32() < 0.5 {
+        Headgear::Tiki
+    } else {
+        Headgear::Astronaut
+    }
+}
+
 /// A ledge catch selected at take-off whose ballistic path has already been checked.
 ///
 /// `hip_x` is where the body will be when the raised hands descend through `ledge_y`.
@@ -2598,6 +2788,8 @@ pub struct Walker {
     /// Which boxed-in routine was last used: false for hop, true for shove. Alternating
     /// after the first weighted choice keeps either idle from repeating indefinitely.
     last_stuck: Option<bool>,
+    /// Chosen once at arrival; it changes only the costume, never the physics.
+    headgear: Headgear,
     act: Act,
     pose: Pose,
     /// Row he is standing on, watched so he can fall when it goes away.
@@ -2669,6 +2861,7 @@ impl Walker {
         }
 
         let (col, x) = options[rng.below(options.len())];
+        let headgear = random_headgear(rng);
         // Entering with his feet level with the top edge means the whole drop is on
         // screen, and the check above guarantees he has room to finish it.
         let hip_y = vis_top + WALKER_H * 0.55;
@@ -2686,6 +2879,7 @@ impl Walker {
             no_land_until: 0.0,
             hang_release_at: f32::INFINITY,
             last_stuck: None,
+            headgear,
             act: Act::Airborne,
             pose: Pose::falling(0.0),
             support: None,
@@ -3205,16 +3399,32 @@ impl Walker {
             );
         }
 
-        let mask_from_shoulder = WALKER_MASK_H * 0.5 - WALKER_MASK_CHEST_OVERLAP;
-        let mask = [
-            shoulder[0] + torso_dir[0] * mask_from_shoulder,
-            shoulder[1] + torso_dir[1] * mask_from_shoulder,
+        let (model, width, height, scale_y, overlap) = match self.headgear {
+            Headgear::Tiki => (
+                MODEL_TIKI_MASK,
+                WALKER_MASK_W,
+                WALKER_MASK_H,
+                WALKER_MASK_W * 0.90,
+                WALKER_MASK_CHEST_OVERLAP,
+            ),
+            Headgear::Astronaut => (
+                MODEL_ASTRONAUT_HELMET,
+                WALKER_HELMET_W,
+                WALKER_HELMET_H,
+                WALKER_HELMET_H,
+                WALKER_HELMET_CHEST_OVERLAP,
+            ),
+        };
+        let head_from_shoulder = height * 0.5 - overlap;
+        let head = [
+            shoulder[0] + torso_dir[0] * head_from_shoulder,
+            shoulder[1] + torso_dir[1] * head_from_shoulder,
         ];
         out.push(
-            MODEL_TIKI_MASK,
+            model,
             Prop::stretched(
-                [mask[0], mask[1], WALKER_Z + 1.0],
-                [WALKER_MASK_W, WALKER_MASK_W * 0.90, 1.0],
+                [head[0], head[1], WALKER_Z + 1.0],
+                [width, scale_y, 1.0],
                 [0.0, 0.0, -lean],
             ),
         );
@@ -4247,10 +4457,24 @@ fn bee_body_pixels() -> (Vec<u8>, u32, u32) {
     )
 }
 
+fn bee_legs_pixels() -> (Vec<u8>, u32, u32) {
+    sprite_pixels(
+        include_bytes!("../../img/bumblebee-legs.png"),
+        "bumblebee legs",
+    )
+}
+
 fn tiki_mask_pixels() -> (Vec<u8>, u32, u32) {
     sprite_pixels(
         include_bytes!("../../img/tiki-warrior-mask.png"),
         "tiki mask",
+    )
+}
+
+fn astronaut_helmet_pixels() -> (Vec<u8>, u32, u32) {
+    sprite_pixels(
+        include_bytes!("../../img/astronaut-helmet.png"),
+        "astronaut helmet",
     )
 }
 
@@ -4342,7 +4566,9 @@ pub struct Scene {
     pipeline_unlit: wgpu::RenderPipeline,
     pipeline_textured: wgpu::RenderPipeline,
     bee_bind_group: wgpu::BindGroup,
+    bee_legs_bind_group: wgpu::BindGroup,
     tiki_bind_group: wgpu::BindGroup,
+    astronaut_bind_group: wgpu::BindGroup,
     prop_v: wgpu::Buffer,
     prop_i: wgpu::Buffer,
     /// Where each model's indices start in the shared buffer, and how many. The
@@ -4466,6 +4692,16 @@ impl Scene {
             bee_width,
             bee_height,
         );
+        let (bee_legs_pixels, bee_legs_width, bee_legs_height) = bee_legs_pixels();
+        let bee_legs_bind_group = sprite_bind_group(
+            device,
+            queue,
+            &texture_bgl,
+            "bumblebee-legs",
+            &bee_legs_pixels,
+            bee_legs_width,
+            bee_legs_height,
+        );
         let (tiki_pixels, tiki_width, tiki_height) = tiki_mask_pixels();
         let tiki_bind_group = sprite_bind_group(
             device,
@@ -4475,6 +4711,16 @@ impl Scene {
             &tiki_pixels,
             tiki_width,
             tiki_height,
+        );
+        let (astronaut_pixels, astronaut_width, astronaut_height) = astronaut_helmet_pixels();
+        let astronaut_bind_group = sprite_bind_group(
+            device,
+            queue,
+            &texture_bgl,
+            "astronaut-helmet",
+            &astronaut_pixels,
+            astronaut_width,
+            astronaut_height,
         );
 
         let (verts, indices) = build_tile_mesh();
@@ -4788,7 +5034,9 @@ impl Scene {
             pipeline_unlit,
             pipeline_textured,
             bee_bind_group,
+            bee_legs_bind_group,
             tiki_bind_group,
+            astronaut_bind_group,
             prop_v,
             prop_i,
             prop_ranges,
@@ -4930,8 +5178,10 @@ impl Scene {
                     continue;
                 }
                 if let Some(texture) = match m {
+                    MODEL_BEE_LEG_FIRST..=MODEL_BEE_LEG_LAST => Some(&self.bee_legs_bind_group),
                     MODEL_BEE_BODY => Some(&self.bee_bind_group),
                     MODEL_TIKI_MASK => Some(&self.tiki_bind_group),
+                    MODEL_ASTRONAUT_HELMET => Some(&self.astronaut_bind_group),
                     _ => None,
                 } {
                     pass.set_pipeline(&self.pipeline_textured);
@@ -6365,9 +6615,9 @@ mod tests {
         assert_eq!(base, verts.len(), "vertex spans do not cover the buffer");
     }
 
-    /// The generated cutout is deliberately a body-only image: transparent corners let
-    /// the procedural wings show cleanly behind it, while the quad's UVs cover the whole
-    /// texture without relying on any atlas state.
+    /// The generated cutout is deliberately a body-only image: its six legs have been
+    /// moved into independently animated atlas cells, while the body quad keeps the
+    /// source aspect and full UV range.
     #[test]
     fn bee_body_asset_and_quad_are_well_formed() {
         let (pixels, width, height) = bee_body_pixels();
@@ -6399,6 +6649,33 @@ mod tests {
     }
 
     #[test]
+    fn bee_leg_atlas_has_six_independent_pivoted_cells() {
+        let (pixels, width, height) = bee_legs_pixels();
+        assert_eq!((width, height), (336, 176));
+        assert_eq!(pixels.len(), width as usize * height as usize * 4);
+        let visible = pixels.chunks_exact(4).filter(|p| p[3] > 180).count();
+        assert!(visible > 1_500, "leg atlas is empty or nearly transparent");
+
+        for slot in 0..6 {
+            let (quad, indices) = build_bee_leg_quad(slot);
+            assert_eq!(quad.len(), 4);
+            assert_eq!(indices, [0, 1, 2, 0, 2, 3]);
+            let min_x = quad.iter().map(|v| v.pos[0]).fold(f32::MAX, f32::min);
+            let max_x = quad.iter().map(|v| v.pos[0]).fold(f32::MIN, f32::max);
+            let min_y = quad.iter().map(|v| v.pos[1]).fold(f32::MAX, f32::min);
+            let max_y = quad.iter().map(|v| v.pos[1]).fold(f32::MIN, f32::max);
+            assert!(
+                min_x < 0.0 && max_x > 0.0 && min_y < 0.0 && max_y > 0.0,
+                "leg {slot} pivot is not inside its cell"
+            );
+        }
+        assert!(
+            MODEL_BEE_LEG_LAST < MODEL_BEE_BODY && MODEL_BEE_BODY < MODEL_BEE_WING,
+            "legs, body, and wings lost their compositing order"
+        );
+    }
+
+    #[test]
     fn tiki_mask_asset_and_quad_are_well_formed() {
         let (pixels, width, height) = tiki_mask_pixels();
         assert_eq!((width, height), (223, 512));
@@ -6424,6 +6701,23 @@ mod tests {
             (height / width - 512.0 / 223.0).abs() < 1e-5,
             "mask quad lost the asset aspect"
         );
+    }
+
+    #[test]
+    fn astronaut_helmet_asset_and_quad_are_well_formed() {
+        let (pixels, width, height) = astronaut_helmet_pixels();
+        assert_eq!((width, height), (512, 512));
+        assert_eq!(pixels.len(), width as usize * height as usize * 4);
+        let transparent = pixels.chunks_exact(4).filter(|p| p[3] == 0).count();
+        let visible = pixels.chunks_exact(4).filter(|p| p[3] > 180).count();
+        assert!(
+            transparent > pixels.len() / 4 / 5,
+            "helmet has no transparent outside"
+        );
+        assert!(visible > pixels.len() / 4 / 3, "helmet is missing or faint");
+        let (quad, indices) = build_astronaut_helmet_quad();
+        assert_eq!(quad.len(), 4);
+        assert_eq!(indices, [0, 1, 2, 0, 2, 3]);
     }
 
     #[test]
@@ -6564,32 +6858,69 @@ mod tests {
             "tile spin did not kick the bee"
         );
 
-        for frame in 1..=14 {
+        for frame in 1..=6 {
             bee.update(&walker_ctx(&life, frame as f32 / 60.0));
         }
         let mut midair = PropSink::default();
-        bee.props(&walker_ctx(&life, 14.0 / 60.0), &mut midair);
+        bee.props(&walker_ctx(&life, 6.0 / 60.0), &mut midair);
         assert!(
             midair.group(MODEL_BEE_BODY)[0].scale[0] > BEE_BODY_W * 1.55,
             "camera kick did not make the bee loom"
         );
-        assert!(
-            bee.y > origin[1] + 40.0,
-            "kick had no dramatic upward screen arc"
-        );
+        for leg in MODEL_BEE_LEG_FIRST..=MODEL_BEE_LEG_LAST {
+            assert_eq!(midair.group(leg).len(), 1, "leg layer {leg} is missing");
+        }
         assert!(
             MODEL_BEE_WING > MODEL_BEE_BODY,
             "flight wings must draw over and obscure the thorax"
         );
 
-        for frame in 15..=40 {
+        // The camera loom is already over while the outward shove is still resolving.
+        for frame in 7..=13 {
+            bee.update(&walker_ctx(&life, frame as f32 / 60.0));
+        }
+        let mut recovered_depth = PropSink::default();
+        bee.props(&walker_ctx(&life, 13.0 / 60.0), &mut recovered_depth);
+        assert!(
+            recovered_depth.group(MODEL_BEE_BODY)[0].scale[0] <= BEE_BODY_W * 1.01,
+            "bee stayed enlarged after dropping back near the tile plane"
+        );
+
+        for frame in 14..=28 {
             bee.update(&walker_ctx(&life, frame as f32 / 60.0));
         }
         assert!(
             matches!(bee.act, BeeAct::Flying | BeeAct::Approach { .. }),
             "bee did not return to its flower-to-flower flight"
         );
-        assert!(bee.x < origin[0], "kick did not send the bee leftward");
+        assert!(
+            (bee.x - origin[0]).hypot(bee.y - origin[1]) > BEE_KICK_AWAY * 0.70,
+            "kick did not carry the bee away from its flower"
+        );
+    }
+
+    #[test]
+    fn bee_legs_wiggle_lightly_in_flight_and_aggressively_while_walking() {
+        let life = planted(24, 18, &[]);
+        let mut rng = Rng::new(77);
+        let mut bee = Bee::new(&life.view(), &mut rng);
+        let mut flight_max = 0.0f32;
+        let mut walk_max = 0.0f32;
+        for frame in 0..240 {
+            bee.t = frame as f32 / 60.0;
+            bee.act = BeeAct::Flying;
+            flight_max = flight_max.max(bee.leg_wiggle(0).abs());
+            bee.act = BeeAct::Landed { col: 5, row: 5 };
+            walk_max = walk_max.max(bee.leg_wiggle(0).abs());
+        }
+        assert!(
+            flight_max > 0.04 && flight_max < 0.07,
+            "flight leg motion is not a subtle wiggle ({flight_max:.3})"
+        );
+        assert!(
+            walk_max > flight_max * 4.0,
+            "walking legs are not substantially more animated ({walk_max:.3})"
+        );
     }
 
     #[test]
@@ -6949,6 +7280,7 @@ mod tests {
             no_land_until: 0.0,
             hang_release_at: f32::INFINITY,
             last_stuck: None,
+            headgear: Headgear::Tiki,
             act: Act::Airborne,
             pose: Pose::falling(0.0),
             support: None,
@@ -7014,12 +7346,18 @@ mod tests {
             sink.group(MODEL_DISC).is_empty(),
             "the old disc head is still present"
         );
+        let headgear: Vec<Prop> = sink
+            .group(MODEL_TIKI_MASK)
+            .iter()
+            .chain(sink.group(MODEL_ASTRONAUT_HELMET))
+            .copied()
+            .collect();
         assert_eq!(
-            sink.group(MODEL_TIKI_MASK).len(),
+            headgear.len(),
             1,
-            "walker should wear exactly one mask"
+            "walker should wear exactly one headpiece"
         );
-        (rods, sink.group(MODEL_TIKI_MASK)[0])
+        (rods, headgear[0])
     }
 
     /// He has to come to rest with his feet on the surface of the tile he landed on, and
@@ -7233,6 +7571,38 @@ mod tests {
             height > tile * 1.5 && height < tile * 1.75,
             "stands {height:.0}px against a {tile:.0}px tile"
         );
+    }
+
+    #[test]
+    fn walkers_choose_headgear_evenly_and_draw_only_their_choice() {
+        let mut rng = Rng::new(0xface_cafe);
+        let mut counts = [0usize; 2];
+        for _ in 0..20_000 {
+            counts[match random_headgear(&mut rng) {
+                Headgear::Tiki => 0,
+                Headgear::Astronaut => 1,
+            }] += 1;
+        }
+        let tiki_share = counts[0] as f32 / counts.iter().sum::<usize>() as f32;
+        assert!(
+            (tiki_share - 0.5).abs() < 0.015,
+            "headgear split was {:.1}% tiki",
+            tiki_share * 100.0
+        );
+
+        let life = planted(24, 18, &[]);
+        let mut walker = drop_walker(&life, 5, 4.0);
+        walker.pose = Pose::standing();
+        for (headgear, model, absent) in [
+            (Headgear::Tiki, MODEL_TIKI_MASK, MODEL_ASTRONAUT_HELMET),
+            (Headgear::Astronaut, MODEL_ASTRONAUT_HELMET, MODEL_TIKI_MASK),
+        ] {
+            walker.headgear = headgear;
+            let mut sink = PropSink::default();
+            walker.draw_figure(&mut sink);
+            assert_eq!(sink.group(model).len(), 1);
+            assert!(sink.group(absent).is_empty());
+        }
     }
 
     /// Boxed in on both sides, he must pick one of the two stuck behaviours and never a
