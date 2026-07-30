@@ -430,16 +430,19 @@ pub const MODEL_EMBER: usize = 1;
 pub const MODEL_ROD: usize = 2;
 /// A unit-radius filled circle in the XY plane.
 pub const MODEL_DISC: usize = 3;
-/// Textured top-down body; its wings are translucent disc props underneath.
+/// Textured top-down body.
 pub const MODEL_BEE_BODY: usize = 4;
+/// Translucent bee wings are a separate late-drawn disc model, so they veil the
+/// thorax like real wings instead of disappearing behind the body cutout.
+pub const MODEL_BEE_WING: usize = 5;
 /// Oversized carved mask replacing the walker's former disc head.
-pub const MODEL_TIKI_MASK: usize = 5;
-pub const MODEL_COUNT: usize = 6;
+pub const MODEL_TIKI_MASK: usize = 6;
+pub const MODEL_COUNT: usize = 7;
 
 /// Which models are drawn flat and unlit — blended over the scene without writing
 /// depth. Embers are their own light source; line art wants to stay the colour it is
 /// asked for rather than picking up highlights.
-const MODEL_UNLIT: [bool; MODEL_COUNT] = [false, true, true, true, true, true];
+const MODEL_UNLIT: [bool; MODEL_COUNT] = [false, true, true, true, true, true, true];
 
 /// Where critters drop their prop instances, grouped by model so each group can be
 /// drawn from one range.
@@ -481,6 +484,7 @@ fn prop_model_meshes() -> [(Vec<PropVertex>, Vec<u16>); MODEL_COUNT] {
         build_rod(),
         build_disc(),
         build_bee_body_quad(),
+        build_disc(),
         build_tiki_mask_quad(),
     ]
 }
@@ -639,8 +643,11 @@ pub fn build_ember() -> (Vec<PropVertex>, Vec<u16>) {
 }
 
 /// Nose-to-tail length of the rocket model, in the same pixel units as everything
-/// else. A shade under two cells, so it reads as a visitor rather than as scenery.
-pub const ROCKET_LENGTH: f32 = 128.0;
+/// else. Roughly a cell and a half, so it reads as a visitor rather than as scenery.
+pub const ROCKET_LENGTH: f32 = 128.0 * 0.80;
+/// A relaxed full axial turn over nine seconds shows all three fins without making the
+/// rocket read as a drill bit.
+const ROCKET_AXIAL_ROLL_RATE: f32 = std::f32::consts::TAU / 9.0;
 
 /// Cartoon rocket palette, as sRGB hex.
 const ROCKET_SHELL: u32 = 0xf6f4f5;
@@ -1280,6 +1287,25 @@ pub struct CritterCtx<'a> {
     pub phase: f32,
     /// Seconds a generation currently lasts, for pacing a move across cells.
     pub gen_secs: f32,
+    /// Per-cell visual spin state for the current frame. It is absent in lightweight
+    /// callers that do not own a visualisation; critters then treat every tile as still.
+    pub spinning: Option<&'a [bool]>,
+}
+
+impl CritterCtx<'_> {
+    fn tile_spinning(&self, col: isize, row: isize) -> bool {
+        if col < 0
+            || row < 0
+            || col >= self.life.cols() as isize
+            || row >= self.life.rows() as isize
+        {
+            return false;
+        }
+        self.spinning
+            .and_then(|cells| cells.get(row as usize * self.life.cols() + col as usize))
+            .copied()
+            .unwrap_or(false)
+    }
 }
 
 /// Something that lives on top of the grid: it can read the board and the near future
@@ -1555,8 +1581,8 @@ impl Rocket {
         ((view.rows() as f32 - 1.0) * 0.5 - row as f32) * CELL_PX
     }
 
-    /// Position, and the bank and yaw that follow from the path, so the model always
-    /// points the way it is actually going.
+    /// Position, and the roll, pitch, and yaw that follow from the path. The slow
+    /// rotation around local +X shows off the complete three-fin model as it flies.
     ///
     /// The heading is measured against the *cruise* speed rather than the instantaneous
     /// one. Using the latter puts a singularity exactly where the gust drives the speed
@@ -1569,7 +1595,8 @@ impl Rocket {
         let yaw = (self.vy / self.peak)
             .atan()
             .clamp(-ROCKET_YAW_MAX, ROCKET_YAW_MAX);
-        let roll = -yaw * ROCKET_BANK + (self.t * 1.1 + self.seed).sin() * 0.12;
+        let roll = self.seed + self.t * ROCKET_AXIAL_ROLL_RATE - yaw * ROCKET_BANK
+            + (self.t * 1.1 + self.seed).sin() * 0.08;
         // Nose along the actual path through depth. Pitch is positive toward -Z, so
         // climbing toward the viewer wants a negative one.
         let pitch = (-(self.vz / self.peak))
@@ -1868,6 +1895,9 @@ const BEE_BODY_W: f32 = 70.0;
 const BEE_BODY_H: f32 = BEE_BODY_W * 269.0 / 420.0;
 const BEE_Z: f32 = 48.0;
 const BEE_APPROACH_SPEED: f32 = 104.0;
+const BEE_SCUTTLE_RADIUS: f32 = CELL_PX * TILE_FILL * 0.24;
+const BEE_KICK_SECS: f32 = 0.46;
+const BEE_KICK_GROW: f32 = 0.78;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 enum BeeAct {
@@ -1881,15 +1911,18 @@ enum BeeAct {
     Landed {
         col: isize,
         row: isize,
-        until: f32,
+    },
+    Kicked {
+        since: f32,
+        origin: [f32; 2],
     },
 }
 
 /// A top-down bee enters low on the right, bumbles generally left and upward, and
-/// sometimes settles on the visible face of a tile. The walker treats tile edges as
-/// ground in a perpendicular side-view world, so their two performances never collide.
-/// The body is a generated cutout; wings remain geometry so flight blur, random angles,
-/// and still crisp landing poses do not require sprite sheets.
+/// plots a course between coloured tile faces. The walker treats tile edges as ground
+/// in a perpendicular side-view world, so their two performances never collide. The
+/// body is a generated cutout; wings remain geometry so flight blur, random angles, and
+/// still crisp landing poses do not require sprite sheets.
 pub struct Bee {
     x: f32,
     y: f32,
@@ -1903,6 +1936,9 @@ pub struct Bee {
     next_land_check: f32,
     wing_phase: f32,
     next_twitch: f32,
+    scuttle_goal: [f32; 2],
+    scuttle_speed: f32,
+    next_scuttle: f32,
     vis_left: f32,
     vis_top: f32,
     vis_bottom: f32,
@@ -1935,6 +1971,9 @@ impl Bee {
             next_land_check: 0.9 + rng.f32() * 0.9,
             wing_phase: rng.f32() * std::f32::consts::TAU,
             next_twitch: 0.0,
+            scuttle_goal: [0.0; 2],
+            scuttle_speed: 0.0,
+            next_scuttle: 0.0,
             vis_left: -vis_right,
             vis_top,
             vis_bottom,
@@ -1948,30 +1987,38 @@ impl Bee {
     }
 
     fn landing_is_live(view: &LifeView, col: isize, row: isize) -> bool {
-        view.alive(col, row, 0)
+        col >= 0
+            && row >= 0
+            && col < view.cols() as isize
+            && row < view.rows() as isize
+            && view.alive(col, row, 0)
+            && is_colored(col as usize, row as usize)
     }
 
-    /// Pick a tile face down-and-left along the current trip. It need not have an exposed
-    /// screen-top edge: the bee lands orthogonally on the square face itself. Looking a
-    /// generation ahead avoids approaching something already committed to disappear.
-    fn landing_ahead(&mut self, view: &LifeView) -> Option<(isize, isize, f32, f32)> {
+    /// Plot the next leg toward a stable coloured face up-and-left. The bee treats those
+    /// accents as flowers and ignores the neutral tiles entirely. It need not have an
+    /// exposed screen-top edge: this is the orthogonal square face itself.
+    fn course_ahead(&mut self, view: &LifeView) -> Option<(isize, isize, f32, f32)> {
         let mut choices = Vec::new();
         for col in MARGIN as isize..(view.cols() - MARGIN) as isize {
             for row in MARGIN as isize..(view.rows() - MARGIN) as isize {
-                let stable = (0..=1).all(|g| view.alive(col, row, g));
+                let stable = is_colored(col as usize, row as usize)
+                    && (0..=1).all(|g| view.alive(col, row, g));
                 if !stable {
                     continue;
                 }
                 let [x, y] = Self::tile_face(view, col, row);
                 let dx = x - self.x;
                 let dy = y - self.y;
-                if !(-CELL_PX * 5.2..=-CELL_PX * 0.35).contains(&dx)
-                    || !(-CELL_PX * 2.8..=CELL_PX * 0.9).contains(&dy)
+                if !(-CELL_PX * 7.2..=-CELL_PX * 0.30).contains(&dx)
+                    || !(-CELL_PX * 1.15..=CELL_PX * 4.8).contains(&dy)
                 {
                     continue;
                 }
                 let distance = (dx * dx + dy * dy).sqrt();
-                let score = distance + self.rng.f32() * CELL_PX * 0.8;
+                // Downward detours lose strongly; a little randomness keeps two visits
+                // to the same field from tracing exactly the same flower chain.
+                let score = distance + (-dy).max(0.0) * 2.4 + self.rng.f32() * CELL_PX * 0.65;
                 choices.push((score, col, row, x, y));
             }
         }
@@ -1979,6 +2026,27 @@ impl Bee {
             .into_iter()
             .min_by(|a, b| a.0.partial_cmp(&b.0).unwrap())
             .map(|(_, col, row, x, y)| (col, row, x, y))
+    }
+
+    fn choose_scuttle(&mut self, view: &LifeView, col: isize, row: isize) {
+        let centre = Self::tile_face(view, col, row);
+        let angle = self.rng.f32() * std::f32::consts::TAU;
+        let radius = BEE_SCUTTLE_RADIUS * (0.25 + self.rng.f32() * 0.75);
+        self.scuttle_goal = [
+            centre[0] + angle.cos() * radius,
+            centre[1] + angle.sin() * radius,
+        ];
+        self.scuttle_speed = 22.0 + self.rng.f32() * 34.0;
+        self.next_scuttle = self.t + 0.22 + self.rng.f32() * 0.50;
+    }
+
+    fn kick_off(&mut self) {
+        self.act = BeeAct::Kicked {
+            since: self.t,
+            origin: [self.x, self.y],
+        };
+        self.vx = -90.0;
+        self.vy = 190.0;
     }
 
     fn take_off(&mut self, startled: bool) {
@@ -1991,14 +2059,24 @@ impl Bee {
         };
         self.vx = self.want_vx;
         self.vy = self.want_vy;
-        self.next_land_check = self.t + if startled { 2.2 } else { 1.3 };
+        self.next_turn = self.t + 0.32 + self.rng.f32() * 0.38;
+        self.next_land_check = self.t + if startled { 0.75 } else { 0.22 };
     }
 
     fn body_y(&self) -> f32 {
-        if matches!(self.act, BeeAct::Landed { .. }) {
-            self.y
-        } else {
-            self.y + (self.t * 8.5).sin() * 1.4
+        match self.act {
+            BeeAct::Flying | BeeAct::Approach { .. } => self.y + (self.t * 8.5).sin() * 1.4,
+            BeeAct::Landed { .. } | BeeAct::Kicked { .. } => self.y,
+        }
+    }
+
+    fn presentation_scale(&self) -> f32 {
+        match self.act {
+            BeeAct::Kicked { since, .. } => {
+                let p = ((self.t - since) / BEE_KICK_SECS).clamp(0.0, 1.0);
+                1.0 + BEE_KICK_GROW * (std::f32::consts::PI * p).sin()
+            }
+            _ => 1.0,
         }
     }
 
@@ -2017,7 +2095,7 @@ impl Bee {
         let centre = [root[0] + c * length * 0.48, root[1] + s * length * 0.48, z];
         let tint = srgb_hex_to_linear(0xa8bec9);
         out.push(
-            MODEL_DISC,
+            MODEL_BEE_WING,
             Prop::stretched(centre, [length * 0.58, width, 1.0], [0.0, 0.0, a]).tinted(tint, alpha),
         );
     }
@@ -2031,7 +2109,7 @@ impl Critter for Bee {
             BeeAct::Flying => {
                 if self.t >= self.next_turn {
                     self.want_vx = -(82.0 + self.rng.f32() * 72.0);
-                    self.want_vy = -18.0 + self.rng.f32() * 92.0;
+                    self.want_vy = 8.0 + self.rng.f32() * 74.0;
                     self.next_turn = self.t + 0.45 + self.rng.f32() * 0.85;
                 }
                 let ease = 1.0 - (-2.8 * ctx.dt).exp();
@@ -2041,16 +2119,14 @@ impl Critter for Bee {
                 self.y += self.vy * ctx.dt;
 
                 if self.t >= self.next_land_check {
-                    self.next_land_check = self.t + 0.8 + self.rng.f32() * 1.1;
-                    if self.rng.f32() < 0.58 {
-                        if let Some((col, row, x, y)) = self.landing_ahead(&ctx.life) {
-                            self.act = BeeAct::Approach { col, row, x, y };
-                        }
+                    self.next_land_check = self.t + 0.35 + self.rng.f32() * 0.45;
+                    if let Some((col, row, x, y)) = self.course_ahead(&ctx.life) {
+                        self.act = BeeAct::Approach { col, row, x, y };
                     }
                 }
             }
             BeeAct::Approach { col, row, x, y } => {
-                if !Self::landing_is_live(&ctx.life, col, row) {
+                if !Self::landing_is_live(&ctx.life, col, row) || ctx.tile_spinning(col, row) {
                     self.take_off(true);
                 } else {
                     let dx = x - self.x;
@@ -2063,11 +2139,8 @@ impl Critter for Bee {
                         self.vy = 0.0;
                         self.yaw = 0.0;
                         self.next_twitch = self.t + 0.7 + self.rng.f32() * 0.7;
-                        self.act = BeeAct::Landed {
-                            col,
-                            row,
-                            until: self.t + 2.5 + self.rng.f32() * 3.5,
-                        };
+                        self.act = BeeAct::Landed { col, row };
+                        self.choose_scuttle(&ctx.life, col, row);
                     } else {
                         let speed = (distance * 2.7).clamp(18.0, BEE_APPROACH_SPEED);
                         let target_vx = dx / distance * speed;
@@ -2080,19 +2153,49 @@ impl Critter for Bee {
                     }
                 }
             }
-            BeeAct::Landed { col, row, until } => {
+            BeeAct::Landed { col, row } => {
                 if !Self::landing_is_live(&ctx.life, col, row) {
                     self.take_off(true);
-                } else if self.t >= until {
-                    self.take_off(false);
+                } else if ctx.tile_spinning(col, row) {
+                    self.kick_off();
                 } else {
-                    // Stay centred on the square face, not its screen-top edge. The grid
-                    // does not translate, but recomputing this makes the plane explicit.
-                    [self.x, self.y] = Self::tile_face(&ctx.life, col, row);
                     if self.t >= self.next_twitch {
                         self.wing_phase = (self.rng.f32() - 0.5) * 0.55;
                         self.next_twitch = self.t + 0.75 + self.rng.f32() * 0.65;
                     }
+                    let dx = self.scuttle_goal[0] - self.x;
+                    let dy = self.scuttle_goal[1] - self.y;
+                    let distance = (dx * dx + dy * dy).sqrt();
+                    if self.t >= self.next_scuttle || distance < 0.8 {
+                        self.choose_scuttle(&ctx.life, col, row);
+                    } else {
+                        // A clipped sine makes a stop-go gait: quick little darts broken
+                        // by near-pauses and slight heading shakes, not a smooth orbit.
+                        let pulse = (self.t * 31.0 + self.wing_phase * 7.0).sin().max(0.0);
+                        let step =
+                            (self.scuttle_speed * ctx.dt * (0.16 + 0.84 * pulse)).min(distance);
+                        self.x += dx / distance * step;
+                        self.y += dy / distance * step;
+                        let want =
+                            dy.atan2(dx) - std::f32::consts::PI + (self.t * 23.0).sin() * 0.07;
+                        let delta = (want - self.yaw + std::f32::consts::PI)
+                            .rem_euclid(std::f32::consts::TAU)
+                            - std::f32::consts::PI;
+                        self.yaw += delta * (1.0 - (-15.0 * ctx.dt).exp());
+                    }
+                }
+            }
+            BeeAct::Kicked { since, origin } => {
+                let p = ((self.t - since) / BEE_KICK_SECS).clamp(0.0, 1.0);
+                let old = [self.x, self.y];
+                self.x = origin[0] - 48.0 * p + (p * std::f32::consts::PI * 3.0).sin() * 5.0;
+                self.y = origin[1] + (p * std::f32::consts::PI).sin() * 60.0 - 12.0 * p;
+                if ctx.dt > 1e-5 {
+                    self.vx = (self.x - old[0]) / ctx.dt;
+                    self.vy = (self.y - old[1]) / ctx.dt;
+                }
+                if p >= 1.0 {
+                    self.take_off(false);
                 }
             }
         }
@@ -2118,9 +2221,10 @@ impl Critter for Bee {
 
     fn props(&self, _ctx: &CritterCtx, out: &mut PropSink) {
         let y = self.body_y();
+        let scale = self.presentation_scale();
         let (sy, cy) = self.yaw.sin_cos();
         // Both wings meet at the dorsal thorax, slightly headward in bee-local space.
-        let root = [self.x - cy * 7.0, y - sy * 7.0];
+        let root = [self.x - cy * 7.0 * scale, y - sy * 7.0 * scale];
         if matches!(self.act, BeeAct::Landed { .. }) {
             // In dorsal view the crisp pair opens to opposite sides of the body. Two
             // nested ellipses give each wing a translucent rim; the angle changes only
@@ -2131,13 +2235,23 @@ impl Critter for Bee {
                 Self::wing(out, root, self.yaw, rel, 34.0, 4.5, 0.48, BEE_Z - 0.6);
             }
         } else {
-            // Four faint exposures on either side make the randomized top-down flight
-            // blur. `wing_phase` is freshly sampled on every update.
+            // Four broad exposures on either side make the randomized top-down flight
+            // blur. This model is drawn after the photographic body, veiling the thorax
+            // beneath the beating wings instead of leaving the whole bee unobscured.
             for side in [-1.0f32, 1.0] {
                 for trail in 0..4 {
                     let flutter = (self.wing_phase + trail as f32 * 1.17).sin() * 0.45;
                     let rel = side * (0.72 + flutter);
-                    Self::wing(out, root, self.yaw, rel, 38.0, 8.5, 0.10, BEE_Z - 1.0);
+                    Self::wing(
+                        out,
+                        root,
+                        self.yaw,
+                        rel,
+                        42.0 * scale,
+                        10.5 * scale,
+                        0.13,
+                        BEE_Z - 1.0,
+                    );
                 }
             }
         }
@@ -2145,7 +2259,7 @@ impl Critter for Bee {
             MODEL_BEE_BODY,
             Prop::stretched(
                 [self.x, y, BEE_Z],
-                [BEE_BODY_W, BEE_BODY_W, 1.0],
+                [BEE_BODY_W * scale, BEE_BODY_W * scale, 1.0],
                 [0.0, 0.0, self.yaw],
             ),
         );
@@ -2173,8 +2287,8 @@ const WALKER_THIGH: f32 = 0.205 * WALKER_H;
 const WALKER_SHIN: f32 = 0.205 * WALKER_H;
 /// The mask is intentionally absurdly larger than the old head. Its bottom overlaps
 /// the upper torso, hiding any neck and making it feel worn rather than balanced there.
-const WALKER_MASK_W: f32 = 34.0;
-const WALKER_MASK_H: f32 = WALKER_MASK_W * 512.0 / 223.0;
+const WALKER_MASK_W: f32 = 34.0 * 0.80;
+const WALKER_MASK_H: f32 = WALKER_MASK_W * (512.0 / 223.0) * 0.90;
 const WALKER_MASK_CHEST_OVERLAP: f32 = WALKER_TORSO * 0.30;
 const WALKER_MASKED_H: f32 =
     WALKER_THIGH + WALKER_SHIN + WALKER_TORSO + WALKER_MASK_H - WALKER_MASK_CHEST_OVERLAP;
@@ -3100,7 +3214,7 @@ impl Walker {
             MODEL_TIKI_MASK,
             Prop::stretched(
                 [mask[0], mask[1], WALKER_Z + 1.0],
-                [WALKER_MASK_W, WALKER_MASK_W, 1.0],
+                [WALKER_MASK_W, WALKER_MASK_W * 0.90, 1.0],
                 [0.0, 0.0, -lean],
             ),
         );
@@ -3482,14 +3596,30 @@ impl Viz {
     /// Per-frame: run the critters and rebuild the upload buffers.
     pub fn update(&mut self, ctx: &CritterCtx) {
         self.retire_finished(ctx.now);
+        let spinning: Vec<bool> = self
+            .inst
+            .iter()
+            .map(|inst| {
+                let age = ctx.now - inst.spin[0];
+                inst.spin[1] != 0.0 && (0.0..SPIN_SECS).contains(&age)
+            })
+            .collect();
+        let critter_ctx = CritterCtx {
+            life: ctx.life,
+            dt: ctx.dt,
+            now: ctx.now,
+            phase: ctx.phase,
+            gen_secs: ctx.gen_secs,
+            spinning: Some(&spinning),
+        };
         let mut critters = std::mem::take(&mut self.critters);
-        critters.retain_mut(|c| c.update(ctx));
+        critters.retain_mut(|c| c.update(&critter_ctx));
 
         let mut emitted = Vec::new();
         self.props.clear();
         for c in &critters {
-            c.draw(ctx, &mut emitted);
-            c.props(ctx, &mut self.props);
+            c.draw(&critter_ctx, &mut emitted);
+            c.props(&critter_ctx, &mut self.props);
         }
         self.critters = critters;
         self.repack(&emitted);
@@ -5039,6 +5169,7 @@ impl Driver {
             now: (now - self.epoch) as f32,
             phase: (((self.sim_clock - self.gen_started) / gen_secs) as f32).clamp(0.0, 1.0),
             gen_secs: gen_secs as f32,
+            spinning: None,
         };
         self.viz.update(&ctx);
     }
@@ -5570,6 +5701,7 @@ mod tests {
                 now: t,
                 phase: 0.0,
                 gen_secs: 3.0,
+                spinning: None,
             };
             viz.update(&ctx);
 
@@ -5865,6 +5997,7 @@ mod tests {
             now,
             phase: 0.0,
             gen_secs: 3.0,
+            spinning: None,
         };
 
         let mut sink = PropSink::default();
@@ -5932,6 +6065,7 @@ mod tests {
             now,
             phase: 0.0,
             gen_secs: 3.0,
+            spinning: None,
         };
 
         let mut t = 0.0f32;
@@ -6095,6 +6229,7 @@ mod tests {
                 now,
                 phase: 0.0,
                 gen_secs: 3.0,
+                spinning: None,
             };
 
             let peak = r.peak;
@@ -6158,6 +6293,7 @@ mod tests {
             now,
             phase: 0.0,
             gen_secs: 3.0,
+            spinning: None,
         };
 
         let peak = r.peak;
@@ -6318,10 +6454,148 @@ mod tests {
         );
     }
 
+    fn stable_colored_block(cols: usize, rows: usize) -> (Life, isize, isize) {
+        for row in MARGIN..rows - MARGIN - 1 {
+            for col in MARGIN..cols - MARGIN - 1 {
+                // Pick a coloured cell on the lower row, so the test also proves that
+                // another live tile on its screen-top edge does not matter.
+                for target_col in [col, col + 1] {
+                    if is_colored(target_col, row + 1) {
+                        return (
+                            planted(
+                                cols,
+                                rows,
+                                &[
+                                    (col, row),
+                                    (col + 1, row),
+                                    (col, row + 1),
+                                    (col + 1, row + 1),
+                                ],
+                            ),
+                            target_col as isize,
+                            (row + 1) as isize,
+                        );
+                    }
+                }
+            }
+        }
+        panic!("test board contains no coloured 2x2 placement")
+    }
+
+    #[test]
+    fn bee_courses_to_coloured_faces_and_ignores_grey_ones() {
+        let (cols, rows) = (28usize, 20usize);
+        let (life, flower_col, flower_row) = stable_colored_block(cols, rows);
+        let view = life.view();
+        assert!(Bee::landing_is_live(&view, flower_col, flower_row));
+
+        let mut rng = Rng::new(0xc0110);
+        let mut bee = Bee::new(&view, &mut rng);
+        let flower = Bee::tile_face(&view, flower_col, flower_row);
+        bee.x = flower[0] + CELL_PX * 3.0;
+        bee.y = flower[1] - CELL_PX * 0.6;
+        let (col, row, _, _) = bee.course_ahead(&view).expect("no flower course plotted");
+        assert!(
+            is_colored(col as usize, row as usize),
+            "planner selected a neutral tile"
+        );
+
+        let grey = (MARGIN..cols - MARGIN)
+            .flat_map(|x| (MARGIN..rows - MARGIN).map(move |y| (x, y)))
+            .find(|&(x, y)| !is_colored(x, y))
+            .expect("test board contains no neutral cell");
+        let grey_life = planted(cols, rows, &[grey]);
+        assert!(
+            !Bee::landing_is_live(&grey_life.view(), grey.0 as isize, grey.1 as isize),
+            "bee treated a live grey face as a flower"
+        );
+    }
+
+    #[test]
+    fn bee_scuttles_but_stays_until_its_flower_changes() {
+        let (life, col, row) = stable_colored_block(24, 18);
+        let view = life.view();
+        let mut rng = Rng::new(0xb00b1e);
+        let mut bee = Bee::new(&view, &mut rng);
+        let centre = Bee::tile_face(&view, col, row);
+        [bee.x, bee.y] = centre;
+        bee.act = BeeAct::Landed { col, row };
+        bee.choose_scuttle(&view, col, row);
+
+        let start = [bee.x, bee.y];
+        let mut farthest = 0.0f32;
+        for frame in 0..60 * 10 {
+            assert!(
+                bee.update(&walker_ctx(&life, frame as f32 / 60.0)),
+                "landed bee retired"
+            );
+            assert!(
+                matches!(bee.act, BeeAct::Landed { .. }),
+                "bee left an unchanged, non-spinning flower"
+            );
+            let from_centre = (bee.x - centre[0]).hypot(bee.y - centre[1]);
+            farthest = farthest.max((bee.x - start[0]).hypot(bee.y - start[1]));
+            assert!(
+                from_centre <= BEE_SCUTTLE_RADIUS + 0.01,
+                "scuttle escaped its tile by {from_centre:.1}px"
+            );
+        }
+        assert!(farthest > 3.0, "bee never scuttled around the flower");
+    }
+
+    #[test]
+    fn spinning_flower_kicks_bee_toward_the_camera_then_releases_it() {
+        let (life, col, row) = stable_colored_block(24, 18);
+        let view = life.view();
+        let mut rng = Rng::new(0xbee);
+        let mut bee = Bee::new(&view, &mut rng);
+        let origin = Bee::tile_face(&view, col, row);
+        [bee.x, bee.y] = origin;
+        bee.act = BeeAct::Landed { col, row };
+        bee.choose_scuttle(&view, col, row);
+
+        let mut spins = vec![false; view.cols() * view.rows()];
+        spins[row as usize * view.cols() + col as usize] = true;
+        let mut kicked = walker_ctx(&life, 0.0);
+        kicked.spinning = Some(&spins);
+        bee.update(&kicked);
+        assert!(
+            matches!(bee.act, BeeAct::Kicked { .. }),
+            "tile spin did not kick the bee"
+        );
+
+        for frame in 1..=14 {
+            bee.update(&walker_ctx(&life, frame as f32 / 60.0));
+        }
+        let mut midair = PropSink::default();
+        bee.props(&walker_ctx(&life, 14.0 / 60.0), &mut midair);
+        assert!(
+            midair.group(MODEL_BEE_BODY)[0].scale[0] > BEE_BODY_W * 1.55,
+            "camera kick did not make the bee loom"
+        );
+        assert!(
+            bee.y > origin[1] + 40.0,
+            "kick had no dramatic upward screen arc"
+        );
+        assert!(
+            MODEL_BEE_WING > MODEL_BEE_BODY,
+            "flight wings must draw over and obscure the thorax"
+        );
+
+        for frame in 15..=40 {
+            bee.update(&walker_ctx(&life, frame as f32 / 60.0));
+        }
+        assert!(
+            matches!(bee.act, BeeAct::Flying | BeeAct::Approach { .. }),
+            "bee did not return to its flower-to-flower flight"
+        );
+        assert!(bee.x < origin[0], "kick did not send the bee leftward");
+    }
+
     #[test]
     fn landed_bee_has_crisp_twitching_wings_and_startles_when_its_tile_goes() {
         let (cols, rows) = (24usize, 18usize);
-        let life = planted(cols, rows, &[(10, 10), (11, 10), (10, 11), (11, 11)]);
+        let (life, col, row) = stable_colored_block(cols, rows);
         let view = life.view();
         let mut rng = Rng::new(92);
         let mut bee = Bee::new(&view, &mut rng);
@@ -6331,24 +6605,25 @@ mod tests {
         bee.x = 0.0;
         bee.y = 0.0;
         bee.next_twitch = bee.t;
-        bee.act = BeeAct::Landed {
-            col: 10,
-            row: 11,
-            until: 50.0,
-        };
+        bee.act = BeeAct::Landed { col, row };
+        let face = Bee::tile_face(&view, col, row);
+        [bee.x, bee.y] = face;
+        bee.choose_scuttle(&view, col, row);
 
         bee.update(&walker_ctx(&life, 5.0));
-        let face = Bee::tile_face(&view, 10, 11);
-        assert_eq!([bee.x, bee.y], face, "bee did not land on the tile face");
         assert!(
-            matches!(bee.act, BeeAct::Landed { row: 11, .. }),
+            (bee.x - face[0]).hypot(bee.y - face[1]) <= BEE_SCUTTLE_RADIUS,
+            "bee walked beyond the tile face"
+        );
+        assert!(
+            matches!(bee.act, BeeAct::Landed { .. }),
             "the occupied screen-top edge incorrectly startled the bee"
         );
         let first_crisp_pose = bee.wing_phase;
         let mut landed = PropSink::default();
         bee.props(&walker_ctx(&life, 5.0), &mut landed);
         assert_eq!(
-            landed.group(MODEL_DISC).len(),
+            landed.group(MODEL_BEE_WING).len(),
             4,
             "landed wings should be two crisp nested pairs"
         );
@@ -6372,7 +6647,7 @@ mod tests {
         let mut flying = PropSink::default();
         bee.props(&walker_ctx(&empty, 5.5), &mut flying);
         assert_eq!(
-            flying.group(MODEL_DISC).len(),
+            flying.group(MODEL_BEE_WING).len(),
             8,
             "flying wings should fan into several blurred exposures"
         );
@@ -6398,17 +6673,20 @@ mod tests {
                 now,
                 phase: 0.0,
                 gen_secs: 3.0,
+                spinning: None,
             };
 
             let mut t = 0.0f32;
             let mut prev: Option<[f32; 3]> = None;
+            let start_roll = r.pose().1[0];
             let mut frames = 0;
             while r.update(&ctx(t)) && frames < 240 * 40 {
                 t += 1.0 / 240.0;
                 frames += 1;
                 let (_, rot) = r.pose();
 
-                // A cartoon rocket banks; it does not barrel-roll or fly sideways.
+                // Yaw and pitch remain coupled to the path while the local axial roll
+                // deliberately keeps turning to show all three fins.
                 assert!(
                     rot[2].abs() < ROCKET_YAW_MAX + 0.05,
                     "seed {seed}: yawed to {:.0} degrees",
@@ -6418,11 +6696,6 @@ mod tests {
                     rot[1].abs() < ROCKET_PITCH_MAX + 0.05,
                     "seed {seed}: pitched to {:.0} degrees",
                     rot[1].to_degrees()
-                );
-                assert!(
-                    rot[0].abs() < 0.95,
-                    "seed {seed}: rolled to {:.0} degrees",
-                    rot[0].to_degrees()
                 );
                 if let Some(p) = prev {
                     // Pitch is allowed to move faster than the rest: nosing over toward
@@ -6441,6 +6714,10 @@ mod tests {
                 }
                 prev = Some(rot);
             }
+            assert!(
+                prev.unwrap()[0] - start_roll > std::f32::consts::PI,
+                "seed {seed}: axial roll did not expose the full fin arrangement"
+            );
         }
     }
 
@@ -6513,6 +6790,7 @@ mod tests {
                     now: t,
                     phase: 0.0,
                     gen_secs,
+                    spinning: None,
                 };
                 let alive = rocket.update(&ctx);
                 if alive {
@@ -6688,6 +6966,7 @@ mod tests {
             now,
             phase: 0.0,
             gen_secs: 3.0,
+            spinning: None,
         }
     }
 
@@ -6944,14 +7223,14 @@ mod tests {
             "mask bottom does not overlap the chest"
         );
         assert!(
-            mask.scale[0] > WALKER_LINE * 9.0,
+            mask.scale[0] > WALKER_LINE * 7.0,
             "mask is not oversized relative to the line figure"
         );
 
         let tile = CELL_PX * TILE_FILL;
         let height = hi - lo;
         assert!(
-            height > tile * 1.8 && height < tile * 2.2,
+            height > tile * 1.5 && height < tile * 1.75,
             "stands {height:.0}px against a {tile:.0}px tile"
         );
     }
