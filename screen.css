@@ -119,6 +119,7 @@ span.title {
 
 .section-toggle {
 	font-size: calc(18px + var(--type-bump));
+	margin-left: 20px;
 }
 
 div.subtitle {
@@ -240,7 +241,7 @@ div {
 
 /* Conway's Game of Life, simulated and rendered as a field of glossy 3D tiles by
    /js/background.js -> the wgpu/wasm module in /bg. The renderer fades this in
-   itself once a GPU device is up; if none is available the flat #eee shows through. */
+   itself once a GPU device is up; if none is available the flat #e8e8e8 shows through. */
 #bgcanvas {
 	position: fixed;
 	inset: 0;
@@ -263,6 +264,6 @@ html,body {
   font-style: normal;
   font-weight: normal;
   text-align: center;
-  background: #eee;
+  background: #e8e8e8;
   overflow-x: hidden;
 }

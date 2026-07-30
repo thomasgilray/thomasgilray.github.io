@@ -119,8 +119,8 @@ const FOV_Y: f32 = 32.0 * std::f32::consts::PI / 180.0;
 const CORNER_SEGS: usize = 7;
 const BEVEL_SEGS: usize = 5;
 
-/// Colours, as sRGB hex. `#eee` page background is the clear colour.
-pub const BG: u32 = 0xeeeeee;
+/// Colours, as sRGB hex. `#e8e8e8` page background is the clear colour.
+pub const BG: u32 = 0xe8e8e8;
 /// An "off" tile — barely tinted, and drawn at GHOST_ALPHA coverage on top.
 const C_DEAD: u32 = 0xe9e9e9;
 /// The live colours and their share of the field, keyed off a hash of the cell's
@@ -4502,7 +4502,7 @@ fn vs_halo(in : HIn) -> HOut {
   // The halo washes the page toward this rather than adding to it — on a light
   // background an additive glow can only brighten toward white, so a teal tile would
   // get a white aura. But washing toward the colour itself would *darken* the page,
-  // since #589864 and #3e9993 are both darker than #eee. Normalising the hue and then
+  // since #589864 and #3e9993 are both darker than #e8e8e8. Normalising the hue and then
   // pulling white toward it gives something brighter than the page that still carries
   // the colour. Grey tiles normalise to white and simply glow white.
   let c = live_color(in.cell, in.pal);
@@ -6002,7 +6002,7 @@ mod web {
             .frame(win.performance().map(|p| p.now()).unwrap_or(0.0));
 
         // Only reveal the canvas once a device is up and the first frame is drawn;
-        // until then the plain #eee body background stands in.
+        // until then the plain #e8e8e8 body background stands in.
         let _ = canvas.style().set_property("opacity", "1");
 
         let f: Rc<RefCell<Option<Closure<dyn FnMut(f64)>>>> = Rc::new(RefCell::new(None));

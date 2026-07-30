@@ -2,7 +2,7 @@
 //
 // Browsers with WebGPU get a small module; everything else falls back to the build
 // that also carries WebGL2, which is roughly twelve times larger. If neither can
-// start, the page simply keeps its flat #eee background — the canvas fades itself in
+// start, the page simply keeps its flat #e8e8e8 background — the canvas fades itself in
 // from the Rust side only once a device is up and the first frame is drawn.
 //
 // The cache-busting version is taken from this module's own URL rather than written
