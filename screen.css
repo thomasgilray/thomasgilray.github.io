@@ -1,26 +1,71 @@
 
 
+:root {
+	--type-bump: 1pt;
+}
+
 #photo {
 	float: right;
-	height: 15px;
-	width: 210px;
+	clear: right;
+	height: 242.55px;
+	width: 277.2px;
 	background: url(/img/gilray-headshot.jpg);
-	padding: 190px 15px 5px 15px;
+	background-size: 277.2px 242.55px;
+	background-repeat: no-repeat;
 	color: #fff;
-	font-size: 9px;
+	font-size: calc(9px + var(--type-bump));
 	font-family: sans-serif;
 	font-weight: bold;   
-        margin: 0 5px 0 0;
+	margin: 0 0 8px 0;
 }
 
 #contact {
-	padding: 6px 12px 12px 12px;
+	padding: 6px 4px 0 12px;
 	float: right;
-        width: 240px;
+	width: 277.2px;
+}
+
+.social-links {
+	float: right;
+	clear: right;
+	display: flex;
+	gap: 6px;
+	position: relative;
+	top: 2px;
+	height: 22px;
+	margin: 0 0 0 8px;
+}
+
+.social-link {
+	display: block;
+	width: 22px;
+	height: 22px;
+	color: #111;
+	line-height: 1;
+}
+
+.social-link svg {
+	display: block;
+	width: 22px;
+	height: 22px;
+	fill: currentColor;
+}
+
+.social-link:hover,
+.social-link:visited {
+	color: #111;
+}
+
+.social-link:hover svg {
+	color: #0a2;
+}
+
+.email-image {
+	display: block;
 }
 
 div#footer {
-	font-size: 15px;
+	font-size: calc(15px + var(--type-bump));
 	font-weight: bold;
 	color: #444;
 }
@@ -30,7 +75,7 @@ div#footer {
 	z-index: 25;
 	top: 7px;
 	right: 18px;
-	font-size: 15px;
+	font-size: calc(15px + var(--type-bump));
 	line-height: 1.35;
 	padding: 3px 10px;
 	border-radius: 9px;
@@ -44,7 +89,7 @@ div#footer {
 	color: #fff;
 	font-family: verdana;
 	-weight: bold;
-	font-size: 32px;
+	font-size: calc(32px + var(--type-bump));
 	margin: 15px 20px;
 	cursor: pointer;
 }
@@ -69,17 +114,21 @@ a:visited {
 
 span.title {
 	font-style: italic;
-	font-size: 21px;
+	font-size: calc(21px + var(--type-bump));
+}
+
+.section-toggle {
+	font-size: calc(18px + var(--type-bump));
 }
 
 div.subtitle {
-	font-size: 16px;
+	font-size: calc(16px + var(--type-bump));
 	font-weight: bold;
 }
 
 div.position {
 	margin: 9px 0;
-	font-size: 18px;
+	font-size: calc(18px + var(--type-bump));
 	font-weight: bold;
 	color: #888;
 }
@@ -90,7 +139,8 @@ ul#selpubs {
 	list-style-image: url(/img/grey-star.png);
 }
 
-ul#news {
+ul#news,
+ul#latestnews {
 	margin: 0;
 	padding: 0;
 	list-style-image: url(/img/news.png);
@@ -104,12 +154,12 @@ ol {
 li {
 	margin: 0 0 0 38px;
 	padding: 0 0 16px 5px;
-	font-size: 18px;
+	font-size: calc(18px + var(--type-bump));
 	line-height: 29px;
 }
 
 div.rounded div.content {
-	padding: 8px;
+	padding: 8px 8px 8px 12px;
 	width: auto;
 	background: #fff;
 }
@@ -131,7 +181,7 @@ div.rounded {
 }
 
 h1 {
-	font-size: 32px;
+	font-size: calc(32px + var(--type-bump));
 	line-height: 46px;
 	margin: 0;
 	padding: 0;
@@ -139,7 +189,7 @@ h1 {
 
 
 h2,h3 {
-	font-size: 24px;
+	font-size: calc(24px + var(--type-bump));
 	line-height: 35px;
 	margin: 0;
 	padding: 3px 0 4px 0;
@@ -208,7 +258,7 @@ html,body {
   margin: 0;
   padding: 5px;
   font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
-  font-size: 18px;
+  font-size: calc(18px + var(--type-bump));
   line-height: 26px;
   font-style: normal;
   font-weight: normal;

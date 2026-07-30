@@ -1421,11 +1421,11 @@ pub trait Critter {
 
 // ---------------------------------------------------------------------------
 
-/// A critter is drawn every twelve seconds, starting twelve seconds in. The available
+/// A critter is drawn every sixteen seconds, starting sixteen seconds in. The available
 /// kinds are chosen uniformly; if a walker has no safe entrance on this board, the rocket
 /// is the graceful fallback for that turn.
-const FIRST_CRITTER: f64 = 12.0;
-const CRITTER_EVERY: f64 = 12.0;
+const FIRST_CRITTER: f64 = 16.0;
+const CRITTER_EVERY: f64 = 16.0;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum CritterKind {
@@ -2523,6 +2523,10 @@ const WALKER_PLAN_GRAB_CHANCE: f32 = 0.62;
 const WALKER_GRAB_X_TOLERANCE: f32 = 4.0;
 const WALKER_GRAB_MIN_SPEED: f32 = WALKER_RUN_SPEED * 0.68;
 const WALKER_GRAB_MAX_SPEED: f32 = WALKER_RUN_SPEED * 1.18;
+/// A foot-first jump may vary the carried speed more widely than a ledge catch. At
+/// equal height these bounds naturally cover landings one to three cells away.
+const WALKER_LAND_MIN_SPEED: f32 = 72.0;
+const WALKER_LAND_MAX_SPEED: f32 = 240.0;
 /// Some hangs end in a deliberate throw. The upward kick is just under a running jump,
 /// leaving room to redirect away from the held face without looking superhuman.
 const WALKER_HANG_THROW_CHANCE: f32 = 0.48;
@@ -2729,6 +2733,8 @@ enum Act {
     Deciding(f32),
     /// Boxed in: a crouch and a hopeless little hop that gets him nowhere.
     Hop(f32),
+    /// A standing leap toward a reachable landing when there is no useful runway.
+    Leap { dir: f32, t: f32 },
     /// Boxed in: braced against a neighbour, shoving.
     Shove { dir: f32, t: f32 },
     /// A visible one-cell correction onto a clear, supported centre.
@@ -2766,12 +2772,24 @@ struct GrabPlan {
     ledge_y: f32,
 }
 
+/// A stable exposed tile selected before a jump, reached only by choosing a natural
+/// launch speed. The ordinary falling collision still has to complete the landing:
+/// this is a destination, not permission to snap onto it.
+#[derive(Clone, Copy, Debug)]
+struct LandingPlan {
+    col: isize,
+    row: isize,
+    vx: f32,
+    score: f32,
+}
+
 /// A stick figure that falls into the field, lands on whatever tile is beneath him, and
 /// then picks something to do about where he has ended up.
 ///
-/// Every decision is made against the board a generation ahead rather than the board as
-/// it is, so a plan cannot be invalidated halfway through by the tile he was counting on
-/// blinking out. He only ever commits to situations there is an animation for.
+/// Destinations and jump arcs are checked against both the present board and its known
+/// next generation. Short runs use the present surface and are re-checked every frame,
+/// so a generation landing mid-stride causes an immediate re-plan at the new tile face.
+/// He only ever commits to situations there is an animation for.
 pub struct Walker {
     /// Column he is over, and his world x.
     col: isize,
@@ -2791,6 +2809,10 @@ pub struct Walker {
     doomed: bool,
     /// A catch planned at take-off. Ordinary drops and accidental knocks never get one.
     grab_plan: Option<GrabPlan>,
+    /// The intended foot landing for a voluntary jump. Physics may still miss it if the
+    /// board changes after take-off, but whenever this is present the original arc was
+    /// checked all the way to a visible, stable tile.
+    landing_plan: Option<LandingPlan>,
     /// A hard squeeze can send him behind the floor for a beat. During that interval the
     /// tile that displaced him cannot immediately re-catch him and start a hop loop.
     no_land_until: f32,
@@ -2888,6 +2910,7 @@ impl Walker {
             edge: half_w,
             doomed: false,
             grab_plan: None,
+            landing_plan: None,
             no_land_until: 0.0,
             hang_release_at: f32::INFINITY,
             last_stuck: None,
@@ -3019,6 +3042,121 @@ impl Walker {
         best.map(|(_, plan, vx)| (plan, vx))
     }
 
+    /// Check the whole jump rather than just its destination. Tiles that are alive now
+    /// or arrive next generation count as solid; this keeps a well-planned landing from
+    /// taking him through the face of a block that is currently fading in.
+    fn landing_arc_clear(
+        &self,
+        view: &LifeView,
+        launch_x: f32,
+        launch_y: f32,
+        vx: f32,
+        landing_t: f32,
+    ) -> bool {
+        const SAMPLES: usize = 24;
+        let half_tile = CELL_PX * TILE_FILL * 0.5;
+        let landing_reach = (WALKER_THIGH + WALKER_SHIN) * 0.94;
+        let body_above_hip = WALKER_MASKED_H - landing_reach;
+        let body_half_w = WALKER_GRAB_BODY_CLEARANCE;
+
+        // Skip the exact launch and contact instants: touching the top of the launch
+        // floor and the destination floor is the intended motion, not an obstruction.
+        for sample in 1..SAMPLES {
+            let t = landing_t * sample as f32 / SAMPLES as f32;
+            let x = launch_x + vx * t;
+            let hip_y = launch_y + WALKER_JUMP_V * t - WALKER_GRAVITY * t * t * 0.5;
+            let foot_y = hip_y - landing_reach;
+            let crown_y = hip_y + body_above_hip;
+
+            for col in 0..view.cols() as isize {
+                let tile_x = Self::cell_x(view, col);
+                if tile_x + half_tile < x - body_half_w || tile_x - half_tile > x + body_half_w {
+                    continue;
+                }
+                for row in 0..view.rows() as isize {
+                    if !self.blocked_soon(view, col, row) {
+                        continue;
+                    }
+                    let tile_y = view.cell_center(col as f32, row as f32)[1];
+                    let tile_bottom = tile_y - half_tile;
+                    let tile_top = tile_y + half_tile;
+                    if tile_top > foot_y + 1.0 && tile_bottom < crown_y {
+                        return false;
+                    }
+                }
+            }
+        }
+        true
+    }
+
+    /// Find an exposed stable tile whose centre a natural descending jump can meet.
+    /// Unlike a ledge catch this is the common case: whenever such a tile exists, the
+    /// walker aims his feet at it before considering an untargeted exit jump.
+    fn plan_landing(
+        &self,
+        view: &LifeView,
+        dir: f32,
+        launch_x: f32,
+        launch_y: f32,
+    ) -> Option<LandingPlan> {
+        let half_tile = CELL_PX * TILE_FILL * 0.5;
+        let landing_reach = (WALKER_THIGH + WALKER_SHIN) * 0.94;
+        let mut best: Option<LandingPlan> = None;
+
+        for col in MARGIN as isize..(view.cols() - MARGIN) as isize {
+            let target_x = Self::cell_x(view, col);
+            let dx = target_x - launch_x;
+            let along = dx * dir;
+            if !(CELL_PX * 0.70..=CELL_PX * 6.2).contains(&along) {
+                continue;
+            }
+
+            for row in MARGIN as isize..(view.rows() - MARGIN) as isize {
+                let stable_floor = (0..=WALKER_PLAN_GENS)
+                    .all(|g| view.alive(col, row, g) && !view.alive(col, row - 1, g));
+                if !stable_floor {
+                    continue;
+                }
+
+                let top = view.cell_center(col as f32, row as f32)[1] + half_tile;
+                if top < self.vis_bottom {
+                    continue;
+                }
+                let target_hip_y = top + landing_reach;
+                let dy = target_hip_y - launch_y;
+                let disc = WALKER_JUMP_V * WALKER_JUMP_V - 2.0 * WALKER_GRAVITY * dy;
+                if disc <= 0.0 {
+                    continue;
+                }
+                let landing_t = (WALKER_JUMP_V + disc.sqrt()) / WALKER_GRAVITY;
+                if !(0.38..=1.45).contains(&landing_t) {
+                    continue;
+                }
+                let vx = dx / landing_t;
+                if vx * dir <= 0.0
+                    || !(WALKER_LAND_MIN_SPEED..=WALKER_LAND_MAX_SPEED).contains(&vx.abs())
+                    || !self.landing_arc_clear(view, launch_x, launch_y, vx, landing_t)
+                {
+                    continue;
+                }
+
+                // Ordinary running pace looks best. Near-equal arcs prefer the nearer
+                // landing and a smaller vertical change, both of which read more clearly.
+                let score = (vx.abs() - WALKER_RUN_SPEED).abs() + along * 0.012 + dy.abs() * 0.008;
+                let plan = LandingPlan {
+                    col,
+                    row,
+                    vx,
+                    score,
+                };
+                if best.is_none_or(|old| plan.score < old.score) {
+                    best = Some(plan);
+                }
+            }
+        }
+        best
+    }
+
     fn surface_of(&self, view: &LifeView, row: isize) -> f32 {
         view.cell_center(self.col as f32, row as f32)[1] + CELL_PX * TILE_FILL * 0.5
     }
@@ -3030,6 +3168,13 @@ impl Walker {
     /// A cell that is there now and stays put long enough to stand on.
     fn solid_soon(&self, view: &LifeView, col: isize, row: isize) -> bool {
         (0..=WALKER_PLAN_GENS).all(|g| view.alive(col, row, g))
+    }
+
+    /// A jump-arc cell is blocked if it is solid now or will be in the next known
+    /// generation. That prevents a future birth from intersecting a committed arc; once
+    /// its fade begins it is also present in generation zero and handled as a normal wall.
+    fn blocked_soon(&self, view: &LifeView, col: isize, row: isize) -> bool {
+        (0..=WALKER_PLAN_GENS).any(|g| view.alive(col, row, g))
     }
 
     /// The first live tile his feet would meet on the way down: the highest one in his
@@ -3051,19 +3196,17 @@ impl Walker {
     fn walled(&self, view: &LifeView, dir: isize) -> bool {
         let row = self.support.unwrap_or(0);
         // Rows count downward, so one row *up* is one less.
-        self.solid_soon(view, self.col + dir, row - 1)
+        view.alive(self.col + dir, row - 1, 0)
     }
 
     /// How many cells he could run in a direction: floor underfoot and head room above
     /// it, for as far as he cares to look.
     ///
-    /// Judged on the board as it stands, not a generation out. A run takes well under a
-    /// second while a generation lasts several, so the present is what he will actually
-    /// be crossing — and a flat stretch of Life is almost never stable, so demanding the
-    /// whole runway survive a generation left him with nowhere to go and reduced him to
-    /// hopping in place forever. The lookahead earns its keep on the things that outlast
-    /// a single action: whether a wall is really a wall, and whether the spot he means to
-    /// take off from will still be under him.
+    /// Judged on the board as it stands, not a generation out. A flat stretch of Life is
+    /// almost never stable, so demanding the whole runway survive a generation left him
+    /// with nowhere to go and reduced him to hopping in place forever. A fast generation
+    /// can still land during a run, which is why `update` re-checks the next wall every
+    /// frame. Lookahead remains strict for the take-off floor and jump destination.
     fn runway(&self, view: &LifeView, dir: isize) -> isize {
         let row = self.support.unwrap_or(0);
         (1..=WALKER_MAX_RUNWAY)
@@ -3074,10 +3217,68 @@ impl Walker {
             .count() as isize
     }
 
+    /// The nearest body-height wall in a run direction, expressed as the last safe hip
+    /// position before his body reaches its face.
+    fn run_wall_limit(&self, view: &LifeView, dir: f32) -> Option<f32> {
+        let row = self.support? - 1;
+        let col = self.col + dir as isize;
+        if !view.alive(col, row, 0) {
+            return None;
+        }
+        let face = Self::cell_x(view, col)
+            - dir * (CELL_PX * TILE_FILL * 0.5 + WALKER_GRAB_BODY_CLEARANCE);
+        Some(face)
+    }
+
     /// Pick something to do, from the handful of things he knows how to do.
     fn decide(&mut self, view: &LifeView) {
         let (left, right) = (self.runway(view, -1), self.runway(view, 1));
         let boxed = self.walled(view, -1) && self.walled(view, 1);
+
+        if !boxed {
+            // First look for a running jump with a real destination. A shorter approach
+            // that ends on another block beats a longer run whose only outcome is leaving
+            // the screen.
+            let run_landing = [(-1.0, left), (1.0, right)]
+                .into_iter()
+                .filter(|(_, cells)| *cells > 0)
+                .filter_map(|(dir, mut cells)| {
+                    let d = dir as isize;
+                    let row = self.support.unwrap_or(0);
+                    while cells > 1 && !self.solid_soon(view, self.col + d * cells, row) {
+                        cells -= 1;
+                    }
+                    let take_off = self.x + dir * cells as f32 * CELL_PX;
+                    self.plan_landing(view, dir, take_off, self.hip_y)
+                        .map(|plan| (plan.score, dir, take_off))
+                })
+                .min_by(|a, b| a.0.partial_cmp(&b.0).unwrap());
+
+            if let Some((_, dir, take_off)) = run_landing {
+                self.facing = dir;
+                self.act = Act::Run {
+                    dir,
+                    t: 0.0,
+                    take_off,
+                };
+                return;
+            }
+
+            // A small isolated perch has no runway, but it can still offer a perfectly
+            // good leap. Use a visible crouch and spring directly toward that landing.
+            let standing_landing = [-1.0, 1.0]
+                .into_iter()
+                .filter_map(|dir| {
+                    self.plan_landing(view, dir, self.x, self.hip_y)
+                        .map(|plan| (plan.score, dir))
+                })
+                .min_by(|a, b| a.0.partial_cmp(&b.0).unwrap());
+            if let Some((_, dir)) = standing_landing {
+                self.facing = dir;
+                self.act = Act::Leap { dir, t: 0.0 };
+                return;
+            }
+        }
 
         if boxed || (left == 0 && right == 0) {
             // Nowhere to go. The first boxed choice strongly favours the readable shove;
@@ -3132,6 +3333,7 @@ impl Walker {
         self.vy = vy;
         self.vx = vx;
         self.grab_plan = None;
+        self.landing_plan = None;
         self.hang_release_at = f32::INFINITY;
     }
 
@@ -3216,6 +3418,7 @@ impl Walker {
     /// sealed squeeze uses the brief behind-the-floor fall-through escape.
     fn dislodge(&mut self, view: &LifeView, row: isize) {
         self.grab_plan = None;
+        self.landing_plan = None;
         let first = if self.rng.f32() < 0.5 { -1isize } else { 1 };
         let dirs = [first, -first];
 
@@ -3291,7 +3494,7 @@ impl Walker {
                 p.shoulder[1] -= b;
                 (p, 4.0)
             }
-            Act::Hop(t) => {
+            Act::Hop(t) | Act::Leap { t, .. } => {
                 // Gather, then spring — the spring itself is a jump, handled elsewhere.
                 let k = (t / WALKER_CROUCH_SECS).clamp(0.0, 1.0);
                 let mut p = Pose::landed();
@@ -3470,6 +3673,21 @@ impl Critter for Walker {
                     self.leave_ground(WALKER_HOP_V, 0.0);
                 }
             }
+            Act::Leap { dir, t } => {
+                let t = t + ctx.dt;
+                if t > WALKER_CROUCH_SECS {
+                    // Re-plan after the crouch so a target changed during the wind-up is
+                    // never treated as guaranteed. If it vanished, simply reconsider.
+                    if let Some(plan) = self.plan_landing(&ctx.life, dir, self.x, self.hip_y) {
+                        self.leave_ground(WALKER_JUMP_V, plan.vx);
+                        self.landing_plan = Some(plan);
+                    } else {
+                        self.act = Act::Deciding(0.0);
+                    }
+                } else {
+                    self.act = Act::Leap { dir, t };
+                }
+            }
             Act::Shove { dir, ref mut t } => {
                 *t += ctx.dt;
                 // Straighten up before the tile can go, so the gag lands: he strains, gives
@@ -3493,21 +3711,43 @@ impl Critter for Walker {
                     self.col = Self::col_of(&ctx.life, self.x);
                 }
             }
-            Act::Run {
-                dir,
-                ref mut t,
-                take_off,
-            } => {
-                *t += ctx.dt;
-                self.x += dir * WALKER_RUN_SPEED * ctx.dt;
-                self.col = Self::col_of(&ctx.life, self.x);
-                if (self.x - take_off) * dir >= 0.0 {
-                    // A catch is chosen before take-off and only by varying the carried
-                    // run speed within a natural range. Ordinary jumps keep full speed.
-                    let planned = self.plan_grab(&ctx.life, dir);
-                    let run = planned.map(|(_, vx)| vx).unwrap_or(WALKER_RUN_SPEED * dir);
-                    self.leave_ground(WALKER_JUMP_V, run);
-                    self.grab_plan = planned.map(|(plan, _)| plan);
+            Act::Run { dir, t, take_off } => {
+                let t = t + ctx.dt;
+                let proposed = self.x + dir * WALKER_RUN_SPEED * ctx.dt;
+
+                // Re-check every frame. A generation can land halfway through the run,
+                // and its newborn tile is already solid even while the renderer is only
+                // beginning to fade it in.
+                if let Some(limit) = self.run_wall_limit(&ctx.life, dir) {
+                    if (proposed - limit) * dir >= 0.0 {
+                        self.x = limit;
+                        self.col = Self::col_of(&ctx.life, self.x);
+                        self.vx = 0.0;
+                        self.act = Act::Deciding(0.0);
+                    } else {
+                        self.x = proposed;
+                        self.col = Self::col_of(&ctx.life, self.x);
+                        self.act = Act::Run { dir, t, take_off };
+                    }
+                } else {
+                    self.x = proposed;
+                    self.col = Self::col_of(&ctx.life, self.x);
+                    if (self.x - take_off) * dir >= 0.0 {
+                        // Foot landings are deliberate whenever the board offers one.
+                        // Only without one do we try the occasional ledge performance or
+                        // preserve the old untargeted exit jump.
+                        if let Some(plan) = self.plan_landing(&ctx.life, dir, self.x, self.hip_y) {
+                            self.leave_ground(WALKER_JUMP_V, plan.vx);
+                            self.landing_plan = Some(plan);
+                        } else {
+                            let planned = self.plan_grab(&ctx.life, dir);
+                            let run = planned.map(|(_, vx)| vx).unwrap_or(WALKER_RUN_SPEED * dir);
+                            self.leave_ground(WALKER_JUMP_V, run);
+                            self.grab_plan = planned.map(|(plan, _)| plan);
+                        }
+                    } else {
+                        self.act = Act::Run { dir, t, take_off };
+                    }
                 }
             }
             Act::Hang { col, row } => {
@@ -3519,6 +3759,7 @@ impl Critter for Walker {
                     self.vy = 0.0;
                     self.vx = 0.0;
                     self.grab_plan = None;
+                    self.landing_plan = None;
                     self.hang_release_at = f32::INFINITY;
                 } else if self.t >= self.hang_release_at {
                     self.throw_from_hang(&ctx.life);
@@ -3544,7 +3785,8 @@ impl Critter for Walker {
                 self.vy = self.vy.min(0.0);
                 self.vx = carry;
                 self.grab_plan = None;
-            } else if occupied {
+                self.landing_plan = None;
+            } else if occupied && !matches!(self.act, Act::Sidestep { .. }) {
                 self.dislodge(&ctx.life, row);
             }
         }
@@ -3558,6 +3800,14 @@ impl Critter for Walker {
                 || ctx.life.alive(body_col, plan.row, 0);
             if invalid {
                 self.grab_plan = None;
+            }
+        }
+
+        // The target is advisory after take-off. If it changes, discard the expectation
+        // and let the ordinary falling collision find anything that remains below.
+        if let Some(plan) = self.landing_plan {
+            if !ctx.life.alive(plan.col, plan.row, 0) || ctx.life.alive(plan.col, plan.row - 1, 0) {
+                self.landing_plan = None;
             }
         }
 
@@ -3653,6 +3903,7 @@ impl Critter for Walker {
                             self.vy = 0.0;
                             self.vx = 0.0;
                             self.grab_plan = None;
+                            self.landing_plan = None;
                         }
                     }
                 }
@@ -5410,7 +5661,7 @@ impl Driver {
             let mut rng = Rng::new(self.life.rng.next_u64());
             let view = self.life.view();
             // Choose before asking whether the board has a walker entrance, so every
-            // twelve-second turn is a uniform three-way draw. A refused walker becomes a
+            // sixteen-second turn is a uniform three-way draw. A refused walker becomes a
             // rocket rather than delaying or silently losing the scheduled arrival.
             let critter: Box<dyn Critter> = match random_critter_kind(&mut rng) {
                 CritterKind::Rocket => Box::new(Rocket::new(&view, &mut rng)),
@@ -7302,6 +7553,7 @@ mod tests {
             edge: half_w,
             doomed: false,
             grab_plan: None,
+            landing_plan: None,
             no_land_until: 0.0,
             hang_release_at: f32::INFINITY,
             last_stuck: None,
@@ -7745,6 +7997,147 @@ mod tests {
         assert!(w.vy > 0.0, "never got airborne");
         assert!(w.vx > 0.0, "jumped without carrying the run into it");
         assert!(w.x > start_x + CELL_PX, "jumped from where he started");
+    }
+
+    /// When another stable block is in range, leaving the current perch should be a
+    /// planned leap that comes back down on screen, not the old guaranteed exit.
+    #[test]
+    fn walker_prefers_and_completes_a_visible_block_to_block_landing() {
+        let (cols, rows) = (24usize, 22usize);
+        let life = planted(
+            cols,
+            rows,
+            &[
+                (4, 12),
+                (5, 12),
+                (4, 13),
+                (5, 13),
+                (7, 12),
+                (8, 12),
+                (7, 13),
+                (8, 13),
+            ],
+        );
+        let view = life.view();
+        let mut w = drop_walker(&life, 5, 4.0);
+        w.col = 5;
+        w.x = Walker::cell_x(&view, 5);
+        w.pose = Pose::standing();
+        w.support = Some(12);
+        w.hip_y = w.surface_of(&view, 12) + w.leg_reach();
+
+        w.decide(&view);
+        assert!(
+            matches!(w.act, Act::Leap { dir: 1.0, .. }),
+            "did not choose the reachable block to the right: {:?}",
+            w.act
+        );
+
+        let mut t = 0.0f32;
+        let mut saw_planned_flight = false;
+        let mut landed = false;
+        for _ in 0..240 {
+            assert!(w.update(&walker_ctx(&life, t)), "left the screen");
+            t += 1.0 / 60.0;
+            saw_planned_flight |= w.support.is_none() && w.landing_plan.is_some();
+            if saw_planned_flight && w.support.is_some() {
+                landed = true;
+                break;
+            }
+        }
+        assert!(saw_planned_flight, "the leap never carried a landing plan");
+        assert!(landed, "the planned leap never came back down");
+        assert!(
+            matches!(w.col, 7 | 8),
+            "landed in column {}, not on the destination block",
+            w.col
+        );
+    }
+
+    /// A block can be born after a run starts. The runner must stop at its face on that
+    /// very frame rather than entering the still-fading tile and relying on dislodging.
+    #[test]
+    fn walker_rechecks_for_new_walls_during_a_run() {
+        let (cols, rows) = (24usize, 18usize);
+        let floor: Vec<(usize, usize)> = (4..=10).map(|col| (col, 10)).collect();
+        let clear = planted(cols, rows, &floor);
+        let mut with_wall_cells = floor.clone();
+        with_wall_cells.push((7, 9));
+        let with_wall = planted(cols, rows, &with_wall_cells);
+        let view = clear.view();
+
+        let mut w = drop_walker(&clear, 8, 4.0);
+        w.col = 8;
+        w.x = Walker::cell_x(&view, 8);
+        w.pose = Pose::standing();
+        w.support = Some(10);
+        w.hip_y = w.surface_of(&view, 10) + w.leg_reach();
+        w.act = Act::Run {
+            dir: -1.0,
+            t: 0.4,
+            take_off: Walker::cell_x(&view, 4),
+        };
+
+        let wall_face = Walker::cell_x(&with_wall.view(), 7)
+            + CELL_PX * TILE_FILL * 0.5
+            + WALKER_GRAB_BODY_CLEARANCE;
+        for frame in 0..60 {
+            w.update(&walker_ctx(&with_wall, frame as f32 / 60.0));
+            assert!(
+                w.x >= wall_face - 0.01,
+                "entered the new wall by {:.1}px",
+                wall_face - w.x
+            );
+            if !matches!(w.act, Act::Run { .. }) {
+                break;
+            }
+        }
+        assert!(
+            matches!(w.act, Act::Deciding(_)),
+            "did not stop to re-plan at the new wall: {:?}",
+            w.act
+        );
+        assert_eq!(w.col, 8, "crossed into the wall's grid cell");
+    }
+
+    /// While clearing a tile born in his body space, the chosen escape must remain fixed
+    /// until the step finishes. Re-running the random choice every frame caused the
+    /// visible left-right jitter reported in the field.
+    #[test]
+    fn walker_commits_to_one_escape_step_without_oscillating() {
+        let (cols, rows) = (24usize, 18usize);
+        let life = planted(cols, rows, &[(4, 10), (5, 10), (6, 10), (5, 9)]);
+        let view = life.view();
+        let mut w = drop_walker(&life, 5, 4.0);
+        w.col = 5;
+        w.x = Walker::cell_x(&view, 5);
+        w.pose = Pose::standing();
+        w.support = Some(10);
+        w.hip_y = w.surface_of(&view, 10) + w.leg_reach();
+        w.act = Act::Deciding(0.0);
+
+        w.update(&walker_ctx(&life, 0.0));
+        let (dir, target) = match w.act {
+            Act::Sidestep { dir, to_x } => (dir, to_x),
+            other => panic!("did not begin an escape step: {other:?}"),
+        };
+        let mut last_x = w.x;
+        for frame in 1..30 {
+            w.update(&walker_ctx(&life, frame as f32 / 60.0));
+            match w.act {
+                Act::Sidestep { dir: still, to_x } => {
+                    assert_eq!(still, dir, "reversed the escape direction");
+                    assert_eq!(to_x, target, "picked a different escape cell");
+                    assert!(
+                        (w.x - last_x) * dir >= -0.001,
+                        "moved backward during the escape"
+                    );
+                }
+                Act::Deciding(_) => break,
+                other => panic!("escape changed into {other:?}"),
+            }
+            last_x = w.x;
+        }
     }
 
     /// The gesture on the way down has to open up with the drop, so a long fall reads
@@ -8299,9 +8692,9 @@ mod tests {
 
     /// The public cadence request is literal, and the selector itself is uniform.
     #[test]
-    fn critters_arrive_every_twelve_seconds_with_a_uniform_three_way_choice() {
-        assert_eq!(FIRST_CRITTER, 12.0);
-        assert_eq!(CRITTER_EVERY, 12.0);
+    fn critters_arrive_every_sixteen_seconds_with_a_uniform_three_way_choice() {
+        assert_eq!(FIRST_CRITTER, 16.0);
+        assert_eq!(CRITTER_EVERY, 16.0);
 
         let mut rng = Rng::new(0x5eed_cafe);
         let mut counts = [0usize; 3];
