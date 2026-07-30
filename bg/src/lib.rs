@@ -757,8 +757,8 @@ fn rocket_radius(u: f32) -> f32 {
 }
 
 /// Builds a prototypical cartoon rocket, nose pointing along +X, centred on the
-/// origin, `length` long: white ogive hull with a red nose cone, a porthole on the
-/// +Z face where the camera can see it, three swept fins and a nozzle at the tail.
+/// origin, `length` long: white ogive hull with a red nose cone, two portholes 180
+/// degrees apart around the hull, three swept fins and a nozzle at the tail.
 ///
 /// Everything is a surface of revolution or an extruded blade, so the whole model
 /// falls out of a handful of parameters rather than any authored geometry.
@@ -927,9 +927,9 @@ pub fn build_rocket(length: f32) -> (Vec<PropVertex>, Vec<u16>) {
         }
     }
 
-    // ---- porthole: concentric discs standing proud of the +Z face -----------
-    // Seen from almost directly above these read as the cartoon's ringed window; the
-    // short walls between them give it depth from a glancing angle.
+    // ---- portholes: concentric discs on opposite sides of the hull ----------
+    // The matching windows are exactly half a turn apart. As the rocket rolls, one
+    // disappears around the flank just as the other comes into view.
     let win_u = 0.50;
     let win_z = r_of(win_u) - length * 0.012;
     let win_x = x_of(win_u);
@@ -946,39 +946,47 @@ pub fn build_rocket(length: f32) -> (Vec<PropVertex>, Vec<u16>) {
             srgb_hex_to_linear(ROCKET_GLASS),
         ),
     ];
-    for (r, lift, col) in rings {
-        let z = win_z + lift;
-        let c = v.len() as u16;
-        v.push(PropVertex {
-            pos: [win_x, 0.0, z],
-            nrm: [0.0, 0.0, 1.0],
-            col,
-            uv: [0.0; 2],
-        });
-        let rim = v.len();
-        for k in 0..RADIAL {
-            let a = k as f32 / RADIAL as f32 * std::f32::consts::TAU;
-            let (sa, ca) = a.sin_cos();
+    for side in [1.0f32, -1.0] {
+        for &(r, lift, col) in &rings {
+            let z = side * (win_z + lift);
+            let c = v.len() as u16;
             v.push(PropVertex {
-                pos: [win_x + r * ca, r * sa, z],
-                nrm: [0.0, 0.0, 1.0],
+                pos: [win_x, 0.0, z],
+                nrm: [0.0, 0.0, side],
                 col,
                 uv: [0.0; 2],
             });
-            v.push(PropVertex {
-                pos: [win_x + r * ca, r * sa, z - length * 0.03],
-                nrm: [ca, sa, 0.0],
-                col,
-                uv: [0.0; 2],
-            });
-        }
-        for k in 0..RADIAL {
-            let k1 = (k + 1) % RADIAL;
-            let a = (rim + k * 2) as u16;
-            let b = (rim + k1 * 2) as u16;
-            idx.extend_from_slice(&[c, a, b]);
-            idx.extend_from_slice(&[a, (rim + k * 2 + 1) as u16, (rim + k1 * 2 + 1) as u16]);
-            idx.extend_from_slice(&[a, (rim + k1 * 2 + 1) as u16, b]);
+            let rim = v.len();
+            for k in 0..RADIAL {
+                let a = k as f32 / RADIAL as f32 * std::f32::consts::TAU;
+                let (sa, ca) = a.sin_cos();
+                v.push(PropVertex {
+                    pos: [win_x + r * ca, r * sa, z],
+                    nrm: [0.0, 0.0, side],
+                    col,
+                    uv: [0.0; 2],
+                });
+                v.push(PropVertex {
+                    pos: [win_x + r * ca, r * sa, z - side * length * 0.03],
+                    nrm: [ca, sa, 0.0],
+                    col,
+                    uv: [0.0; 2],
+                });
+            }
+            for k in 0..RADIAL {
+                let k1 = (k + 1) % RADIAL;
+                let a = (rim + k * 2) as u16;
+                let b = (rim + k1 * 2) as u16;
+                let ai = (rim + k * 2 + 1) as u16;
+                let bi = (rim + k1 * 2 + 1) as u16;
+                if side > 0.0 {
+                    idx.extend_from_slice(&[c, a, b]);
+                    idx.extend_from_slice(&[a, ai, bi, a, bi, b]);
+                } else {
+                    idx.extend_from_slice(&[c, b, a]);
+                    idx.extend_from_slice(&[a, bi, ai, a, b, bi]);
+                }
+            }
         }
     }
 
@@ -1982,6 +1990,7 @@ const BEE_KICK_SECS: f32 = 0.34;
 const BEE_KICK_GROW: f32 = 0.70;
 const BEE_KICK_LOOM_PORTION: f32 = 0.58;
 const BEE_KICK_AWAY: f32 = 44.0;
+const BEE_WING_SIZE: f32 = 1.10;
 /// Attachments in the original 420x269 body coordinate system, in atlas order.
 const BEE_LEG_BODY_PIVOTS: [[f32; 2]; 6] = [
     [122.0, 61.0],
@@ -2234,6 +2243,8 @@ impl Bee {
         alpha: f32,
         z: f32,
     ) {
+        let length = length * BEE_WING_SIZE;
+        let width = width * BEE_WING_SIZE;
         let a = body_yaw + rel;
         let (s, c) = a.sin_cos();
         let centre = [root[0] + c * length * 0.48, root[1] + s * length * 0.48, z];
@@ -2466,6 +2477,7 @@ const WALKER_MASK_CHEST_OVERLAP: f32 = WALKER_TORSO * 0.30;
 const WALKER_HELMET_W: f32 = 42.0;
 const WALKER_HELMET_H: f32 = WALKER_HELMET_W;
 const WALKER_HELMET_CHEST_OVERLAP: f32 = WALKER_TORSO * 0.25;
+const WALKER_HELMET_LIFT: f32 = WALKER_HELMET_H * 0.05;
 const WALKER_MASKED_H: f32 =
     WALKER_THIGH + WALKER_SHIN + WALKER_TORSO + WALKER_MASK_H - WALKER_MASK_CHEST_OVERLAP;
 /// Ledge physics still belong to the slim side-view body beneath the costume. Letting
@@ -3399,13 +3411,14 @@ impl Walker {
             );
         }
 
-        let (model, width, height, scale_y, overlap) = match self.headgear {
+        let (model, width, height, scale_y, overlap, lift) = match self.headgear {
             Headgear::Tiki => (
                 MODEL_TIKI_MASK,
                 WALKER_MASK_W,
                 WALKER_MASK_H,
                 WALKER_MASK_W * 0.90,
                 WALKER_MASK_CHEST_OVERLAP,
+                0.0,
             ),
             Headgear::Astronaut => (
                 MODEL_ASTRONAUT_HELMET,
@@ -3413,9 +3426,10 @@ impl Walker {
                 WALKER_HELMET_H,
                 WALKER_HELMET_H,
                 WALKER_HELMET_CHEST_OVERLAP,
+                WALKER_HELMET_LIFT,
             ),
         };
-        let head_from_shoulder = height * 0.5 - overlap;
+        let head_from_shoulder = height * 0.5 - overlap + lift;
         let head = [
             shoulder[0] + torso_dir[0] * head_from_shoulder,
             shoulder[1] + torso_dir[1] * head_from_shoulder,
@@ -6187,6 +6201,17 @@ mod tests {
                 "no {name} vertices in the mesh"
             );
         }
+
+        let glass = srgb_hex_to_linear(ROCKET_GLASS);
+        let glass_faces: Vec<&PropVertex> = v
+            .iter()
+            .filter(|vert| vert.col == glass && vert.nrm[2].abs() > 0.99)
+            .collect();
+        assert!(
+            glass_faces.iter().any(|vert| vert.pos[2] > 0.0)
+                && glass_faces.iter().any(|vert| vert.pos[2] < 0.0),
+            "the rocket needs matching glass portholes 180 degrees apart"
+        );
     }
 
     /// The hull profile has to start wide, bulge amidships and close to a point, or
