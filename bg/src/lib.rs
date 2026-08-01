@@ -48,6 +48,9 @@ const BIRTH_FADE: f32 = 0.18;
 /// a slower settle down and out. Must stay under the shortest simulation step; the
 /// step loop holds a tile in the solid pass until this long has elapsed.
 const DEATH_FADE: f32 = 0.55;
+/// When a birth replaces an orthogonally adjacent death, the old tile travels one
+/// cell into the new position over the same span the ordinary death would have used.
+const TILE_SLIDE_SECS: f32 = DEATH_FADE;
 
 /// A tile that survives a generation gets a little celebratory spin about its own
 /// vertical axis this often — but only the coloured ones, so it stays an accent
@@ -75,7 +78,9 @@ const HALO_PAD: f32 = 69.0;
 const GLOW_RADIUS: f32 = 16.1;
 /// The wide haze is the same falloff stretched by this much.
 const GLOW_HAZE: f32 = 2.5;
-const GLOW_STRENGTH: f32 = 0.55;
+/// Keep the atmospheric colour but let the distant walkers and fog remain visible
+/// through overlapping blooms. This is about 38% below the original 0.55 coverage.
+const GLOW_STRENGTH: f32 = 0.34;
 
 /// Simulation extends this many cells beyond the visible viewport on every side.
 pub const MARGIN: usize = 3;
@@ -443,20 +448,68 @@ pub const MODEL_BEE_WING: usize = 11;
 pub const MODEL_TIKI_MASK: usize = 12;
 /// Alternate oversized astronaut helmet, selected once when a walker arrives.
 pub const MODEL_ASTRONAUT_HELMET: usize = 13;
-pub const MODEL_COUNT: usize = 14;
+/// Fierce traditional Noh theatre mask replacing the first Japanese-mask draft.
+pub const MODEL_NOH_MASK: usize = 14;
+/// Mischievous carved monkey mask.
+pub const MODEL_MONKEY_MASK: usize = 15;
+/// One split comedy/tragedy Greek theatre mask.
+pub const MODEL_COMEDY_TRAGEDY_MASK: usize = 16;
+/// Tux-inspired giant in the experimental distant background layer.
+pub const MODEL_PENGUIN: usize = 17;
+/// Independently pivoted thigh and shin layers for the enlarged Godzilla/kaiju.
+/// Lower legs draw first, then thighs, then the body, hiding both knee and hip seams.
+pub const MODEL_GODZILLA_REAR_UPPER: usize = 18;
+pub const MODEL_GODZILLA_REAR_LOWER: usize = 19;
+pub const MODEL_GODZILLA_FRONT_UPPER: usize = 20;
+pub const MODEL_GODZILLA_FRONT_LOWER: usize = 21;
+/// Distal 40% of the tail, independently pitched away from the camera.
+pub const MODEL_GODZILLA_TAIL: usize = 22;
+pub const MODEL_GODZILLA_BODY: usize = 23;
+/// Procedural marshmallow sailor. One shared ellipsoid supplies every articulated
+/// limb puff; torso and head remain separate so the face can turn a little farther
+/// toward the camera than the shoulders.
+pub const MODEL_MARSHMALLOW_PUFF: usize = 24;
+pub const MODEL_MARSHMALLOW_BODY: usize = 25;
+pub const MODEL_MARSHMALLOW_HEAD: usize = 26;
+/// Eight generated mist cells that drift between the distant visitor and everything
+/// in the ordinary scene.
+pub const MODEL_FOG_FIRST: usize = 27;
+pub const MODEL_FOG_LAST: usize = MODEL_FOG_FIRST + 7;
+/// Solid, code-built flying saucer.
+pub const MODEL_UFO: usize = 35;
+/// A real tile mesh detached from Conway and carried away by the saucer.
+pub const MODEL_CAPTURED_TILE: usize = 36;
+/// The translucent tractor-beam cone. Kept last so it blends over the solids.
+pub const MODEL_UFO_BEAM: usize = 37;
+pub const MODEL_COUNT: usize = 38;
 
 /// Which models are drawn flat and unlit — blended over the scene without writing
 /// depth. Embers are their own light source; line art wants to stay the colour it is
 /// asked for rather than picking up highlights.
-const MODEL_UNLIT: [bool; MODEL_COUNT] = [
-    false, true, true, true, true, true, true, true, true, true, true, true, true, true,
-];
+const fn model_unlit() -> [bool; MODEL_COUNT] {
+    let mut result = [true; MODEL_COUNT];
+    result[MODEL_ROCKET] = false;
+    result[MODEL_UFO] = false;
+    result[MODEL_CAPTURED_TILE] = false;
+    result[MODEL_MARSHMALLOW_PUFF] = false;
+    result[MODEL_MARSHMALLOW_BODY] = false;
+    result[MODEL_MARSHMALLOW_HEAD] = false;
+    result
+}
+const MODEL_UNLIT: [bool; MODEL_COUNT] = model_unlit();
 
 /// Where critters drop their prop instances, grouped by model so each group can be
 /// drawn from one range.
-#[derive(Default)]
 pub struct PropSink {
     models: [Vec<Prop>; MODEL_COUNT],
+}
+
+impl Default for PropSink {
+    fn default() -> Self {
+        PropSink {
+            models: std::array::from_fn(|_| Vec::new()),
+        }
+    }
 }
 
 impl PropSink {
@@ -501,6 +554,30 @@ fn prop_model_meshes() -> [(Vec<PropVertex>, Vec<u16>); MODEL_COUNT] {
         build_disc(),
         build_tiki_mask_quad(),
         build_astronaut_helmet_quad(),
+        build_noh_mask_quad(),
+        build_monkey_mask_quad(),
+        build_comedy_tragedy_mask_quad(),
+        build_penguin_quad(),
+        build_godzilla_leg_quad(0),
+        build_godzilla_leg_quad(1),
+        build_godzilla_leg_quad(2),
+        build_godzilla_leg_quad(3),
+        build_godzilla_tail_quad(),
+        build_godzilla_body_quad(),
+        build_marshmallow_puff(),
+        build_marshmallow_body(),
+        build_marshmallow_head(),
+        build_fog_blob_quad(0),
+        build_fog_blob_quad(1),
+        build_fog_blob_quad(2),
+        build_fog_blob_quad(3),
+        build_fog_blob_quad(4),
+        build_fog_blob_quad(5),
+        build_fog_blob_quad(6),
+        build_fog_blob_quad(7),
+        build_ufo(),
+        build_captured_tile(),
+        build_ufo_beam(),
     ]
 }
 
@@ -677,6 +754,630 @@ pub fn build_tiki_mask_quad() -> (Vec<PropVertex>, Vec<u16>) {
 
 pub fn build_astronaut_helmet_quad() -> (Vec<PropVertex>, Vec<u16>) {
     build_textured_quad(1.0)
+}
+
+pub fn build_noh_mask_quad() -> (Vec<PropVertex>, Vec<u16>) {
+    build_textured_quad(384.0 / 290.0)
+}
+
+pub fn build_monkey_mask_quad() -> (Vec<PropVertex>, Vec<u16>) {
+    build_textured_quad(373.0 / 384.0)
+}
+
+pub fn build_comedy_tragedy_mask_quad() -> (Vec<PropVertex>, Vec<u16>) {
+    build_textured_quad(384.0 / 293.0)
+}
+
+pub fn build_penguin_quad() -> (Vec<PropVertex>, Vec<u16>) {
+    build_textured_quad(384.0 / 305.0)
+}
+
+const GODZILLA_SOURCE_W: f32 = 384.0;
+const GODZILLA_SOURCE_H: f32 = 266.0;
+const GODZILLA_LEG_ATLAS_W: f32 = GODZILLA_SOURCE_W * 4.0;
+/// Slots are rear thigh, rear shin, front thigh, front shin. Hip and knee pivots sit
+/// inside the overlaps retained by the layer above them.
+const GODZILLA_LEG_PIVOTS: [[f32; 2]; 4] = [
+    [184.0, 132.0],
+    [158.0, 199.0],
+    [234.0, 135.0],
+    [248.0, 211.0],
+];
+/// The distal tail layer overlaps the body by eight source pixels around this narrow
+/// joint. Pitching around the overlap keeps the cut registered at rest and hides the
+/// seam under the body while the tip recedes.
+const GODZILLA_TAIL_PIVOT: [f32; 2] = [86.0, 218.0];
+
+pub fn build_godzilla_body_quad() -> (Vec<PropVertex>, Vec<u16>) {
+    build_textured_quad(266.0 / 384.0)
+}
+
+/// Full-canvas tail layer anchored at its cut rather than the source-image centre.
+/// The transparent canvas preserves exact registration with the body at pitch zero.
+pub fn build_godzilla_tail_quad() -> (Vec<PropVertex>, Vec<u16>) {
+    let [pivot_x, pivot_y] = GODZILLA_TAIL_PIVOT;
+    let left = -pivot_x / GODZILLA_SOURCE_W;
+    let right = (GODZILLA_SOURCE_W - pivot_x) / GODZILLA_SOURCE_W;
+    let top = pivot_y / GODZILLA_SOURCE_W;
+    let bottom = (pivot_y - GODZILLA_SOURCE_H) / GODZILLA_SOURCE_W;
+    let n = [0.0f32, 0.0, 1.0];
+    let col = [1.0f32, 1.0, 1.0];
+    let v = vec![
+        PropVertex {
+            pos: [left, bottom, 0.0],
+            nrm: n,
+            col,
+            uv: [0.0, 1.0],
+        },
+        PropVertex {
+            pos: [right, bottom, 0.0],
+            nrm: n,
+            col,
+            uv: [1.0, 1.0],
+        },
+        PropVertex {
+            pos: [right, top, 0.0],
+            nrm: n,
+            col,
+            uv: [1.0, 0.0],
+        },
+        PropVertex {
+            pos: [left, top, 0.0],
+            nrm: n,
+            col,
+            uv: [0.0, 0.0],
+        },
+    ];
+    (v, vec![0, 1, 2, 0, 2, 3])
+}
+
+/// One full-canvas Godzilla leg cell, anchored at its hip rather than at the image
+/// centre. The generous transparent canvas preserves the source registration.
+pub fn build_godzilla_leg_quad(slot: usize) -> (Vec<PropVertex>, Vec<u16>) {
+    assert!(slot < 4);
+    let [pivot_x, pivot_y] = GODZILLA_LEG_PIVOTS[slot];
+    let left = -pivot_x / GODZILLA_SOURCE_W;
+    let right = (GODZILLA_SOURCE_W - pivot_x) / GODZILLA_SOURCE_W;
+    let top = pivot_y / GODZILLA_SOURCE_W;
+    let bottom = (pivot_y - GODZILLA_SOURCE_H) / GODZILLA_SOURCE_W;
+    let u0 = (slot as f32 * GODZILLA_SOURCE_W + 0.5) / GODZILLA_LEG_ATLAS_W;
+    let u1 = ((slot + 1) as f32 * GODZILLA_SOURCE_W - 0.5) / GODZILLA_LEG_ATLAS_W;
+    let n = [0.0f32, 0.0, 1.0];
+    let col = [1.0f32, 1.0, 1.0];
+    let v = vec![
+        PropVertex {
+            pos: [left, bottom, 0.0],
+            nrm: n,
+            col,
+            uv: [u0, 1.0],
+        },
+        PropVertex {
+            pos: [right, bottom, 0.0],
+            nrm: n,
+            col,
+            uv: [u1, 1.0],
+        },
+        PropVertex {
+            pos: [right, top, 0.0],
+            nrm: n,
+            col,
+            uv: [u1, 0.0],
+        },
+        PropVertex {
+            pos: [left, top, 0.0],
+            nrm: n,
+            col,
+            uv: [u0, 0.0],
+        },
+    ];
+    (v, vec![0, 1, 2, 0, 2, 3])
+}
+
+const FOG_ATLAS_COLS: usize = 4;
+const FOG_ATLAS_ROWS: usize = 2;
+
+/// One square cell of the generated 4×2 fog atlas. Half-texel insets keep filtering
+/// from borrowing the neighbouring cloud at the very soft transparent edges.
+pub fn build_fog_blob_quad(slot: usize) -> (Vec<PropVertex>, Vec<u16>) {
+    assert!(slot < FOG_ATLAS_COLS * FOG_ATLAS_ROWS);
+    let atlas_col = slot % FOG_ATLAS_COLS;
+    let atlas_row = slot / FOG_ATLAS_COLS;
+    let u0 = (atlas_col as f32 + 0.5 / 256.0) / FOG_ATLAS_COLS as f32;
+    let u1 = (atlas_col as f32 + 1.0 - 0.5 / 256.0) / FOG_ATLAS_COLS as f32;
+    let v0 = (atlas_row as f32 + 0.5 / 256.0) / FOG_ATLAS_ROWS as f32;
+    let v1 = (atlas_row as f32 + 1.0 - 0.5 / 256.0) / FOG_ATLAS_ROWS as f32;
+    let n = [0.0f32, 0.0, 1.0];
+    let col = [1.0f32, 1.0, 1.0];
+    let v = vec![
+        PropVertex {
+            pos: [-0.5, -0.5, 0.0],
+            nrm: n,
+            col,
+            uv: [u0, v1],
+        },
+        PropVertex {
+            pos: [0.5, -0.5, 0.0],
+            nrm: n,
+            col,
+            uv: [u1, v1],
+        },
+        PropVertex {
+            pos: [0.5, 0.5, 0.0],
+            nrm: n,
+            col,
+            uv: [u1, v0],
+        },
+        PropVertex {
+            pos: [-0.5, 0.5, 0.0],
+            nrm: n,
+            col,
+            uv: [u0, v0],
+        },
+    ];
+    (v, vec![0, 1, 2, 0, 2, 3])
+}
+
+/// Adds a coloured superellipsoid to a procedural prop mesh. Exponents below one
+/// square the silhouette while retaining pillowy rounded edges; one is an ordinary
+/// ellipsoid. The modest tessellation is softened by lighting and the distant blur.
+fn append_superellipsoid(
+    verts: &mut Vec<PropVertex>,
+    indices: &mut Vec<u16>,
+    center: [f32; 3],
+    radii: [f32; 3],
+    exponent: f32,
+    rot_z: f32,
+    col: [f32; 3],
+) {
+    const LATS: usize = 12;
+    const LONS: usize = 20;
+    let base = verts.len() as u16;
+    let signed_pow = |v: f32| v.signum() * v.abs().powf(exponent);
+    let (sr, cr) = rot_z.sin_cos();
+    for lat in 0..=LATS {
+        let latitude =
+            -std::f32::consts::FRAC_PI_2 + lat as f32 / LATS as f32 * std::f32::consts::PI;
+        let (slat, clat) = latitude.sin_cos();
+        for lon in 0..LONS {
+            let longitude = lon as f32 / LONS as f32 * std::f32::consts::TAU;
+            let (slon, clon) = longitude.sin_cos();
+            let p = [
+                radii[0] * signed_pow(clat) * signed_pow(clon),
+                radii[1] * signed_pow(slat),
+                radii[2] * signed_pow(clat) * signed_pow(slon),
+            ];
+            // The ellipsoid gradient is a stable, soft approximation to the exact
+            // superquadric normal at the rounded corners.
+            let n0 = [
+                p[0] / (radii[0] * radii[0]).max(1e-6),
+                p[1] / (radii[1] * radii[1]).max(1e-6),
+                p[2] / (radii[2] * radii[2]).max(1e-6),
+            ];
+            let nl = (n0[0] * n0[0] + n0[1] * n0[1] + n0[2] * n0[2])
+                .sqrt()
+                .max(1e-6);
+            let n0 = [n0[0] / nl, n0[1] / nl, n0[2] / nl];
+            verts.push(PropVertex {
+                pos: [
+                    center[0] + p[0] * cr - p[1] * sr,
+                    center[1] + p[0] * sr + p[1] * cr,
+                    center[2] + p[2],
+                ],
+                nrm: [n0[0] * cr - n0[1] * sr, n0[0] * sr + n0[1] * cr, n0[2]],
+                col,
+                uv: [0.0; 2],
+            });
+        }
+    }
+    for lat in 0..LATS {
+        for lon in 0..LONS {
+            let a = base + (lat * LONS + lon) as u16;
+            let b = base + (lat * LONS + (lon + 1) % LONS) as u16;
+            let c = base + ((lat + 1) * LONS + lon) as u16;
+            let d = base + ((lat + 1) * LONS + (lon + 1) % LONS) as u16;
+            indices.extend_from_slice(&[a, b, c, b, d, c]);
+        }
+    }
+}
+
+/// A slightly thick triangular cloth panel facing the camera. Side faces matter when
+/// the sailor turns away, so the neckerchief remains an object rather than a decal.
+fn append_triangle_prism(
+    verts: &mut Vec<PropVertex>,
+    indices: &mut Vec<u16>,
+    points: [[f32; 2]; 3],
+    z: f32,
+    thickness: f32,
+    col: [f32; 3],
+) {
+    let base = verts.len() as u16;
+    for (depth, normal) in [
+        (z - thickness * 0.5, [0.0, 0.0, -1.0]),
+        (z + thickness * 0.5, [0.0, 0.0, 1.0]),
+    ] {
+        for p in points {
+            verts.push(PropVertex {
+                pos: [p[0], p[1], depth],
+                nrm: normal,
+                col,
+                uv: [0.0; 2],
+            });
+        }
+    }
+    indices.extend_from_slice(&[base, base + 2, base + 1, base + 3, base + 4, base + 5]);
+    for edge in 0u16..3 {
+        let next = (edge + 1) % 3;
+        let a = base + edge;
+        let b = base + next;
+        let c = base + 3 + edge;
+        let d = base + 3 + next;
+        indices.extend_from_slice(&[a, b, c, b, d, c]);
+    }
+}
+
+/// Shared unit marshmallow puff used for arms, hands, thighs, shins and feet.
+pub fn build_marshmallow_puff() -> (Vec<PropVertex>, Vec<u16>) {
+    let mut verts = Vec::new();
+    let mut indices = Vec::new();
+    append_superellipsoid(
+        &mut verts,
+        &mut indices,
+        [0.0; 3],
+        [1.0; 3],
+        0.78,
+        0.0,
+        // Pure white vanishes against the light-gray page after the 33% distant
+        // composite and 45% foreground fog. This cool shadow-white still reads as
+        // marshmallow foam while retaining the articulated silhouette.
+        srgb_hex_to_linear(0xa8b6b3),
+    );
+    (verts, indices)
+}
+
+/// Big pillowy torso with a dimensional sailor collar and bright neckerchief.
+/// Coordinates are fractions of the complete character height, measured upward from
+/// the soles, so every decorative feature follows the root's genuine 3D turn.
+pub fn build_marshmallow_body() -> (Vec<PropVertex>, Vec<u16>) {
+    let white = srgb_hex_to_linear(0xa8b6b3);
+    let navy = srgb_hex_to_linear(0x071722);
+    let stripe = srgb_hex_to_linear(0xeaf2ed);
+    let red = srgb_hex_to_linear(0xd12a3c);
+    let mut verts = Vec::new();
+    let mut indices = Vec::new();
+    append_superellipsoid(
+        &mut verts,
+        &mut indices,
+        [0.0, 0.505, 0.0],
+        [0.275, 0.255, 0.215],
+        0.72,
+        0.0,
+        white,
+    );
+
+    // Broad navy bib and its pale inset V remain legible through the gray fog.
+    append_superellipsoid(
+        &mut verts,
+        &mut indices,
+        [0.0, 0.657, 0.214],
+        [0.250, 0.070, 0.018],
+        0.64,
+        0.0,
+        navy,
+    );
+    for (center, angle) in [
+        ([-0.070, 0.657, 0.236], -0.47),
+        ([0.070, 0.657, 0.236], 0.47),
+    ] {
+        append_superellipsoid(
+            &mut verts,
+            &mut indices,
+            center,
+            [0.009, 0.085, 0.010],
+            0.82,
+            angle,
+            stripe,
+        );
+    }
+
+    // Knot plus two asymmetric tails: recognisable in front view without textures.
+    append_superellipsoid(
+        &mut verts,
+        &mut indices,
+        [0.0, 0.595, 0.254],
+        [0.039, 0.032, 0.027],
+        0.72,
+        0.0,
+        red,
+    );
+    append_triangle_prism(
+        &mut verts,
+        &mut indices,
+        [[-0.025, 0.582], [-0.005, 0.572], [-0.066, 0.468]],
+        0.250,
+        0.020,
+        red,
+    );
+    append_triangle_prism(
+        &mut verts,
+        &mut indices,
+        [[0.008, 0.573], [0.030, 0.583], [0.055, 0.480]],
+        0.251,
+        0.020,
+        red,
+    );
+    (verts, indices)
+}
+
+/// A rounded-square marshmallow head with face and a jaunty sailor cap. It is
+/// authored around its own neck pivot so animation can let the eyes lead the turn.
+pub fn build_marshmallow_head() -> (Vec<PropVertex>, Vec<u16>) {
+    let skin = srgb_hex_to_linear(0xa8b6b3);
+    let cap_white = srgb_hex_to_linear(0xf7f8f5);
+    let navy = srgb_hex_to_linear(0x071722);
+    let black = srgb_hex_to_linear(0x111820);
+    let mouth_red = srgb_hex_to_linear(0x9f2638);
+    let cheek = srgb_hex_to_linear(0xb7dce2);
+    let mut verts = Vec::new();
+    let mut indices = Vec::new();
+
+    append_superellipsoid(
+        &mut verts,
+        &mut indices,
+        [0.0, 0.0, 0.0],
+        [0.168, 0.137, 0.150],
+        0.55,
+        0.0,
+        skin,
+    );
+    for x in [-0.060f32, 0.060] {
+        append_superellipsoid(
+            &mut verts,
+            &mut indices,
+            [x, 0.025, 0.151],
+            [0.026, 0.041, 0.016],
+            0.72,
+            0.0,
+            black,
+        );
+    }
+    for x in [-0.105f32, 0.105] {
+        append_superellipsoid(
+            &mut verts,
+            &mut indices,
+            [x, -0.031, 0.143],
+            [0.031, 0.019, 0.008],
+            0.78,
+            0.0,
+            cheek,
+        );
+    }
+    append_superellipsoid(
+        &mut verts,
+        &mut indices,
+        [0.0, -0.054, 0.153],
+        [0.072, 0.042, 0.016],
+        0.70,
+        0.0,
+        black,
+    );
+    append_superellipsoid(
+        &mut verts,
+        &mut indices,
+        [0.0, -0.069, 0.163],
+        [0.036, 0.014, 0.008],
+        0.82,
+        0.0,
+        mouth_red,
+    );
+    append_superellipsoid(
+        &mut verts,
+        &mut indices,
+        [0.0, -0.006, 0.161],
+        [0.025, 0.021, 0.020],
+        0.75,
+        0.0,
+        skin,
+    );
+
+    // The cap is a stack of squashed superellipsoids, tilted like the references.
+    append_superellipsoid(
+        &mut verts,
+        &mut indices,
+        [-0.025, 0.142, -0.005],
+        [0.205, 0.023, 0.155],
+        0.70,
+        -0.13,
+        cap_white,
+    );
+    append_superellipsoid(
+        &mut verts,
+        &mut indices,
+        [-0.043, 0.176, -0.006],
+        [0.147, 0.041, 0.126],
+        0.64,
+        -0.13,
+        navy,
+    );
+    append_superellipsoid(
+        &mut verts,
+        &mut indices,
+        [-0.050, 0.217, -0.008],
+        [0.137, 0.050, 0.116],
+        0.64,
+        -0.13,
+        cap_white,
+    );
+    (verts, indices)
+}
+
+/// A compact silver saucer with a blue glass dome, built as a surface of revolution
+/// about world +Z. Dimensions are authored directly in scene pixels so an instance at
+/// scale one is a little wider than a tile.
+pub fn build_ufo() -> (Vec<PropVertex>, Vec<u16>) {
+    const RADIAL: usize = 32;
+    let dark = srgb_hex_to_linear(0x27323b);
+    let lower = srgb_hex_to_linear(0x77858d);
+    let rim = srgb_hex_to_linear(0xdce3e5);
+    let upper = srgb_hex_to_linear(0xaebbc0);
+    let glass_base = srgb_hex_to_linear(0x238fab);
+    let glass = srgb_hex_to_linear(0x6bdcf2);
+    // (radius, z, colour), traced from the lower centre over the rim to the dome.
+    let profile = [
+        (4.0f32, -12.0f32, dark),
+        (34.0, -10.0, lower),
+        (58.0, -3.0, rim),
+        (62.0, 1.5, rim),
+        (45.0, 7.0, upper),
+        (36.0, 9.0, upper),
+        // Duplicate the base ring so the cyan canopy starts at a hard material seam
+        // instead of blending gradually into the silver wing.
+        (32.0, 10.0, dark),
+        (32.0, 10.0, glass_base),
+        (29.0, 17.0, glass_base),
+        (24.0, 26.0, glass),
+        (14.0, 34.0, glass),
+        (2.0, 38.0, glass),
+    ];
+    let mut verts = Vec::with_capacity(profile.len() * RADIAL + 600);
+    let mut indices = Vec::new();
+    for (row, &(radius, z, col)) in profile.iter().enumerate() {
+        let prev = profile[row.saturating_sub(1)];
+        let next = profile[(row + 1).min(profile.len() - 1)];
+        let dr = next.0 - prev.0;
+        let dz = next.1 - prev.1;
+        let nl = (dz * dz + dr * dr).sqrt().max(1e-6);
+        for k in 0..RADIAL {
+            let a = k as f32 / RADIAL as f32 * std::f32::consts::TAU;
+            let (sa, ca) = a.sin_cos();
+            verts.push(PropVertex {
+                pos: [radius * ca, radius * sa, z],
+                nrm: [dz / nl * ca, dz / nl * sa, -dr / nl],
+                col,
+                uv: [0.0; 2],
+            });
+        }
+    }
+    for row in 0..profile.len() - 1 {
+        if profile[row].0 == profile[row + 1].0 && profile[row].1 == profile[row + 1].1 {
+            continue;
+        }
+        for k in 0..RADIAL {
+            let a = (row * RADIAL + k) as u16;
+            let b = (row * RADIAL + (k + 1) % RADIAL) as u16;
+            let c = ((row + 1) * RADIAL + k) as u16;
+            let d = ((row + 1) * RADIAL + (k + 1) % RADIAL) as u16;
+            indices.extend_from_slice(&[a, b, c, b, d, c]);
+        }
+    }
+
+    // Eight warm glass portholes set into dark bezels around the silver upper ring.
+    // Small flattened spheres remain circular from above but protrude clearly when
+    // the saucer twists into profile.
+    let mut append_porthole = |center: [f32; 3], radius_xy: f32, radius_z: f32, col: [f32; 3]| {
+        const LATS: usize = 5;
+        const LONS: usize = 10;
+        let base = verts.len() as u16;
+        for lat in 0..=LATS {
+            let theta = lat as f32 / LATS as f32 * std::f32::consts::PI;
+            let (st, ct) = theta.sin_cos();
+            for lon in 0..LONS {
+                let phi = lon as f32 / LONS as f32 * std::f32::consts::TAU;
+                let (sp, cp) = phi.sin_cos();
+                verts.push(PropVertex {
+                    pos: [
+                        center[0] + radius_xy * st * cp,
+                        center[1] + radius_xy * st * sp,
+                        center[2] + radius_z * ct,
+                    ],
+                    nrm: [st * cp, st * sp, ct],
+                    col,
+                    uv: [0.0; 2],
+                });
+            }
+        }
+        for lat in 0..LATS {
+            for lon in 0..LONS {
+                let a = base + (lat * LONS + lon) as u16;
+                let b = base + (lat * LONS + (lon + 1) % LONS) as u16;
+                let c = base + ((lat + 1) * LONS + lon) as u16;
+                let d = base + ((lat + 1) * LONS + (lon + 1) % LONS) as u16;
+                indices.extend_from_slice(&[a, b, c, b, d, c]);
+            }
+        }
+    };
+    let bezel = srgb_hex_to_linear(0x243640);
+    let window = srgb_hex_to_linear(0xffc84f);
+    for port in 0..8 {
+        let a = std::f32::consts::PI / 8.0 + port as f32 * std::f32::consts::TAU / 8.0;
+        let (sa, ca) = a.sin_cos();
+        let center = [47.0 * ca, 47.0 * sa, 8.0];
+        append_porthole(center, 5.0, 3.2, bezel);
+        append_porthole([center[0], center[1], center[2] + 2.0], 3.35, 2.6, window);
+    }
+    (verts, indices)
+}
+
+/// The same rounded prism used by the field, recentered so a carried tile spins about
+/// its middle instead of orbiting around its lower face.
+pub fn build_captured_tile() -> (Vec<PropVertex>, Vec<u16>) {
+    let (verts, indices) = build_tile_mesh();
+    let white = [1.0f32, 1.0, 1.0];
+    (
+        verts
+            .into_iter()
+            .map(|v| PropVertex {
+                pos: [v.pos[0], v.pos[1], v.pos[2] - THICK * 0.5],
+                nrm: v.nrm,
+                col: white,
+                uv: [0.0; 2],
+            })
+            .collect(),
+        indices,
+    )
+}
+
+/// A filled unit-height cone. Layered instances stretch it between the moving tile
+/// and saucer to make a broad translucent tractor beam with a bright inner core.
+pub fn build_ufo_beam() -> (Vec<PropVertex>, Vec<u16>) {
+    const SEGS: usize = 32;
+    let mut verts = Vec::with_capacity(SEGS * 2 + 1);
+    let mut indices = Vec::with_capacity(SEGS * 9);
+    let white = [1.0f32, 1.0, 1.0];
+    for z in [0.0f32, 1.0] {
+        let radius = if z < 0.5 { 1.0 } else { 0.22 };
+        for k in 0..SEGS {
+            let a = k as f32 / SEGS as f32 * std::f32::consts::TAU;
+            let (sa, ca) = a.sin_cos();
+            let n = [ca, sa, 0.78];
+            let nl = (n[0] * n[0] + n[1] * n[1] + n[2] * n[2]).sqrt();
+            verts.push(PropVertex {
+                pos: [radius * ca, radius * sa, z],
+                nrm: [n[0] / nl, n[1] / nl, n[2] / nl],
+                col: white,
+                uv: [0.0; 2],
+            });
+        }
+    }
+    for k in 0..SEGS {
+        let a = k as u16;
+        let b = ((k + 1) % SEGS) as u16;
+        let c = (SEGS + k) as u16;
+        let d = (SEGS + (k + 1) % SEGS) as u16;
+        indices.extend_from_slice(&[a, b, c, b, d, c]);
+    }
+    // A cap makes the footprint read as a solid pool of light rather than just a
+    // yellow ring when viewed from directly above.
+    let center = verts.len() as u16;
+    verts.push(PropVertex {
+        pos: [0.0, 0.0, 0.0],
+        nrm: [0.0, 0.0, -1.0],
+        col: white,
+        uv: [0.0; 2],
+    });
+    for k in 0..SEGS {
+        indices.extend_from_slice(&[center, ((k + 1) % SEGS) as u16, k as u16]);
+    }
+    (verts, indices)
 }
 
 /// A small four-sided pyramid, apex along +Z, sized about one unit so the per-instance
@@ -1016,7 +1717,7 @@ fn build_halo_quad() -> (Vec<[f32; 2]>, Vec<u16>) {
 #[repr(C)]
 #[derive(Clone, Copy, Pod, Zeroable, Default)]
 pub struct Instance {
-    /// grid x, y
+    /// Destination grid x, y.
     cell: [f32; 2],
     /// alive, previously-alive (each 0.0 or 1.0)
     state: [f32; 2],
@@ -1030,6 +1731,8 @@ pub struct Instance {
     /// grid tile, or an index into the live palette. Critters set this, since they
     /// move between cells and should not change colour as they go.
     palette: f32,
+    /// Grid coordinate this tile slides from. Equal to `cell` for every ordinary tile.
+    slide_from: [f32; 2],
 }
 
 /// Sentinel for `Instance::palette`: colour comes from the cell hash.
@@ -1050,6 +1753,7 @@ impl Instance {
             t: -99.0,
             spin: [-99.0, 0.0],
             palette,
+            slide_from: cell,
         }
     }
 
@@ -1412,6 +2116,13 @@ pub trait Critter {
     /// Append any prop models this critter places, grouped by model.
     fn props(&self, _ctx: &CritterCtx, _out: &mut PropSink) {}
 
+    /// A dying field tile claimed by this critter. The visualisation suppresses that
+    /// tile's ordinary fade on the death boundary so the critter can replace it with
+    /// a freely moving copy in the very same frame.
+    fn claimed_cell(&self) -> Option<(usize, usize)> {
+        None
+    }
+
     /// A one-line summary, for probing behaviour in tests.
     #[cfg(test)]
     fn debug_state(&self) -> Option<String> {
@@ -1423,7 +2134,8 @@ pub trait Critter {
 
 /// A critter is drawn every sixteen seconds, starting sixteen seconds in. The available
 /// kinds are chosen uniformly; if a walker has no safe entrance on this board, the rocket
-/// is the graceful fallback for that turn.
+/// is the graceful fallback for that turn. The distant Tux layer is independent of this
+/// schedule.
 const FIRST_CRITTER: f64 = 16.0;
 const CRITTER_EVERY: f64 = 16.0;
 
@@ -1432,13 +2144,306 @@ enum CritterKind {
     Rocket,
     Walker,
     Bee,
+    Ufo,
 }
 
 fn random_critter_kind(rng: &mut Rng) -> CritterKind {
-    match rng.below(3) {
+    match rng.below(4) {
         0 => CritterKind::Rocket,
         1 => CritterKind::Walker,
-        _ => CritterKind::Bee,
+        2 => CritterKind::Bee,
+        _ => CritterKind::Ufo,
+    }
+}
+
+// ---------------------------------------------------------------------------
+// UFO — plans against Conway, then steals one tile on its exact death boundary
+// ---------------------------------------------------------------------------
+
+const UFO_HOVER_Z: f32 = 158.0;
+const UFO_HOVER_SCREEN_LIFT: f32 = 66.0;
+const UFO_START_Z: f32 = 430.0;
+const UFO_HOVER_ITERS: f32 = 0.34;
+const UFO_PULL_SECS: f32 = 1.05;
+const UFO_ESCAPE_SECS: f32 = 3.15;
+/// The tractor beam stays locked to the cargo for the entire getaway, fading only
+/// as the saucer and tile finish leaving together.
+const UFO_BEAM_SECS: f32 = UFO_PULL_SECS + UFO_ESCAPE_SECS;
+const UFO_TILE_TOW_Z: f32 = 93.0;
+const UFO_TOP_TILT: f32 = 0.08;
+const UFO_PROFILE_TILT: f32 = 1.18;
+
+fn ufo_target_candidates(view: &LifeView, phase: f32) -> Vec<(usize, usize)> {
+    // At an exact generation boundary, a board(2) death is exactly two iterations
+    // away and falls outside x < 2, so use a board(1) death. At every fractional
+    // phase, board(2) is continuously less than two and at least one iteration away.
+    let death_ahead = if phase <= f32::EPSILON { 1 } else { 2 };
+    let x0 = MARGIN.min(view.cols());
+    let y0 = MARGIN.min(view.rows());
+    let x1 = view.cols().saturating_sub(MARGIN);
+    let y1 = view.rows().saturating_sub(MARGIN);
+    let mut cells = Vec::new();
+    for y in y0..y1 {
+        for x in x0..x1 {
+            let (x, y) = (x as isize, y as isize);
+            // Ordinarily it lives through the next integer generation and dies on
+            // the second; the exact-boundary case dies on the next. Two further dead
+            // boards rule out a tile about to blink straight back on.
+            let alive_until_death = (0..death_ahead).all(|ahead| view.alive(x, y, ahead));
+            let dead_after_death =
+                (death_ahead..=death_ahead + 2).all(|ahead| !view.alive(x, y, ahead));
+            if alive_until_death && dead_after_death {
+                cells.push((x as usize, y as usize));
+            }
+        }
+    }
+    cells
+}
+
+struct Ufo {
+    target: (usize, usize),
+    target_world: [f32; 2],
+    origin: [f32; 3],
+    start_iterations: f32,
+    t: f32,
+    capture_age: Option<f32>,
+    tile_tint: [f32; 3],
+    /// Half arrive edge-on and flatten over the target; half do the inverse.
+    profile_at_capture: bool,
+    tilt_sign: f32,
+}
+
+impl Ufo {
+    fn new(view: &LifeView, phase: f32, rng: &mut Rng) -> Option<Ufo> {
+        let phase = phase.clamp(0.0, 1.0);
+        let candidates = ufo_target_candidates(view, phase);
+        let target = *candidates.get(rng.below(candidates.len()))?;
+        let death_ahead = view
+            .changes_in(target.0 as isize, target.1 as isize)
+            .expect("UFO candidates always have a planned death");
+        let target_world = view.cell_center(target.0 as f32, target.1 as f32);
+        let half_w = view.cols() as f32 * CELL_PX * 0.5;
+        let half_h = view.rows() as f32 * CELL_PX * 0.5;
+        let visible_left = -half_w + MARGIN as f32 * CELL_PX;
+        let visible_right = half_w - MARGIN as f32 * CELL_PX;
+        let visible_top = half_h - MARGIN as f32 * CELL_PX;
+        let edge_pad = 155.0;
+        let origin = match rng.below(3) {
+            // Straight down from above, with enough lateral offset for the path to
+            // read as a swoop rather than a scale-only arrival.
+            0 => [
+                (target_world[0] + (rng.f32() - 0.5) * 420.0).clamp(visible_left, visible_right),
+                visible_top + edge_pad,
+                UFO_START_Z,
+            ],
+            1 => [
+                visible_left - edge_pad,
+                visible_top + (rng.f32() - 0.5) * CELL_PX * 2.0,
+                UFO_START_Z,
+            ],
+            _ => [
+                visible_right + edge_pad,
+                visible_top + (rng.f32() - 0.5) * CELL_PX * 2.0,
+                UFO_START_Z,
+            ],
+        };
+        let tile_tint = match cell_category(target.0 as isize, target.1 as isize) {
+            1 => srgb_hex_to_linear(C_GREEN),
+            2 => srgb_hex_to_linear(C_TEAL),
+            3 => srgb_hex_to_linear(C_BLUE),
+            _ => srgb_hex_to_linear(C_LIVE),
+        };
+        Some(Ufo {
+            target,
+            target_world,
+            origin,
+            start_iterations: death_ahead as f32 - phase,
+            t: 0.0,
+            capture_age: None,
+            tile_tint,
+            profile_at_capture: rng.f32() < 0.5,
+            tilt_sign: if rng.f32() < 0.5 { 1.0 } else { -1.0 },
+        })
+    }
+
+    fn smooth(p: f32) -> f32 {
+        let p = p.clamp(0.0, 1.0);
+        p * p * (3.0 - 2.0 * p)
+    }
+
+    fn lerp3(a: [f32; 3], b: [f32; 3], p: f32) -> [f32; 3] {
+        [
+            a[0] + (b[0] - a[0]) * p,
+            a[1] + (b[1] - a[1]) * p,
+            a[2] + (b[2] - a[2]) * p,
+        ]
+    }
+
+    fn hover_position(&self) -> [f32; 3] {
+        [
+            self.target_world[0],
+            self.target_world[1] + UFO_HOVER_SCREEN_LIFT,
+            UFO_HOVER_Z + (self.t * 2.7).sin() * 4.0,
+        ]
+    }
+
+    fn profile_amount(&self, pos: [f32; 3]) -> f32 {
+        let hover_mix = Self::smooth((UFO_START_Z - pos[2]) / (UFO_START_Z - UFO_HOVER_Z));
+        if self.profile_at_capture {
+            hover_mix
+        } else {
+            1.0 - hover_mix
+        }
+    }
+
+    fn tilt_at(&self, pos: [f32; 3]) -> f32 {
+        let profile = Self::smooth(self.profile_amount(pos));
+        self.tilt_sign * (UFO_TOP_TILT + (UFO_PROFILE_TILT - UFO_TOP_TILT) * profile)
+    }
+
+    /// Rotation and length that carry the beam model's local +Z axis from `from`
+    /// toward `to`, including the lateral tow that develops during the pull.
+    fn beam_pose(from: [f32; 3], to: [f32; 3]) -> ([f32; 3], f32) {
+        let d = [to[0] - from[0], to[1] - from[1], to[2] - from[2]];
+        let horizontal = d[0].hypot(d[1]);
+        let length = horizontal.hypot(d[2]).max(1.0);
+        let tilt = horizontal.atan2(d[2]);
+        let yaw = d[0].atan2(-d[1]);
+        ([tilt, 0.0, yaw], length)
+    }
+
+    fn tow_offset(&self) -> [f32; 2] {
+        let hover = self.hover_position();
+        let dx = self.origin[0] - hover[0];
+        let dy = self.origin[1] - hover[1];
+        let len = dx.hypot(dy).max(1.0);
+        // Departure heads toward `origin`, so the cargo trails on the opposite side
+        // where a top-down camera can see it instead of directly beneath the hull.
+        [-dx / len * 96.0, -dy / len * 96.0]
+    }
+
+    fn position(&self, ctx: &CritterCtx) -> [f32; 3] {
+        let hover = self.hover_position();
+        if let Some(age) = self.capture_age {
+            if age <= UFO_PULL_SECS {
+                return hover;
+            }
+            let p = Self::smooth((age - UFO_PULL_SECS) / UFO_ESCAPE_SECS);
+            return Self::lerp3(hover, self.origin, p);
+        }
+
+        let integer_remaining = ctx
+            .life
+            .changes_in(self.target.0 as isize, self.target.1 as isize)
+            .unwrap_or(2) as f32;
+        let remaining = (integer_remaining - ctx.phase).max(0.0);
+        let travel = (self.start_iterations - UFO_HOVER_ITERS).max(0.01);
+        let p = Self::smooth((self.start_iterations - remaining) / travel);
+        Self::lerp3(self.origin, hover, p)
+    }
+
+    fn captured_tile_position(&self, ctx: &CritterCtx, age: f32) -> [f32; 3] {
+        let tow = self.tow_offset();
+        if age <= UFO_PULL_SECS {
+            let p = Self::smooth(age / UFO_PULL_SECS);
+            return [
+                self.target_world[0] + tow[0] * p,
+                self.target_world[1] + tow[1] * p,
+                RISE + THICK * 0.5 + (UFO_TILE_TOW_Z - RISE - THICK * 0.5) * p,
+            ];
+        }
+        let ufo = self.position(ctx);
+        [
+            ufo[0] + tow[0],
+            ufo[1] + tow[1],
+            ufo[2] - (UFO_HOVER_Z - UFO_TILE_TOW_Z),
+        ]
+    }
+}
+
+impl Critter for Ufo {
+    fn update(&mut self, ctx: &CritterCtx) -> bool {
+        self.t += ctx.dt;
+        if let Some(age) = self.capture_age.as_mut() {
+            *age += ctx.dt;
+            return *age < UFO_PULL_SECS + UFO_ESCAPE_SECS;
+        }
+        if !ctx
+            .life
+            .alive(self.target.0 as isize, self.target.1 as isize, 0)
+        {
+            self.capture_age = Some(0.0);
+        }
+        true
+    }
+
+    fn props(&self, ctx: &CritterCtx, out: &mut PropSink) {
+        let pos = self.position(ctx);
+        let profile = self.profile_amount(pos);
+        let bank = if self.capture_age.is_none() {
+            ((self.origin[0] - self.target_world[0]) * 0.0009).clamp(-0.23, 0.23)
+                * (1.0 - ((pos[2] - UFO_HOVER_Z) / (UFO_START_Z - UFO_HOVER_Z)).abs())
+                * (1.0 - profile)
+        } else {
+            0.0
+        };
+        out.push(
+            MODEL_UFO,
+            Prop::new(
+                pos,
+                1.0,
+                [
+                    self.tilt_at(pos) + bank,
+                    (self.t * 1.15).cos() * 0.035 * (1.0 - profile),
+                    self.t * 0.20,
+                ],
+            ),
+        );
+
+        if let Some(age) = self.capture_age {
+            let tile_pos = self.captured_tile_position(ctx, age);
+            if age < UFO_BEAM_SECS {
+                let beam_from = [tile_pos[0], tile_pos[1], tile_pos[2] - THICK * 0.30];
+                let beam_to = [pos[0], pos[1], pos[2] - 13.0];
+                let (beam_rot, beam_len) = Self::beam_pose(beam_from, beam_to);
+                let p = age / UFO_BEAM_SECS;
+                // Hold through the pull and nearly the whole escape. Because both
+                // endpoints are recomputed above, the cone keeps shining directly
+                // between the flying saucer and its spinning cargo as they depart.
+                let fade = 1.0 - Self::smooth(((p - 0.88) / 0.12).clamp(0.0, 1.0));
+                let pulse = 0.92 + 0.08 * (self.t * 19.0).sin();
+                for (radius, color, alpha) in [
+                    (78.0, 0xffdc42, 0.14),
+                    (56.0, 0xffe85f, 0.20),
+                    (31.0, 0xfff3a0, 0.18),
+                ] {
+                    out.push(
+                        MODEL_UFO_BEAM,
+                        Prop::stretched(beam_from, [radius, radius, beam_len], beam_rot)
+                            .tinted(srgb_hex_to_linear(color), alpha * fade * pulse),
+                    );
+                }
+            }
+            out.push(
+                MODEL_CAPTURED_TILE,
+                Prop::new(tile_pos, 1.0, [age * 2.35, age * 1.75, age * 0.68])
+                    .tinted(self.tile_tint, 1.0),
+            );
+        }
+    }
+
+    fn claimed_cell(&self) -> Option<(usize, usize)> {
+        Some(self.target)
+    }
+
+    #[cfg(test)]
+    fn debug_state(&self) -> Option<String> {
+        Some(format!(
+            "Ufo target=({}, {}) captured={}",
+            self.target.0,
+            self.target.1,
+            self.capture_age.is_some()
+        ))
     }
 }
 
@@ -2456,6 +3461,779 @@ impl Critter for Bee {
 }
 
 // ---------------------------------------------------------------------------
+// Distant layer — one colossal silhouette crossing behind the tile field at a time
+// ---------------------------------------------------------------------------
+
+const DISTANT_TUX_W: f32 = 602.0;
+const DISTANT_TUX_H: f32 = DISTANT_TUX_W * 384.0 / 305.0;
+const DISTANT_GODZILLA_W: f32 = 790.0 * 1.40;
+const DISTANT_GODZILLA_H: f32 = DISTANT_GODZILLA_W * 266.0 / 384.0;
+/// The marshmallow sailor is authored in height-normalized coordinates. His arms
+/// bring the side-view silhouette to roughly 70% of this height.
+const DISTANT_MARSHMALLOW_H: f32 = 820.0;
+const DISTANT_MARSHMALLOW_W: f32 = DISTANT_MARSHMALLOW_H * 0.72;
+const DISTANT_WALK_SPEED: f32 = 34.0;
+const DISTANT_TUX_MOTION_SCALE: f32 = DISTANT_TUX_W / 70.0 * 0.64;
+const DISTANT_TUX_TIME_SCALE: f32 = 0.58;
+/// Godzilla and the marshmallow sailor composite at 33%, while Tux's compensating
+/// source alpha preserves his separately tuned effective 28% through the same layer.
+const DISTANT_LAYER_OPACITY: f32 = 0.33;
+const DISTANT_TUX_ALPHA: f32 = 0.28 / DISTANT_LAYER_OPACITY;
+const DISTANT_GODZILLA_ALPHA: f32 = 1.0;
+const DISTANT_MARSHMALLOW_ALPHA: f32 = 1.0;
+/// World-space expansion for the back-face silhouette shell. Post-process blur turns
+/// this narrow cool-gray rim into a soft edge cue instead of a cartoon ink stroke.
+const DISTANT_MARSHMALLOW_OUTLINE_PX: f32 = 19.0;
+const DISTANT_TUX_BASE_LIFT: f32 = 110.0;
+const DISTANT_GODZILLA_BASE_LIFT: f32 = 92.0;
+const DISTANT_MARSHMALLOW_BASE_LIFT: f32 = 96.0;
+const DISTANT_PAUSE_MIN: f32 = 7.0;
+const DISTANT_PAUSE_SPAN: f32 = 10.0;
+/// The wide articulated stride covers about 75px per step at this scale. A 1.1 rad/s
+/// cycle lets the body travel approximately that far between alternating footfalls,
+/// instead of the legs completing two steps over one step's worth of translation.
+const GODZILLA_STEP_RATE: f32 = 1.10;
+const GODZILLA_TAIL_FLICK_MIN: f32 = 4.0;
+const GODZILLA_TAIL_FLICK_SPAN: f32 = 6.0;
+const GODZILLA_TAIL_AWAY_SECS: f32 = 0.338;
+const GODZILLA_TAIL_HOLD_SECS: f32 = 0.130;
+const GODZILLA_TAIL_RETURN_SECS: f32 = 0.169;
+const GODZILLA_TAIL_FLICK_SECS: f32 =
+    GODZILLA_TAIL_AWAY_SECS + GODZILLA_TAIL_HOLD_SECS + GODZILLA_TAIL_RETURN_SECS;
+/// Gaussian sample spacing in the half-resolution background layer. The two-pixel
+/// kernel radius and 2x upscale spread the fog well beyond the silhouette without
+/// ever filtering against the edge of Tux's own image quad.
+const DISTANT_TUX_BLUR_LAYER_PX: f32 = 10.0;
+const PENGUIN_CYCLE: f32 = 5.2;
+const PENGUIN_WADDLE_SECS: f32 = 2.55;
+const PENGUIN_HOP_SECS: f32 = 1.05;
+const PENGUIN_HOP_HEIGHT: f32 = 38.0;
+const MARSHMALLOW_STEP_RATE: f32 = 0.78;
+const MARSHMALLOW_LOOK_CYCLE: f32 = 17.0;
+const MARSHMALLOW_HEAD_Y: f32 = 0.805;
+
+#[derive(Clone, Copy, Debug)]
+struct SpritePose {
+    y: f32,
+    x_jitter: f32,
+    rot: f32,
+    scale_x: f32,
+    scale_y: f32,
+    speed: f32,
+}
+
+#[derive(Clone, Copy, Debug)]
+struct GodzillaLegPose {
+    upper: [f32; 2],
+    lower: [f32; 2],
+}
+
+#[derive(Clone, Copy, Debug)]
+struct MarshmallowPose {
+    bob: f32,
+    roll: f32,
+    depth: f32,
+    speed: f32,
+    body_front: f32,
+    head_front: f32,
+    upper_leg: [f32; 2],
+    lower_leg: [f32; 2],
+    arm: [f32; 2],
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum DistantKind {
+    Tux,
+    Godzilla,
+    Marshmallow,
+}
+
+struct DistantCrossing {
+    kind: DistantKind,
+    t: f32,
+    x: f32,
+    to_x: f32,
+    direction: f32,
+    ground_y: f32,
+    seed: f32,
+    tail_flick_started: Option<f32>,
+    tail_next_flick_at: f32,
+}
+
+struct DistantBackground {
+    crossing: Option<DistantCrossing>,
+    cooldown: f32,
+    rng: Rng,
+    next_kind: DistantKind,
+}
+
+impl DistantBackground {
+    fn new(view: &LifeView, seed: u64) -> DistantBackground {
+        let mut background = DistantBackground {
+            crossing: None,
+            cooldown: 0.0,
+            rng: Rng::new(seed),
+            // Lead with the new visitor while his look and movement are being
+            // refined. The one-shot cycle continues Marshmallow -> Tux -> Godzilla,
+            // so the established giants remain in the background rotation.
+            next_kind: DistantKind::Marshmallow,
+        };
+        background.start_crossing(view);
+        background
+    }
+
+    fn start_crossing(&mut self, view: &LifeView) {
+        let kind = self.next_kind;
+        // Cycle after a random initial pick. All three visitors therefore get seen,
+        // while the single Option structurally prevents overlap.
+        self.next_kind = match kind {
+            DistantKind::Tux => DistantKind::Godzilla,
+            DistantKind::Godzilla => DistantKind::Marshmallow,
+            DistantKind::Marshmallow => DistantKind::Tux,
+        };
+        let (width, height, lift) = match kind {
+            DistantKind::Tux => (DISTANT_TUX_W, DISTANT_TUX_H, DISTANT_TUX_BASE_LIFT),
+            DistantKind::Godzilla => (
+                DISTANT_GODZILLA_W,
+                DISTANT_GODZILLA_H,
+                DISTANT_GODZILLA_BASE_LIFT,
+            ),
+            DistantKind::Marshmallow => (
+                DISTANT_MARSHMALLOW_W,
+                DISTANT_MARSHMALLOW_H,
+                DISTANT_MARSHMALLOW_BASE_LIFT,
+            ),
+        };
+        let half_w = view.cols() as f32 * CELL_PX * 0.5;
+        let half_h = view.rows() as f32 * CELL_PX * 0.5;
+        let visible_left = -half_w + MARGIN as f32 * CELL_PX;
+        let visible_right = half_w - MARGIN as f32 * CELL_PX;
+        let visible_bottom = -half_h + MARGIN as f32 * CELL_PX;
+        let pad = width * 0.52 + DISTANT_TUX_BLUR_LAYER_PX * 4.0;
+        let direction = if self.rng.f32() < 0.5 { 1.0 } else { -1.0 };
+        let (from_x, to_x) = if direction > 0.0 {
+            (visible_left - pad, visible_right + pad)
+        } else {
+            (visible_right + pad, visible_left - pad)
+        };
+        self.crossing = Some(DistantCrossing {
+            kind,
+            t: 0.0,
+            // Every individual starts fully outside, traverses once, and is retired.
+            x: from_x,
+            to_x,
+            direction,
+            ground_y: visible_bottom + height * 0.5 + lift + self.rng.f32() * CELL_PX * 0.38,
+            seed: self.rng.f32() * std::f32::consts::TAU,
+            tail_flick_started: None,
+            tail_next_flick_at: GODZILLA_TAIL_FLICK_MIN + self.rng.f32() * GODZILLA_TAIL_FLICK_SPAN,
+        });
+    }
+
+    fn tux_pose_at(t: f32, seed: f32) -> SpritePose {
+        let phase = t.rem_euclid(PENGUIN_CYCLE);
+        if phase < PENGUIN_WADDLE_SECS {
+            // Four short, alternating steps. The whole silhouette tips about its feet
+            // and lifts on each step, which reads as a waddle even from a single image.
+            let p = phase / PENGUIN_WADDLE_SECS;
+            let step = (p * std::f32::consts::TAU * 2.0 + seed).sin();
+            let lift = step.abs();
+            SpritePose {
+                y: 2.8 * lift,
+                x_jitter: 0.0,
+                rot: 0.075 * step,
+                scale_x: 1.0 - 0.018 * lift,
+                scale_y: 1.0 + 0.018 * lift,
+                speed: 0.67 + 0.18 * lift,
+            }
+        } else if phase < PENGUIN_WADDLE_SECS + PENGUIN_HOP_SECS {
+            // A complete parabola, not a leap offscreen: its last frame returns to the
+            // exact same baseline before the quick scoot begins.
+            let p = (phase - PENGUIN_WADDLE_SECS) / PENGUIN_HOP_SECS;
+            let arc = 4.0 * p * (1.0 - p);
+            SpritePose {
+                y: PENGUIN_HOP_HEIGHT * arc,
+                x_jitter: 0.0,
+                rot: -0.11 * (std::f32::consts::PI * p).sin(),
+                scale_x: 1.065 - 0.065 * arc,
+                scale_y: 0.94 + 0.06 * arc,
+                speed: 1.22,
+            }
+        } else {
+            // A low, fast scoot after landing. Scaling eases back to neutral at both
+            // ends, so the next waddle begins without a one-frame pop.
+            let p = (phase - PENGUIN_WADDLE_SECS - PENGUIN_HOP_SECS)
+                / (PENGUIN_CYCLE - PENGUIN_WADDLE_SECS - PENGUIN_HOP_SECS);
+            let crouch = (std::f32::consts::PI * p).sin();
+            SpritePose {
+                y: 0.0,
+                x_jitter: 1.3 * (p * std::f32::consts::TAU * 3.0).sin() * crouch,
+                rot: -0.10 * crouch,
+                scale_x: 1.0 + 0.08 * crouch,
+                scale_y: 1.0 - 0.08 * crouch,
+                speed: 1.05 + 0.38 * crouch,
+            }
+        }
+    }
+
+    fn godzilla_pose_at(t: f32, seed: f32) -> SpritePose {
+        // Heavy alternating footfalls with a small delayed body sway. The wider leg
+        // arc carries the visible stride at a cadence matched to horizontal travel.
+        // Forward speed peaks while the planted leg sweeps backward, then eases at
+        // each exchange where both feet momentarily reverse direction.
+        let phase = t * GODZILLA_STEP_RATE + seed;
+        let step = phase.sin();
+        let impact = step.abs().powf(3.2);
+        let planted_drive = phase.cos().abs().powf(0.85);
+        SpritePose {
+            y: 1.45 * impact,
+            x_jitter: 0.35 * (t * GODZILLA_STEP_RATE * 0.5 + seed * 0.4).sin(),
+            rot: 0.0145 * step + 0.0045 * (t * 0.53 + seed).sin(),
+            scale_x: 1.0 + 0.004 * impact,
+            scale_y: 1.0 - 0.004 * impact,
+            speed: 0.60 + 0.28 * planted_drive,
+        }
+    }
+
+    fn godzilla_depth_at(t: f32, seed: f32) -> f32 {
+        // A full front/back body rock takes two footfalls. Real perspective makes the
+        // complete rig grow and shrink subtly instead of faking the effect with a
+        // flat scale pulse.
+        -220.0 + 38.0 * (t * GODZILLA_STEP_RATE * 0.5 + seed * 0.5).sin()
+    }
+
+    fn godzilla_leg_angles_at(t: f32, seed: f32) -> GodzillaLegPose {
+        let phase = t * GODZILLA_STEP_RATE + seed;
+        // Flatten the ends of the sine slightly so each foot appears planted for a
+        // beat. The front leg lands a little after the rear leg leaves, and their
+        // unequal harmonics keep the gait from looking like a mirrored pendulum.
+        let planted = |p: f32| (p.sin() * 1.35).tanh() / 1.35f32.tanh();
+        let upper = [
+            0.112 * planted(phase) + 0.011 * (phase * 2.0 - 0.45).sin(),
+            0.101 * planted(phase + std::f32::consts::PI + 0.16)
+                + 0.009 * (phase * 2.0 + 0.80).sin(),
+        ];
+        let rear_lift = phase.sin().max(0.0).powf(1.35);
+        let front_lift = (phase + std::f32::consts::PI + 0.16)
+            .sin()
+            .max(0.0)
+            .powf(1.35);
+        GodzillaLegPose {
+            upper,
+            // Counter-rotation keeps a planted shin comparatively vertical; the
+            // extra positive bend arrives only while that foot is being carried.
+            lower: [
+                -upper[0] * 0.70 + 0.205 * rear_lift,
+                -upper[1] * 0.68 + 0.182 * front_lift,
+            ],
+        }
+    }
+
+    fn marshmallow_pose_at(t: f32, seed: f32) -> MarshmallowPose {
+        let phase = t * MARSHMALLOW_STEP_RATE + seed;
+        let planted = |p: f32| (p.sin() * 1.28).tanh() / 1.28f32.tanh();
+        let step = phase.sin();
+        let impact = phase.cos().abs().powf(3.0);
+        let rear_lift = phase.sin().max(0.0).powf(1.25);
+        let front_lift = (phase + std::f32::consts::PI).sin().max(0.0).powf(1.25);
+        let upper_leg = [
+            0.30 * planted(phase),
+            0.30 * planted(phase + std::f32::consts::PI),
+        ];
+        let smooth = |p: f32| {
+            let p = p.clamp(0.0, 1.0);
+            p * p * (3.0 - 2.0 * p)
+        };
+        // Roughly once per crossing interval he eases his shoulders toward us,
+        // holds long enough for the neckerchief and expression to register, then
+        // returns to profile without interrupting the walk.
+        let look_phase = (t + seed * 0.83).rem_euclid(MARSHMALLOW_LOOK_CYCLE);
+        let look = smooth((look_phase - 4.8) / 1.35) * (1.0 - smooth((look_phase - 9.0) / 1.45));
+        MarshmallowPose {
+            bob: 0.0065 * impact,
+            roll: 0.024 * step + 0.006 * (phase * 0.5).sin(),
+            depth: -220.0 + 26.0 * (phase * 0.5 + seed * 0.35).sin(),
+            // Horizontal travel peaks while one planted leg swings behind him and
+            // eases at foot exchange, keeping the huge feet from skating.
+            speed: 0.54 + 0.25 * phase.cos().abs().powf(0.82),
+            body_front: 0.70 * look,
+            head_front: 0.90 * look,
+            upper_leg,
+            lower_leg: [
+                -0.43 * upper_leg[0] + 0.25 * rear_lift,
+                -0.43 * upper_leg[1] + 0.25 * front_lift,
+            ],
+            arm: [
+                -0.27 * planted(phase),
+                -0.27 * planted(phase + std::f32::consts::PI),
+            ],
+        }
+    }
+
+    fn marshmallow_foot_reach(upper_angle: f32) -> f32 {
+        // The previous signum-based toe offset jumped from -0.025 to +0.025 at
+        // mid-stride: more than 40 world pixels at giant scale. Carry the foot
+        // smoothly through the exchange instead.
+        0.055 + 0.025 * (upper_angle / 0.30).clamp(-1.0, 1.0)
+    }
+
+    fn tail_flick_amount_at(crossing: &DistantCrossing) -> f32 {
+        let Some(started) = crossing.tail_flick_started else {
+            return 0.0;
+        };
+        let age = (crossing.t - started).max(0.0);
+        let smooth = |p: f32| {
+            let p = p.clamp(0.0, 1.0);
+            p * p * (3.0 - 2.0 * p)
+        };
+        if age < GODZILLA_TAIL_AWAY_SECS {
+            smooth(age / GODZILLA_TAIL_AWAY_SECS)
+        } else if age < GODZILLA_TAIL_AWAY_SECS + GODZILLA_TAIL_HOLD_SECS {
+            1.0
+        } else if age < GODZILLA_TAIL_FLICK_SECS {
+            1.0 - smooth(
+                (age - GODZILLA_TAIL_AWAY_SECS - GODZILLA_TAIL_HOLD_SECS)
+                    / GODZILLA_TAIL_RETURN_SECS,
+            )
+        } else {
+            0.0
+        }
+    }
+
+    fn update(&mut self, ctx: &CritterCtx) {
+        if let Some(crossing) = self.crossing.as_mut() {
+            let pose = match crossing.kind {
+                DistantKind::Tux => {
+                    Self::tux_pose_at(crossing.t * DISTANT_TUX_TIME_SCALE, crossing.seed)
+                }
+                DistantKind::Godzilla => Self::godzilla_pose_at(crossing.t, crossing.seed),
+                DistantKind::Marshmallow => {
+                    let pose = Self::marshmallow_pose_at(crossing.t, crossing.seed);
+                    SpritePose {
+                        y: pose.bob,
+                        x_jitter: 0.0,
+                        rot: pose.roll,
+                        scale_x: 1.0,
+                        scale_y: 1.0,
+                        speed: pose.speed,
+                    }
+                }
+            };
+            crossing.x += crossing.direction * DISTANT_WALK_SPEED * pose.speed * ctx.dt;
+            crossing.t += ctx.dt;
+            if crossing.kind == DistantKind::Godzilla {
+                match crossing.tail_flick_started {
+                    Some(started) if crossing.t - started >= GODZILLA_TAIL_FLICK_SECS => {
+                        crossing.tail_flick_started = None;
+                        crossing.tail_next_flick_at = crossing.t
+                            + GODZILLA_TAIL_FLICK_MIN
+                            + self.rng.f32() * GODZILLA_TAIL_FLICK_SPAN;
+                    }
+                    None if crossing.t >= crossing.tail_next_flick_at => {
+                        crossing.tail_flick_started = Some(crossing.t);
+                    }
+                    _ => {}
+                }
+            }
+            let finished = if crossing.direction > 0.0 {
+                crossing.x >= crossing.to_x
+            } else {
+                crossing.x <= crossing.to_x
+            };
+            if finished {
+                self.crossing = None;
+                self.cooldown = DISTANT_PAUSE_MIN + self.rng.f32() * DISTANT_PAUSE_SPAN;
+            }
+        } else {
+            self.cooldown -= ctx.dt;
+            if self.cooldown <= 0.0 {
+                self.start_crossing(&ctx.life);
+            }
+        }
+    }
+
+    fn props(&self, out: &mut PropSink) {
+        let Some(crossing) = self.crossing.as_ref() else {
+            return;
+        };
+        match crossing.kind {
+            DistantKind::Tux => {
+                let pose = Self::tux_pose_at(crossing.t * DISTANT_TUX_TIME_SCALE, crossing.seed);
+                let scaled_h = DISTANT_TUX_H * pose.scale_y;
+                // Compensating by half the height change pins the feet to the baseline
+                // through the squash and stretch.
+                let y = crossing.ground_y
+                    + pose.y * DISTANT_TUX_MOTION_SCALE
+                    + (scaled_h - DISTANT_TUX_H) * 0.5;
+                out.push(
+                    MODEL_PENGUIN,
+                    Prop::stretched(
+                        [
+                            crossing.x + pose.x_jitter * DISTANT_TUX_MOTION_SCALE,
+                            y,
+                            -220.0,
+                        ],
+                        [
+                            DISTANT_TUX_W * pose.scale_x * crossing.direction,
+                            DISTANT_TUX_W * pose.scale_y,
+                            1.0,
+                        ],
+                        [0.0, 0.0, pose.rot * crossing.direction],
+                    )
+                    .tinted([1.0, 1.0, 1.0], DISTANT_TUX_ALPHA),
+                );
+            }
+            DistantKind::Godzilla => {
+                let pose = Self::godzilla_pose_at(crossing.t, crossing.seed);
+                let motion_scale = DISTANT_GODZILLA_W / 85.0;
+                let scaled_h = DISTANT_GODZILLA_H * pose.scale_y;
+                let body_rot = pose.rot * crossing.direction;
+                let body_pos = [
+                    crossing.x + pose.x_jitter * motion_scale,
+                    crossing.ground_y
+                        + pose.y * motion_scale
+                        + (scaled_h - DISTANT_GODZILLA_H) * 0.5,
+                    Self::godzilla_depth_at(crossing.t, crossing.seed),
+                ];
+                let scale = [
+                    DISTANT_GODZILLA_W * pose.scale_x * crossing.direction,
+                    DISTANT_GODZILLA_W * pose.scale_y,
+                    1.0,
+                ];
+                let (sin_body, cos_body) = body_rot.sin_cos();
+                let legs = Self::godzilla_leg_angles_at(crossing.t, crossing.seed);
+
+                // Build a two-joint hierarchy for each leg. The hip follows the
+                // swaying body, while the knee follows the rotated thigh; the shin
+                // then receives its own delayed flex around that moving knee.
+                for leg in 0..2 {
+                    let upper_slot = leg * 2;
+                    let lower_slot = upper_slot + 1;
+                    let upper_model = [MODEL_GODZILLA_REAR_UPPER, MODEL_GODZILLA_FRONT_UPPER][leg];
+                    let lower_model = [MODEL_GODZILLA_REAR_LOWER, MODEL_GODZILLA_FRONT_LOWER][leg];
+                    let hip = GODZILLA_LEG_PIVOTS[upper_slot];
+                    let knee = GODZILLA_LEG_PIVOTS[lower_slot];
+                    let hip_x = (hip[0] - GODZILLA_SOURCE_W * 0.5) / GODZILLA_SOURCE_W * scale[0];
+                    let hip_y = (GODZILLA_SOURCE_H * 0.5 - hip[1]) / GODZILLA_SOURCE_W * scale[1];
+                    let hip_pos = [
+                        body_pos[0] + hip_x * cos_body - hip_y * sin_body,
+                        body_pos[1] + hip_x * sin_body + hip_y * cos_body,
+                        body_pos[2],
+                    ];
+                    let upper_rot = body_rot + legs.upper[leg] * crossing.direction;
+                    let (sin_upper, cos_upper) = upper_rot.sin_cos();
+                    let knee_x = (knee[0] - hip[0]) / GODZILLA_SOURCE_W * scale[0];
+                    let knee_y = (hip[1] - knee[1]) / GODZILLA_SOURCE_W * scale[1];
+                    let knee_pos = [
+                        hip_pos[0] + knee_x * cos_upper - knee_y * sin_upper,
+                        hip_pos[1] + knee_x * sin_upper + knee_y * cos_upper,
+                        body_pos[2],
+                    ];
+                    let lower_rot = upper_rot + legs.lower[leg] * crossing.direction;
+
+                    out.push(
+                        lower_model,
+                        Prop::stretched(knee_pos, scale, [0.0, 0.0, lower_rot])
+                            .tinted([1.0, 1.0, 1.0], DISTANT_GODZILLA_ALPHA),
+                    );
+                    out.push(
+                        upper_model,
+                        Prop::stretched(hip_pos, scale, [0.0, 0.0, upper_rot])
+                            .tinted([1.0, 1.0, 1.0], DISTANT_GODZILLA_ALPHA),
+                    );
+                }
+
+                // The tail tip is anchored at the source cut and pitched around Y.
+                // Because the local tail extends opposite the travel direction, this
+                // signed pitch always sends its distal pixels away along -Z while the
+                // joint itself remains pinned. A simultaneous fade sells the brief
+                // disappearance into the distant fog.
+                let tail_x = (GODZILLA_TAIL_PIVOT[0] - GODZILLA_SOURCE_W * 0.5) / GODZILLA_SOURCE_W
+                    * scale[0];
+                let tail_y = (GODZILLA_SOURCE_H * 0.5 - GODZILLA_TAIL_PIVOT[1]) / GODZILLA_SOURCE_W
+                    * scale[1];
+                let tail_pos = [
+                    body_pos[0] + tail_x * cos_body - tail_y * sin_body,
+                    body_pos[1] + tail_x * sin_body + tail_y * cos_body,
+                    body_pos[2],
+                ];
+                let tail_away = Self::tail_flick_amount_at(crossing);
+                let tail_pitch = -0.78 * tail_away * crossing.direction;
+                let tail_alpha = DISTANT_GODZILLA_ALPHA * (1.0 - 0.68 * tail_away);
+                out.push(
+                    MODEL_GODZILLA_TAIL,
+                    Prop::stretched(tail_pos, scale, [0.0, tail_pitch, body_rot])
+                        .tinted([1.0, 1.0, 1.0], tail_alpha),
+                );
+                out.push(
+                    MODEL_GODZILLA_BODY,
+                    Prop::stretched(body_pos, scale, [0.0, 0.0, body_rot])
+                        .tinted([1.0, 1.0, 1.0], DISTANT_GODZILLA_ALPHA),
+                );
+            }
+            DistantKind::Marshmallow => {
+                let pose = Self::marshmallow_pose_at(crossing.t, crossing.seed);
+                let root_yaw =
+                    crossing.direction * std::f32::consts::FRAC_PI_2 * (1.0 - pose.body_front);
+                let head_yaw =
+                    crossing.direction * std::f32::consts::FRAC_PI_2 * (1.0 - pose.head_front);
+                let scale = DISTANT_MARSHMALLOW_H;
+                let root = [
+                    crossing.x,
+                    crossing.ground_y - DISTANT_MARSHMALLOW_H * 0.5 + pose.bob * scale,
+                    pose.depth,
+                ];
+                let (sy, cy) = root_yaw.sin_cos();
+                let world_point = |local: [f32; 3]| {
+                    [
+                        root[0] + scale * (local[0] * cy + local[2] * sy),
+                        root[1] + scale * local[1],
+                        root[2] + scale * (-local[0] * sy + local[2] * cy),
+                    ]
+                };
+                let alpha = DISTANT_MARSHMALLOW_ALPHA;
+
+                // Legs are two-joint chains swinging in the local front/back plane.
+                // After the root's Y turn that plane becomes horizontal screen
+                // travel, giving a true side-view stride rather than flat leg rolls.
+                for leg in 0..2 {
+                    let side = if leg == 0 { -1.0 } else { 1.0 };
+                    let hip = [0.112 * side, 0.335, 0.0];
+                    let upper_angle = pose.upper_leg[leg];
+                    let upper_len = 0.165;
+                    let knee = [
+                        hip[0],
+                        hip[1] - upper_len * upper_angle.cos(),
+                        hip[2] - upper_len * upper_angle.sin(),
+                    ];
+                    let lower_angle = upper_angle + pose.lower_leg[leg];
+                    let lower_len = 0.145;
+                    let ankle = [
+                        knee[0],
+                        knee[1] - lower_len * lower_angle.cos(),
+                        knee[2] - lower_len * lower_angle.sin(),
+                    ];
+                    for (center, radii, angle) in [
+                        (
+                            [hip[0], (hip[1] + knee[1]) * 0.5, (hip[2] + knee[2]) * 0.5],
+                            [0.092, upper_len * 0.57, 0.088],
+                            upper_angle,
+                        ),
+                        (
+                            [
+                                knee[0],
+                                (knee[1] + ankle[1]) * 0.5,
+                                (knee[2] + ankle[2]) * 0.5,
+                            ],
+                            [0.087, lower_len * 0.57, 0.083],
+                            lower_angle,
+                        ),
+                    ] {
+                        out.push(
+                            MODEL_MARSHMALLOW_PUFF,
+                            Prop::stretched(
+                                world_point(center),
+                                [radii[0] * scale, radii[1] * scale, radii[2] * scale],
+                                [angle, root_yaw, pose.roll * crossing.direction],
+                            )
+                            .tinted([1.0, 1.0, 1.0], alpha),
+                        );
+                    }
+                    let foot_center = [
+                        ankle[0],
+                        ankle[1] - 0.008,
+                        ankle[2] + Self::marshmallow_foot_reach(upper_angle),
+                    ];
+                    out.push(
+                        MODEL_MARSHMALLOW_PUFF,
+                        Prop::stretched(
+                            world_point(foot_center),
+                            [0.105 * scale, 0.060 * scale, 0.135 * scale],
+                            [0.10, root_yaw, pose.roll * crossing.direction],
+                        )
+                        .tinted([1.0, 1.0, 1.0], alpha),
+                    );
+                }
+
+                // Counter-swinging arms use the same puff mesh, with spherical hands
+                // that stay visibly separate from the belly during the camera turn.
+                for arm in 0..2 {
+                    let side = if arm == 0 { -1.0 } else { 1.0 };
+                    let shoulder = [0.272 * side, 0.665, 0.0];
+                    let upper_angle = pose.arm[arm];
+                    let upper_len = 0.165;
+                    let elbow = [
+                        shoulder[0],
+                        shoulder[1] - upper_len * upper_angle.cos(),
+                        shoulder[2] - upper_len * upper_angle.sin(),
+                    ];
+                    let fore_angle = upper_angle * 0.48 - 0.10;
+                    let fore_len = 0.145;
+                    let hand = [
+                        elbow[0],
+                        elbow[1] - fore_len * fore_angle.cos(),
+                        elbow[2] - fore_len * fore_angle.sin(),
+                    ];
+                    for (center, radii, angle) in [
+                        (
+                            [
+                                shoulder[0],
+                                (shoulder[1] + elbow[1]) * 0.5,
+                                (shoulder[2] + elbow[2]) * 0.5,
+                            ],
+                            [0.078, upper_len * 0.56, 0.076],
+                            upper_angle,
+                        ),
+                        (
+                            [
+                                elbow[0],
+                                (elbow[1] + hand[1]) * 0.5,
+                                (elbow[2] + hand[2]) * 0.5,
+                            ],
+                            [0.070, fore_len * 0.56, 0.068],
+                            fore_angle,
+                        ),
+                    ] {
+                        out.push(
+                            MODEL_MARSHMALLOW_PUFF,
+                            Prop::stretched(
+                                world_point(center),
+                                [radii[0] * scale, radii[1] * scale, radii[2] * scale],
+                                [angle, root_yaw, pose.roll * crossing.direction],
+                            )
+                            .tinted([1.0, 1.0, 1.0], alpha),
+                        );
+                    }
+                    out.push(
+                        MODEL_MARSHMALLOW_PUFF,
+                        Prop::stretched(
+                            world_point(hand),
+                            [0.076 * scale, 0.076 * scale, 0.072 * scale],
+                            [0.0, root_yaw, pose.roll * crossing.direction],
+                        )
+                        .tinted([1.0, 1.0, 1.0], alpha),
+                    );
+                }
+
+                out.push(
+                    MODEL_MARSHMALLOW_BODY,
+                    Prop::new(root, scale, [0.0, root_yaw, pose.roll * crossing.direction])
+                        .tinted([1.0, 1.0, 1.0], alpha),
+                );
+                let head_anchor = world_point([0.0, MARSHMALLOW_HEAD_Y, 0.0]);
+                out.push(
+                    MODEL_MARSHMALLOW_HEAD,
+                    Prop::new(
+                        head_anchor,
+                        scale,
+                        [0.0, head_yaw, pose.roll * crossing.direction * 0.55],
+                    )
+                    .tinted([1.0, 1.0, 1.0], alpha),
+                );
+            }
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Foreground fog — page-coloured mist between the distant giant and the scene
+// ---------------------------------------------------------------------------
+
+const FOG_ATLAS_CELL_COUNT: usize = 8;
+/// A dense field reuses the eight atlas silhouettes with independent positions,
+/// scales, headings, and breathing phases.
+const FOG_BLOB_COUNT: usize = 60;
+const FOG_SCALE: f32 = 1.30;
+const FOG_ALPHA: f32 = 0.45;
+const FOG_Z: f32 = -190.0;
+
+#[derive(Clone, Copy, Debug)]
+struct FogBlob {
+    pos: [f32; 2],
+    velocity: [f32; 2],
+    size: [f32; 2],
+    phase: f32,
+    phase_rate: f32,
+    rotation: f32,
+}
+
+struct FogLayer {
+    blobs: Vec<FogBlob>,
+    half_w: f32,
+    half_h: f32,
+}
+
+impl FogLayer {
+    fn new(view: &LifeView, seed: u64) -> FogLayer {
+        let mut rng = Rng::new(seed);
+        let half_w = view.cols() as f32 * CELL_PX * 0.5;
+        let half_h = view.rows() as f32 * CELL_PX * 0.5;
+        let mut blobs = Vec::with_capacity(FOG_BLOB_COUNT);
+        for _ in 0..FOG_BLOB_COUNT {
+            let heading = rng.f32() * std::f32::consts::TAU;
+            let speed = 2.8 + rng.f32() * 6.2;
+            let width = (330.0 + rng.f32() * 360.0) * FOG_SCALE;
+            blobs.push(FogBlob {
+                pos: [
+                    -half_w + rng.f32() * half_w * 2.0,
+                    -half_h + rng.f32() * half_h * 2.0,
+                ],
+                velocity: [heading.cos() * speed, heading.sin() * speed],
+                size: [width, width * (0.52 + rng.f32() * 0.38)],
+                phase: rng.f32() * std::f32::consts::TAU,
+                phase_rate: 0.08 + rng.f32() * 0.13,
+                rotation: (rng.f32() - 0.5) * 0.24,
+            });
+        }
+        FogLayer {
+            blobs,
+            half_w,
+            half_h,
+        }
+    }
+
+    fn update(&mut self, dt: f32) {
+        for blob in &mut self.blobs {
+            blob.phase += blob.phase_rate * dt;
+            blob.pos[0] += (blob.velocity[0] + 1.7 * (blob.phase * 0.73).sin()) * dt;
+            blob.pos[1] += (blob.velocity[1] + 1.3 * (blob.phase * 0.57).cos()) * dt;
+            let pad = blob.size[0].max(blob.size[1]) * 0.56;
+            if blob.pos[0] < -self.half_w - pad {
+                blob.pos[0] = self.half_w + pad;
+            } else if blob.pos[0] > self.half_w + pad {
+                blob.pos[0] = -self.half_w - pad;
+            }
+            if blob.pos[1] < -self.half_h - pad {
+                blob.pos[1] = self.half_h + pad;
+            } else if blob.pos[1] > self.half_h + pad {
+                blob.pos[1] = -self.half_h - pad;
+            }
+        }
+    }
+
+    fn props(&self, out: &mut PropSink) {
+        let page_gray = srgb_hex_to_linear(BG);
+        for (slot, blob) in self.blobs.iter().enumerate() {
+            let breathe = 1.0 + 0.035 * blob.phase.sin();
+            let position = [
+                blob.pos[0] + 9.0 * (blob.phase * 0.41).sin(),
+                blob.pos[1] + 7.0 * (blob.phase * 0.37).cos(),
+                FOG_Z,
+            ];
+            out.push(
+                MODEL_FOG_FIRST + slot % FOG_ATLAS_CELL_COUNT,
+                Prop::stretched(
+                    position,
+                    [blob.size[0] * breathe, blob.size[1] * (2.0 - breathe), 1.0],
+                    [0.0, 0.0, blob.rotation + 0.025 * (blob.phase * 0.31).sin()],
+                )
+                .tinted(page_gray, FOG_ALPHA),
+            );
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
 // The walker — a stick figure that drops onto the field and stands on it
 // ---------------------------------------------------------------------------
 
@@ -2474,10 +4252,19 @@ const WALKER_SHIN: f32 = 0.205 * WALKER_H;
 const WALKER_MASK_W: f32 = 34.0 * 0.80 * 1.10;
 const WALKER_MASK_H: f32 = WALKER_MASK_W * (512.0 / 223.0) * 0.90;
 const WALKER_MASK_CHEST_OVERLAP: f32 = WALKER_TORSO * 0.30;
-const WALKER_HELMET_W: f32 = 42.0;
+const WALKER_HELMET_W: f32 = 46.2;
 const WALKER_HELMET_H: f32 = WALKER_HELMET_W;
 const WALKER_HELMET_CHEST_OVERLAP: f32 = WALKER_TORSO * 0.25;
 const WALKER_HELMET_LIFT: f32 = WALKER_HELMET_H * 0.05;
+const WALKER_NOH_W: f32 = 40.0;
+const WALKER_NOH_H: f32 = WALKER_NOH_W * (384.0 / 290.0) * 0.95;
+const WALKER_NOH_CHEST_OVERLAP: f32 = WALKER_TORSO * 0.28;
+const WALKER_MONKEY_W: f32 = 44.0;
+const WALKER_MONKEY_H: f32 = WALKER_MONKEY_W * (373.0 / 384.0);
+const WALKER_MONKEY_CHEST_OVERLAP: f32 = WALKER_TORSO * 0.25;
+const WALKER_GREEK_W: f32 = 42.0;
+const WALKER_GREEK_H: f32 = WALKER_GREEK_W * (384.0 / 293.0) * 0.95;
+const WALKER_GREEK_CHEST_OVERLAP: f32 = WALKER_TORSO * 0.28;
 const WALKER_MASKED_H: f32 =
     WALKER_THIGH + WALKER_SHIN + WALKER_TORSO + WALKER_MASK_H - WALKER_MASK_CHEST_OVERLAP;
 /// Ledge physics still belong to the slim side-view body beneath the costume. Letting
@@ -2749,13 +4536,18 @@ enum Act {
 enum Headgear {
     Tiki,
     Astronaut,
+    Noh,
+    Monkey,
+    ComedyTragedy,
 }
 
 fn random_headgear(rng: &mut Rng) -> Headgear {
-    if rng.f32() < 0.5 {
-        Headgear::Tiki
-    } else {
-        Headgear::Astronaut
+    match rng.below(5) {
+        0 => Headgear::Tiki,
+        1 => Headgear::Astronaut,
+        2 => Headgear::Noh,
+        3 => Headgear::Monkey,
+        _ => Headgear::ComedyTragedy,
     }
 }
 
@@ -3631,6 +5423,30 @@ impl Walker {
                 WALKER_HELMET_CHEST_OVERLAP,
                 WALKER_HELMET_LIFT,
             ),
+            Headgear::Noh => (
+                MODEL_NOH_MASK,
+                WALKER_NOH_W,
+                WALKER_NOH_H,
+                WALKER_NOH_W * 0.95,
+                WALKER_NOH_CHEST_OVERLAP,
+                0.0,
+            ),
+            Headgear::Monkey => (
+                MODEL_MONKEY_MASK,
+                WALKER_MONKEY_W,
+                WALKER_MONKEY_H,
+                WALKER_MONKEY_W,
+                WALKER_MONKEY_CHEST_OVERLAP,
+                0.0,
+            ),
+            Headgear::ComedyTragedy => (
+                MODEL_COMEDY_TRAGEDY_MASK,
+                WALKER_GREEK_W,
+                WALKER_GREEK_H,
+                WALKER_GREEK_W * 0.95,
+                WALKER_GREEK_CHEST_OVERLAP,
+                0.0,
+            ),
         };
         let head_from_shoulder = height * 0.5 - overlap + lift;
         let head = [
@@ -3956,6 +5772,11 @@ pub struct Viz {
     upload: Vec<Instance>,
     /// Length of the solid run at the head of `upload`.
     solid: usize,
+    /// Experimental scenery layer: at most one giant crosses behind the grid.
+    distant: DistantBackground,
+    /// Page-coloured drifting mist in front of the distant giant, but behind every
+    /// ordinary scene element.
+    fog: FogLayer,
     critters: Vec<Box<dyn Critter>>,
     /// Prop models the critters placed this frame.
     props: PropSink,
@@ -3966,6 +5787,8 @@ impl Viz {
     pub fn new(life: &Life, rng_seed: u64) -> Self {
         let (cols, rows) = (life.cols, life.rows);
         let present = life.board(0);
+        let distant = DistantBackground::new(&life.view(), rng_seed ^ 0x7475_782d_666f_6721);
+        let fog = FogLayer::new(&life.view(), rng_seed ^ 0x666f_672d_6472_6966);
         let inst: Vec<Instance> = (0..cols * rows)
             .map(|i| {
                 let a = present[i] as u8 as f32;
@@ -3976,6 +5799,7 @@ impl Viz {
                     t: -99.0,
                     spin: [-99.0, 0.0],
                     palette: PALETTE_FROM_CELL,
+                    slide_from: [(i % cols) as f32, (i / cols) as f32],
                 }
             })
             .collect();
@@ -3985,6 +5809,8 @@ impl Viz {
             upload: inst.clone(),
             inst,
             solid: 0,
+            distant,
+            fog,
             critters: Vec::new(),
             props: PropSink::default(),
             rng: Rng::new(rng_seed),
@@ -4035,10 +5861,72 @@ impl Viz {
     /// A generation has landed: start the tiles animating toward it.
     pub fn on_generation(&mut self, life: &LifeView, now: f32) {
         let present = life.life.board(0);
+        let claimed: Vec<(usize, usize)> = self
+            .critters
+            .iter()
+            .filter_map(|critter| critter.claimed_cell())
+            .collect();
+
+        // Match births to adjacent deaths before touching instance state. A dying
+        // cell and a newborn may each participate in at most one move. A stable
+        // per-cell direction rotation avoids a permanent left/up bias without
+        // consuming the RNG used by unrelated survivor-spin behavior.
+        let mut claimed_death = vec![false; self.inst.len()];
+        for &(x, y) in &claimed {
+            if x < self.cols && y * self.cols + x < claimed_death.len() {
+                claimed_death[y * self.cols + x] = true;
+            }
+        }
+        let mut death_taken = claimed_death.clone();
+        let mut slide_source = vec![None; self.inst.len()];
+        let directions = [(-1isize, 0isize), (1, 0), (0, -1), (0, 1)];
+        for i in 0..self.inst.len() {
+            if self.shown[i] || !present[i] {
+                continue;
+            }
+            let (x, y) = ((i % self.cols) as isize, (i / self.cols) as isize);
+            let first = (cell_hash(x as u32, y as u32) * directions.len() as f32) as usize;
+            for step in 0..directions.len() {
+                let (dx, dy) = directions[(first + step) % directions.len()];
+                let (nx, ny) = (x + dx, y + dy);
+                if nx < 0
+                    || ny < 0
+                    || nx >= self.cols as isize
+                    || ny >= present.len() as isize / self.cols as isize
+                {
+                    continue;
+                }
+                let source = ny as usize * self.cols + nx as usize;
+                if self.shown[source] && !present[source] && !death_taken[source] {
+                    slide_source[i] = Some(source);
+                    death_taken[source] = true;
+                    break;
+                }
+            }
+        }
+
         for i in 0..self.inst.len() {
             let (alive, was) = (present[i], self.shown[i]);
+            let cell = [(i % self.cols) as f32, (i / self.cols) as f32];
+            self.inst[i].slide_from = cell;
             if alive != was {
-                self.inst[i].state = [alive as u8 as f32, was as u8 as f32];
+                let x = i % self.cols;
+                let y = i / self.cols;
+                // A UFO replaces its target with a free prop in this exact frame. Do
+                // not also run the ordinary half-second death fade underneath it.
+                let abducted = was && !alive && claimed.contains(&(x, y));
+                let moved_away = was && !alive && death_taken[i];
+                self.inst[i].state = if let Some(source) = slide_source[i] {
+                    self.inst[i].slide_from =
+                        [(source % self.cols) as f32, (source / self.cols) as f32];
+                    // One continuously solid tile replaces the ordinary death and
+                    // birth fades, beginning at the dying cell's exact position.
+                    [1.0, 1.0]
+                } else if abducted || moved_away {
+                    [0.0, 0.0]
+                } else {
+                    [alive as u8 as f32, was as u8 as f32]
+                };
                 self.inst[i].t = now;
             } else if alive && is_colored(i % self.cols, i / self.cols) {
                 // Survived another generation, and it is one of the coloured ones.
@@ -4092,6 +5980,10 @@ impl Viz {
 
         let mut emitted = Vec::new();
         self.props.clear();
+        self.distant.update(&critter_ctx);
+        self.distant.props(&mut self.props);
+        self.fog.update(critter_ctx.dt);
+        self.fog.props(&mut self.props);
         for c in &critters {
             c.draw(&critter_ctx, &mut emitted);
             c.props(&critter_ctx, &mut self.props);
@@ -4245,6 +6137,7 @@ const SPRING_DECAY : f32 = SPRING_DECAY_LIT;
 const SPRING_OMEGA : f32 = SPRING_OMEGA_LIT;
 const BIRTH_FADE   : f32 = BIRTH_FADE_LIT;
 const DEATH_FADE   : f32 = DEATH_FADE_LIT;
+const TILE_SLIDE_SECS : f32 = TILE_SLIDE_SECS_LIT;
 const SPIN_SECS    : f32 = SPIN_SECS_LIT;
 const SPIN_LIFT    : f32 = SPIN_LIFT_LIT;
 const TAU          : f32 = 6.28318531;
@@ -4372,6 +6265,29 @@ fn cell_origin(cell : vec2<f32>) -> vec2<f32> {
   );
 }
 
+/// A paired birth owns one continuously solid tile whose destination is `cell` and
+/// whose starting coordinate is `slide_from`. Ordinary instances store the same
+/// coordinate in both fields and therefore stay exactly where they always did.
+fn tile_slide_progress(t : f32, cell : vec2<f32>, slide_from : vec2<f32>) -> f32 {
+  if (distance(cell, slide_from) < 0.1) { return 1.0; }
+  let age = max(g.p0.x - t, 0.0);
+  return smoothstep(0.0, 1.0, clamp(age / TILE_SLIDE_SECS, 0.0, 1.0));
+}
+
+fn tile_animated_cell(t : f32, cell : vec2<f32>, slide_from : vec2<f32>) -> vec2<f32> {
+  return mix(slide_from, cell, tile_slide_progress(t, cell, slide_from));
+}
+
+fn tile_animated_color(
+  t : f32,
+  cell : vec2<f32>,
+  slide_from : vec2<f32>,
+  pal : f32,
+) -> vec3<f32> {
+  let p = tile_slide_progress(t, cell, slide_from);
+  return mix(live_color(slide_from, pal), live_color(cell, pal), p);
+}
+
 fn lin_to_srgb(c : vec3<f32>) -> vec3<f32> {
   let lo = c * 12.92;
   let hi = 1.055 * pow(max(c, vec3<f32>(0.0)), vec3<f32>(1.0 / 2.4)) - 0.055;
@@ -4429,6 +6345,32 @@ fn vs_prop(in : PIn) -> POut {
   return out;
 }
 
+/// Expanded back-face shell for the distant marshmallow sailor. The outline is
+/// generated from the fully posed 3D surface, so arms, feet and the camera turn all
+/// retain a silhouette even where pale foam meets pale fog.
+@vertex
+fn vs_distant_outline(in : PIn) -> POut {
+  let n = rot_xyz(normalize(in.nrm / max(in.scale, vec3<f32>(1e-4))), in.rot);
+  let wp = rot_xyz(in.pos * in.scale, in.rot) + in.ipos
+         + n * DISTANT_MARSHMALLOW_OUTLINE_PX_LIT;
+  var out : POut;
+  out.clip = g.view_proj * vec4<f32>(wp, 1.0);
+  out.wpos = wp;
+  out.nrm = n;
+  out.col = vec3<f32>(0.0);
+  out.alpha = in.alpha;
+  out.uv = in.uv;
+  return out;
+}
+
+@fragment
+fn fs_distant_outline(in : POut) -> @location(0) vec4<f32> {
+  let alpha = in.alpha * 0.90;
+  var rim = vec3<f32>(0.055, 0.082, 0.090);
+  if (g.p1.w > 0.5) { rim = lin_to_srgb(rim); }
+  return vec4<f32>(rim * alpha, alpha);
+}
+
 @fragment
 fn fs_prop(in : POut) -> @location(0) vec4<f32> {
   let lit = light_surface(normalize(in.nrm), in.wpos, in.col);
@@ -4465,6 +6407,67 @@ fn fs_textured(in : POut) -> @location(0) vec4<f32> {
   return vec4<f32>(o * alpha, alpha);
 }
 
+/// Tux is first rasterized into a canvas-sized layer after all of his animation
+/// transforms have been applied. This source pass is intentionally sharp; fog is a
+/// post-process on the completed layer, not a filter trapped inside the sprite quad.
+@fragment
+fn fs_distant_source(in : POut) -> @location(0) vec4<f32> {
+  let texel = textureSample(prop_tex, prop_sampler, in.uv);
+  let alpha = texel.a * in.alpha;
+  if (alpha < 0.01) { discard; }
+  var o = clamp(texel.rgb * in.col, vec3<f32>(0.0), vec3<f32>(1.0));
+  if (g.p1.w > 0.5) { o = lin_to_srgb(o); }
+  return vec4<f32>(o * alpha, alpha);
+}
+
+struct DistantLayerOut {
+  @builtin(position) clip : vec4<f32>,
+  @location(0) uv : vec2<f32>,
+};
+
+/// One oversized triangle covers the output. Its UVs read the half-resolution
+/// offscreen layer in screen space, so filtering continues through transparent pixels
+/// around the animated silhouette instead of stopping at a moving rectangle.
+@vertex
+fn vs_distant_composite(@builtin(vertex_index) vertex_index : u32) -> DistantLayerOut {
+  var positions = array<vec2<f32>, 3>(
+    vec2<f32>(-1.0, -1.0),
+    vec2<f32>( 3.0, -1.0),
+    vec2<f32>(-1.0,  3.0),
+  );
+  let p = positions[vertex_index];
+  var out : DistantLayerOut;
+  out.clip = vec4<f32>(p, 0.0, 1.0);
+  out.uv = p * vec2<f32>(0.5, -0.5) + vec2<f32>(0.5);
+  return out;
+}
+
+/// Blur the already-animated full-canvas layer, then let the sampler's linear
+/// filtering upscale it. The source and destination use the same colour format, so
+/// these premultiplied values can pass straight through on both raw and sRGB targets.
+@fragment
+fn fs_distant_composite(in : DistantLayerOut) -> @location(0) vec4<f32> {
+  let dims = vec2<f32>(textureDimensions(prop_tex));
+  let step = vec2<f32>(DISTANT_TUX_BLUR_LAYER_PX_LIT) / dims;
+  var premul = vec4<f32>(0.0);
+  var total = 0.0;
+  for (var iy = -2; iy <= 2; iy += 1) {
+    for (var ix = -2; ix <= 2; ix += 1) {
+      let d = vec2<f32>(f32(ix), f32(iy));
+      let weight = exp(-0.5 * dot(d, d));
+      let sample = textureSample(prop_tex, prop_sampler, in.uv + d * step);
+      // The source target already contains premultiplied colour. Multiplying its RGB
+      // by alpha again would square per-visitor opacity before the blur.
+      premul += sample * weight;
+      total += weight;
+    }
+  }
+  premul /= total;
+  let alpha = premul.a * DISTANT_LAYER_OPACITY_LIT;
+  if (alpha < 0.002) { discard; }
+  return vec4<f32>(premul.rgb * DISTANT_LAYER_OPACITY_LIT, alpha);
+}
+
 // ---------------------------------------------------------------------------
 // Halo: an even colour bloom radiating from each live tile
 // ---------------------------------------------------------------------------
@@ -4476,6 +6479,7 @@ struct HIn {
   @location(4) t      : f32,
   @location(5) spin   : vec2<f32>,
   @location(6) pal    : f32,
+  @location(7) slide_from : vec2<f32>,
 };
 
 struct HOut {
@@ -4488,7 +6492,7 @@ struct HOut {
 @vertex
 fn vs_halo(in : HIn) -> HOut {
   let a   = tile_anim(in.state, in.t, in.spin, in.cell);
-  let o   = cell_origin(in.cell);
+  let o   = cell_origin(tile_animated_cell(in.t, in.cell, in.slide_from));
   let ext = g.p4.x + g.p3.x;
   let local = in.corner * ext;
 
@@ -4505,7 +6509,7 @@ fn vs_halo(in : HIn) -> HOut {
   // since #589864 and #3e9993 are both darker than #e8e8e8. Normalising the hue and then
   // pulling white toward it gives something brighter than the page that still carries
   // the colour. Grey tiles normalise to white and simply glow white.
-  let c = live_color(in.cell, in.pal);
+  let c = tile_animated_color(in.t, in.cell, in.slide_from, in.pal);
   let peak = max(max(c.r, c.g), c.b);
   var tint = mix(vec3<f32>(1.0), c / max(peak, 1e-3), 0.35);
   if (g.p1.w > 0.5) { tint = lin_to_srgb(tint); }
@@ -4551,6 +6555,7 @@ struct VIn {
   @location(4) t     : f32,
   @location(5) spin  : vec2<f32>,
   @location(6) pal   : f32,
+  @location(7) slide_from : vec2<f32>,
 };
 
 struct VOut {
@@ -4564,7 +6569,7 @@ struct VOut {
 @vertex
 fn vs(in : VIn) -> VOut {
   let a = tile_anim(in.state, in.t, in.spin, in.cell);
-  let o = cell_origin(in.cell);
+  let o = cell_origin(tile_animated_cell(in.t, in.cell, in.slide_from));
 
   // A rigid turn about the tile's own mid-plane, so it pivots in place rather than
   // swinging around its base. The normals come along too, or the lighting would stay
@@ -4578,7 +6583,11 @@ fn vs(in : VIn) -> VOut {
   out.wpos = wp;
   out.nrm  = rn;
   out.clip = g.view_proj * vec4<f32>(wp, 1.0);
-  out.col  = mix(g.c_dead.rgb, live_color(in.cell, in.pal), a.on);
+  out.col  = mix(
+    g.c_dead.rgb,
+    tile_animated_color(in.t, in.cell, in.slide_from, in.pal),
+    a.on,
+  );
   out.extra = vec4<f32>(in.pos.z / g.p0.w, a.jitter, clamp(a.spring, -0.7, 1.0), a.on);
   return out;
 }
@@ -4693,12 +6702,25 @@ fn shader_source() -> String {
         .replace("SPRING_OMEGA_LIT", &format!("{:?}", SPRING_OMEGA))
         .replace("BIRTH_FADE_LIT", &format!("{:?}", BIRTH_FADE))
         .replace("DEATH_FADE_LIT", &format!("{:?}", DEATH_FADE))
+        .replace("TILE_SLIDE_SECS_LIT", &format!("{:?}", TILE_SLIDE_SECS))
         .replace("SPIN_SECS_LIT", &format!("{:?}", SPIN_SECS))
         .replace("SPIN_LIFT_LIT", &format!("{:?}", SPIN_LIFT))
+        .replace(
+            "DISTANT_TUX_BLUR_LAYER_PX_LIT",
+            &format!("{:?}", DISTANT_TUX_BLUR_LAYER_PX),
+        )
+        .replace(
+            "DISTANT_LAYER_OPACITY_LIT",
+            &format!("{:?}", DISTANT_LAYER_OPACITY),
+        )
+        .replace(
+            "DISTANT_MARSHMALLOW_OUTLINE_PX_LIT",
+            &format!("{:?}", DISTANT_MARSHMALLOW_OUTLINE_PX),
+        )
 }
 
 /// Decode generated sprite art once while constructing the scene. PNG decoding stays
-/// out of the frame loop, and `include_bytes` makes both assets available to native
+/// out of the frame loop, and `include_bytes` makes every asset available to native
 /// previews, WebGPU, and the WebGL2 fallback.
 fn sprite_pixels(bytes: &[u8], label: &str) -> (Vec<u8>, u32, u32) {
     let decoder = png::Decoder::new(std::io::Cursor::new(bytes));
@@ -4740,6 +6762,56 @@ fn astronaut_helmet_pixels() -> (Vec<u8>, u32, u32) {
     sprite_pixels(
         include_bytes!("../../img/astronaut-helmet.png"),
         "astronaut helmet",
+    )
+}
+
+fn noh_mask_pixels() -> (Vec<u8>, u32, u32) {
+    sprite_pixels(
+        include_bytes!("../../img/noh-obeshimi-mask.png"),
+        "Noh mask",
+    )
+}
+
+fn monkey_mask_pixels() -> (Vec<u8>, u32, u32) {
+    sprite_pixels(include_bytes!("../../img/monkey-mask.png"), "monkey mask")
+}
+
+fn comedy_tragedy_mask_pixels() -> (Vec<u8>, u32, u32) {
+    sprite_pixels(
+        include_bytes!("../../img/comedy-tragedy-mask.png"),
+        "comedy/tragedy mask",
+    )
+}
+
+fn penguin_pixels() -> (Vec<u8>, u32, u32) {
+    sprite_pixels(include_bytes!("../../img/penguin-draft.png"), "distant Tux")
+}
+
+fn godzilla_body_pixels() -> (Vec<u8>, u32, u32) {
+    sprite_pixels(
+        include_bytes!("../../img/tiny-kaiju-body-tailcut.png"),
+        "distant Godzilla body",
+    )
+}
+
+fn godzilla_tail_pixels() -> (Vec<u8>, u32, u32) {
+    sprite_pixels(
+        include_bytes!("../../img/tiny-kaiju-tail-tip.png"),
+        "articulated distant Godzilla tail",
+    )
+}
+
+fn godzilla_legs_pixels() -> (Vec<u8>, u32, u32) {
+    sprite_pixels(
+        include_bytes!("../../img/tiny-kaiju-leg-parts.png"),
+        "articulated distant Godzilla legs",
+    )
+}
+
+fn fog_blob_pixels() -> (Vec<u8>, u32, u32) {
+    sprite_pixels(
+        include_bytes!("../../img/fog-blobs-atlas.png"),
+        "foreground fog blobs",
     )
 }
 
@@ -4811,6 +6883,70 @@ fn sprite_bind_group(
     })
 }
 
+/// A full-screen scratch layer at half device resolution. Tux is drawn here after his
+/// pose is known, leaving transparent room on every side for the subsequent Gaussian
+/// blur. Linear sampling performs the final 2x upscale during compositing.
+fn make_distant_layer(
+    device: &wgpu::Device,
+    format: wgpu::TextureFormat,
+    layout: &wgpu::BindGroupLayout,
+    width: u32,
+    height: u32,
+) -> (wgpu::TextureView, wgpu::BindGroup, wgpu::TextureView) {
+    let size = wgpu::Extent3d {
+        width: (width.max(1) + 1) / 2,
+        height: (height.max(1) + 1) / 2,
+        depth_or_array_layers: 1,
+    };
+    let texture = device.create_texture(&wgpu::TextureDescriptor {
+        label: Some("distant-layer"),
+        size,
+        mip_level_count: 1,
+        sample_count: 1,
+        dimension: wgpu::TextureDimension::D2,
+        format,
+        usage: wgpu::TextureUsages::RENDER_ATTACHMENT | wgpu::TextureUsages::TEXTURE_BINDING,
+        view_formats: &[],
+    });
+    let view = texture.create_view(&wgpu::TextureViewDescriptor::default());
+    let sampler = device.create_sampler(&wgpu::SamplerDescriptor {
+        label: Some("distant-layer"),
+        address_mode_u: wgpu::AddressMode::ClampToEdge,
+        address_mode_v: wgpu::AddressMode::ClampToEdge,
+        address_mode_w: wgpu::AddressMode::ClampToEdge,
+        mag_filter: wgpu::FilterMode::Linear,
+        min_filter: wgpu::FilterMode::Linear,
+        ..Default::default()
+    });
+    let bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
+        label: Some("distant-layer"),
+        layout,
+        entries: &[
+            wgpu::BindGroupEntry {
+                binding: 0,
+                resource: wgpu::BindingResource::TextureView(&view),
+            },
+            wgpu::BindGroupEntry {
+                binding: 1,
+                resource: wgpu::BindingResource::Sampler(&sampler),
+            },
+        ],
+    });
+    let depth = device
+        .create_texture(&wgpu::TextureDescriptor {
+            label: Some("distant-layer-depth"),
+            size,
+            mip_level_count: 1,
+            sample_count: 1,
+            dimension: wgpu::TextureDimension::D2,
+            format: DEPTH_FORMAT,
+            usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
+            view_formats: &[],
+        })
+        .create_view(&wgpu::TextureViewDescriptor::default());
+    (view, bind_group, depth)
+}
+
 // ---------------------------------------------------------------------------
 // Scene: everything needed to draw the field into any colour target
 // ---------------------------------------------------------------------------
@@ -4830,10 +6966,26 @@ pub struct Scene {
     pipeline_prop: wgpu::RenderPipeline,
     pipeline_unlit: wgpu::RenderPipeline,
     pipeline_textured: wgpu::RenderPipeline,
+    pipeline_distant_source: wgpu::RenderPipeline,
+    pipeline_distant_outline: wgpu::RenderPipeline,
+    pipeline_distant_prop: wgpu::RenderPipeline,
+    pipeline_distant_composite: wgpu::RenderPipeline,
+    texture_bgl: wgpu::BindGroupLayout,
+    distant_layer: wgpu::TextureView,
+    distant_layer_bind_group: wgpu::BindGroup,
+    distant_depth: wgpu::TextureView,
     bee_bind_group: wgpu::BindGroup,
     bee_legs_bind_group: wgpu::BindGroup,
     tiki_bind_group: wgpu::BindGroup,
     astronaut_bind_group: wgpu::BindGroup,
+    noh_bind_group: wgpu::BindGroup,
+    monkey_bind_group: wgpu::BindGroup,
+    comedy_tragedy_bind_group: wgpu::BindGroup,
+    penguin_bind_group: wgpu::BindGroup,
+    godzilla_body_bind_group: wgpu::BindGroup,
+    godzilla_tail_bind_group: wgpu::BindGroup,
+    godzilla_legs_bind_group: wgpu::BindGroup,
+    fog_bind_group: wgpu::BindGroup,
     prop_v: wgpu::Buffer,
     prop_i: wgpu::Buffer,
     /// Where each model's indices start in the shared buffer, and how many. The
@@ -4987,6 +7139,90 @@ impl Scene {
             astronaut_width,
             astronaut_height,
         );
+        let (noh_pixels, noh_width, noh_height) = noh_mask_pixels();
+        let noh_bind_group = sprite_bind_group(
+            device,
+            queue,
+            &texture_bgl,
+            "noh-obeshimi-mask",
+            &noh_pixels,
+            noh_width,
+            noh_height,
+        );
+        let (monkey_pixels, monkey_width, monkey_height) = monkey_mask_pixels();
+        let monkey_bind_group = sprite_bind_group(
+            device,
+            queue,
+            &texture_bgl,
+            "monkey-mask",
+            &monkey_pixels,
+            monkey_width,
+            monkey_height,
+        );
+        let (comedy_tragedy_pixels, comedy_tragedy_width, comedy_tragedy_height) =
+            comedy_tragedy_mask_pixels();
+        let comedy_tragedy_bind_group = sprite_bind_group(
+            device,
+            queue,
+            &texture_bgl,
+            "comedy-tragedy-mask",
+            &comedy_tragedy_pixels,
+            comedy_tragedy_width,
+            comedy_tragedy_height,
+        );
+        let (penguin_pixels, penguin_width, penguin_height) = penguin_pixels();
+        let penguin_bind_group = sprite_bind_group(
+            device,
+            queue,
+            &texture_bgl,
+            "distant-tux",
+            &penguin_pixels,
+            penguin_width,
+            penguin_height,
+        );
+        let (godzilla_body_pixels, godzilla_body_width, godzilla_body_height) =
+            godzilla_body_pixels();
+        let godzilla_body_bind_group = sprite_bind_group(
+            device,
+            queue,
+            &texture_bgl,
+            "distant-godzilla-body",
+            &godzilla_body_pixels,
+            godzilla_body_width,
+            godzilla_body_height,
+        );
+        let (godzilla_tail_pixels, godzilla_tail_width, godzilla_tail_height) =
+            godzilla_tail_pixels();
+        let godzilla_tail_bind_group = sprite_bind_group(
+            device,
+            queue,
+            &texture_bgl,
+            "distant-godzilla-tail",
+            &godzilla_tail_pixels,
+            godzilla_tail_width,
+            godzilla_tail_height,
+        );
+        let (godzilla_legs_pixels, godzilla_legs_width, godzilla_legs_height) =
+            godzilla_legs_pixels();
+        let godzilla_legs_bind_group = sprite_bind_group(
+            device,
+            queue,
+            &texture_bgl,
+            "distant-godzilla-legs",
+            &godzilla_legs_pixels,
+            godzilla_legs_width,
+            godzilla_legs_height,
+        );
+        let (fog_pixels, fog_width, fog_height) = fog_blob_pixels();
+        let fog_bind_group = sprite_bind_group(
+            device,
+            queue,
+            &texture_bgl,
+            "temporary-blue-foreground-fog-atlas",
+            &fog_pixels,
+            fog_width,
+            fog_height,
+        );
 
         let (verts, indices) = build_tile_mesh();
         let vbuf = init_buffer(
@@ -5022,7 +7258,7 @@ impl Scene {
                         step_mode: wgpu::VertexStepMode::Instance,
                         attributes: &wgpu::vertex_attr_array![
                             2 => Float32x2, 3 => Float32x2, 4 => Float32,
-                            5 => Float32x2, 6 => Float32
+                            5 => Float32x2, 6 => Float32, 7 => Float32x2
                         ],
                     }),
                 ],
@@ -5101,7 +7337,7 @@ impl Scene {
                         step_mode: wgpu::VertexStepMode::Instance,
                         attributes: &wgpu::vertex_attr_array![
                             2 => Float32x2, 3 => Float32x2, 4 => Float32,
-                            5 => Float32x2, 6 => Float32
+                            5 => Float32x2, 6 => Float32, 7 => Float32x2
                         ],
                     }),
                 ],
@@ -5261,7 +7497,102 @@ impl Scene {
         }
         let pipeline_textured = device.create_render_pipeline(&prop_desc);
 
+        // The distant sprite is rasterized sharply into its own single-sampled,
+        // half-resolution canvas. Blurring happens only after this animation-aware
+        // source pass has finished.
+        prop_desc.label = Some("distant-layer-source");
+        // The shared pass now owns a depth attachment for procedural visitors. Flat
+        // Tux/Godzilla sprites explicitly ignore it, preserving their authored layer
+        // ordering while keeping the render-pass formats compatible.
+        prop_desc.depth_stencil = Some(wgpu::DepthStencilState {
+            format: DEPTH_FORMAT,
+            depth_write_enabled: Some(false),
+            depth_compare: Some(wgpu::CompareFunction::Always),
+            stencil: Default::default(),
+            bias: Default::default(),
+        });
+        prop_desc.multisample.count = 1;
+        if let Some(f) = prop_desc.fragment.as_mut() {
+            f.entry_point = Some("fs_distant_source");
+        }
+        let pipeline_distant_source = device.create_render_pipeline(&prop_desc);
+
+        // Procedural distant models use soft normal shading without the ordinary
+        // prop shader's bright plastic specular. That keeps the navy collar, pupils,
+        // mouth and red neckerchief dark and saturated after fog compositing. They
+        // render into the same scratch layer with a real depth buffer, so articulated
+        // puffs occlude in true 3D before the completed animation is blurred.
+        prop_desc.label = Some("distant-layer-procedural-model");
+        prop_desc.layout = Some(&layout);
+        prop_desc.depth_stencil = Some(wgpu::DepthStencilState {
+            format: DEPTH_FORMAT,
+            depth_write_enabled: Some(true),
+            depth_compare: Some(wgpu::CompareFunction::Less),
+            stencil: Default::default(),
+            bias: Default::default(),
+        });
+        if let Some(f) = prop_desc.fragment.as_mut() {
+            f.entry_point = Some("fs_unlit");
+        }
+        let pipeline_distant_prop = device.create_render_pipeline(&prop_desc);
+
+        prop_desc.label = Some("distant-marshmallow-soft-outline");
+        prop_desc.vertex.entry_point = Some("vs_distant_outline");
+        // The generated superellipsoids use the opposite winding from the authored
+        // prop meshes. Culling their nominal back faces therefore retains the actual
+        // expanded rear shell and removes the front-facing fill.
+        prop_desc.primitive.cull_mode = Some(wgpu::Face::Back);
+        if let Some(f) = prop_desc.fragment.as_mut() {
+            f.entry_point = Some("fs_distant_outline");
+        }
+        let pipeline_distant_outline = device.create_render_pipeline(&prop_desc);
+
+        let pipeline_distant_composite =
+            device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
+                label: Some("distant-layer-composite"),
+                layout: Some(&texture_layout),
+                vertex: wgpu::VertexState {
+                    module: &shader,
+                    entry_point: Some("vs_distant_composite"),
+                    compilation_options: Default::default(),
+                    buffers: &[],
+                },
+                primitive: wgpu::PrimitiveState {
+                    topology: wgpu::PrimitiveTopology::TriangleList,
+                    ..Default::default()
+                },
+                // The compositor draws inside the main pass, which owns a depth
+                // attachment for the tiles. wgpu requires the formats to agree even
+                // though this full-screen background neither tests nor writes depth.
+                depth_stencil: Some(wgpu::DepthStencilState {
+                    format: DEPTH_FORMAT,
+                    depth_write_enabled: Some(false),
+                    depth_compare: Some(wgpu::CompareFunction::Always),
+                    stencil: Default::default(),
+                    bias: Default::default(),
+                }),
+                multisample: wgpu::MultisampleState {
+                    count: samples,
+                    mask: !0,
+                    alpha_to_coverage_enabled: false,
+                },
+                fragment: Some(wgpu::FragmentState {
+                    module: &shader,
+                    entry_point: Some("fs_distant_composite"),
+                    compilation_options: Default::default(),
+                    targets: &[Some(wgpu::ColorTargetState {
+                        format,
+                        blend: Some(wgpu::BlendState::PREMULTIPLIED_ALPHA_BLENDING),
+                        write_mask: wgpu::ColorWrites::ALL,
+                    })],
+                }),
+                multiview_mask: None,
+                cache: None,
+            });
+
         let (depth, msaa) = make_targets(device, format, samples, width, height);
+        let (distant_layer, distant_layer_bind_group, distant_depth) =
+            make_distant_layer(device, format, &texture_bgl, width, height);
 
         let clear = if encode_srgb {
             // We hand the target raw sRGB-encoded values, so the clear must be too.
@@ -5298,10 +7629,26 @@ impl Scene {
             pipeline_prop,
             pipeline_unlit,
             pipeline_textured,
+            pipeline_distant_source,
+            pipeline_distant_outline,
+            pipeline_distant_prop,
+            pipeline_distant_composite,
+            texture_bgl,
+            distant_layer,
+            distant_layer_bind_group,
+            distant_depth,
             bee_bind_group,
             bee_legs_bind_group,
             tiki_bind_group,
             astronaut_bind_group,
+            noh_bind_group,
+            monkey_bind_group,
+            comedy_tragedy_bind_group,
+            penguin_bind_group,
+            godzilla_body_bind_group,
+            godzilla_tail_bind_group,
+            godzilla_legs_bind_group,
+            fog_bind_group,
             prop_v,
             prop_i,
             prop_ranges,
@@ -5328,6 +7675,11 @@ impl Scene {
         let (d, m) = make_targets(device, self.format, self.samples, width, height);
         self.depth = d;
         self.msaa = m;
+        let (layer, bind_group, distant_depth) =
+            make_distant_layer(device, self.format, &self.texture_bgl, width, height);
+        self.distant_layer = layer;
+        self.distant_layer_bind_group = bind_group;
+        self.distant_depth = distant_depth;
     }
 
     pub fn upload_instances(
@@ -5389,6 +7741,91 @@ impl Scene {
         solid: u32,
         total: u32,
     ) {
+        {
+            let mut pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+                label: Some("distant-layer-source"),
+                color_attachments: &[Some(wgpu::RenderPassColorAttachment {
+                    view: &self.distant_layer,
+                    resolve_target: None,
+                    depth_slice: None,
+                    ops: wgpu::Operations {
+                        load: wgpu::LoadOp::Clear(wgpu::Color::TRANSPARENT),
+                        store: wgpu::StoreOp::Store,
+                    },
+                })],
+                depth_stencil_attachment: Some(wgpu::RenderPassDepthStencilAttachment {
+                    view: &self.distant_depth,
+                    depth_ops: Some(wgpu::Operations {
+                        load: wgpu::LoadOp::Clear(1.0),
+                        store: wgpu::StoreOp::Discard,
+                    }),
+                    stencil_ops: None,
+                }),
+                timestamp_writes: None,
+                occlusion_query_set: None,
+                multiview_mask: None,
+            });
+            for (model, texture) in [
+                (MODEL_PENGUIN, &self.penguin_bind_group),
+                (MODEL_GODZILLA_REAR_LOWER, &self.godzilla_legs_bind_group),
+                (MODEL_GODZILLA_FRONT_LOWER, &self.godzilla_legs_bind_group),
+                (MODEL_GODZILLA_REAR_UPPER, &self.godzilla_legs_bind_group),
+                (MODEL_GODZILLA_FRONT_UPPER, &self.godzilla_legs_bind_group),
+                (MODEL_GODZILLA_TAIL, &self.godzilla_tail_bind_group),
+                (MODEL_GODZILLA_BODY, &self.godzilla_body_bind_group),
+            ] {
+                let (distant_offset, distant_count) = self.prop_groups[model];
+                if distant_count == 0 {
+                    continue;
+                }
+                pass.set_pipeline(&self.pipeline_distant_source);
+                pass.set_bind_group(0, &self.bind_group, &[]);
+                pass.set_bind_group(1, texture, &[]);
+                pass.set_vertex_buffer(0, self.prop_v.slice(..));
+                pass.set_vertex_buffer(
+                    1,
+                    self.props.slice(instance_offset::<Prop>(distant_offset)..),
+                );
+                pass.set_index_buffer(self.prop_i.slice(..), wgpu::IndexFormat::Uint16);
+                let (first, len) = self.prop_ranges[model];
+                pass.draw_indexed(first..first + len, 0, 0..distant_count);
+            }
+            pass.set_bind_group(0, &self.bind_group, &[]);
+            pass.set_vertex_buffer(0, self.prop_v.slice(..));
+            pass.set_index_buffer(self.prop_i.slice(..), wgpu::IndexFormat::Uint16);
+            // The expanded back-face shells write a narrow dark rim into the same
+            // depth buffer. The ordinary model then fills the interior, leaving only
+            // the silhouette to be softened by the full-layer blur.
+            pass.set_pipeline(&self.pipeline_distant_outline);
+            for model in [
+                MODEL_MARSHMALLOW_PUFF,
+                MODEL_MARSHMALLOW_BODY,
+                MODEL_MARSHMALLOW_HEAD,
+            ] {
+                let (offset, count) = self.prop_groups[model];
+                if count == 0 {
+                    continue;
+                }
+                pass.set_vertex_buffer(1, self.props.slice(instance_offset::<Prop>(offset)..));
+                let (first, len) = self.prop_ranges[model];
+                pass.draw_indexed(first..first + len, 0, 0..count);
+            }
+            pass.set_pipeline(&self.pipeline_distant_prop);
+            for model in [
+                MODEL_MARSHMALLOW_PUFF,
+                MODEL_MARSHMALLOW_BODY,
+                MODEL_MARSHMALLOW_HEAD,
+            ] {
+                let (offset, count) = self.prop_groups[model];
+                if count == 0 {
+                    continue;
+                }
+                pass.set_vertex_buffer(1, self.props.slice(instance_offset::<Prop>(offset)..));
+                let (first, len) = self.prop_ranges[model];
+                pass.draw_indexed(first..first + len, 0, 0..count);
+            }
+        }
+
         let (view, resolve) = match &self.msaa {
             Some(ms) => (ms, Some(target)),
             None => (target, None),
@@ -5417,6 +7854,29 @@ impl Scene {
             multiview_mask: None,
         });
         pass.set_bind_group(0, &self.bind_group, &[]);
+
+        // Blur the complete animated layer in screen space, upscale it, and composite
+        // it over the gray clear colour before any tile or ordinary critter is drawn.
+        pass.set_pipeline(&self.pipeline_distant_composite);
+        pass.set_bind_group(1, &self.distant_layer_bind_group, &[]);
+        pass.draw(0..3, 0..1);
+
+        // The explicit fog plane is composited after the distant visitor but before
+        // every halo, tile, and ordinary critter. Its sprites are exactly page-gray,
+        // so they disappear over bare background and only veil what walks behind.
+        pass.set_pipeline(&self.pipeline_textured);
+        pass.set_bind_group(1, &self.fog_bind_group, &[]);
+        pass.set_vertex_buffer(0, self.prop_v.slice(..));
+        pass.set_index_buffer(self.prop_i.slice(..), wgpu::IndexFormat::Uint16);
+        for model in MODEL_FOG_FIRST..=MODEL_FOG_LAST {
+            let (offset, count) = self.prop_groups[model];
+            if count == 0 {
+                continue;
+            }
+            pass.set_vertex_buffer(1, self.props.slice(instance_offset::<Prop>(offset)..));
+            let (first, len) = self.prop_ranges[model];
+            pass.draw_indexed(first..first + len, 0, 0..count);
+        }
         pass.set_vertex_buffer(1, self.instances.slice(..));
 
         // Halos first: they lay down shadow and bloom on the floor, and write no
@@ -5438,6 +7898,22 @@ impl Scene {
             pass.set_vertex_buffer(0, self.prop_v.slice(..));
             pass.set_index_buffer(self.prop_i.slice(..), wgpu::IndexFormat::Uint16);
             for m in 0..MODEL_COUNT {
+                if matches!(
+                    m,
+                    MODEL_PENGUIN
+                        | MODEL_GODZILLA_REAR_UPPER
+                        | MODEL_GODZILLA_REAR_LOWER
+                        | MODEL_GODZILLA_FRONT_UPPER
+                        | MODEL_GODZILLA_FRONT_LOWER
+                        | MODEL_GODZILLA_TAIL
+                        | MODEL_GODZILLA_BODY
+                        | MODEL_MARSHMALLOW_PUFF
+                        | MODEL_MARSHMALLOW_BODY
+                        | MODEL_MARSHMALLOW_HEAD
+                        | MODEL_FOG_FIRST..=MODEL_FOG_LAST
+                ) {
+                    continue;
+                }
                 let (offset, count) = self.prop_groups[m];
                 if count == 0 {
                     continue;
@@ -5447,6 +7923,9 @@ impl Scene {
                     MODEL_BEE_BODY => Some(&self.bee_bind_group),
                     MODEL_TIKI_MASK => Some(&self.tiki_bind_group),
                     MODEL_ASTRONAUT_HELMET => Some(&self.astronaut_bind_group),
+                    MODEL_NOH_MASK => Some(&self.noh_bind_group),
+                    MODEL_MONKEY_MASK => Some(&self.monkey_bind_group),
+                    MODEL_COMEDY_TRAGEDY_MASK => Some(&self.comedy_tragedy_bind_group),
                     _ => None,
                 } {
                     pass.set_pipeline(&self.pipeline_textured);
@@ -5660,15 +8139,20 @@ impl Driver {
         if self.sim_clock >= self.next_critter {
             let mut rng = Rng::new(self.life.rng.next_u64());
             let view = self.life.view();
-            // Choose before asking whether the board has a walker entrance, so every
-            // sixteen-second turn is a uniform three-way draw. A refused walker becomes a
-            // rocket rather than delaying or silently losing the scheduled arrival.
+            let gen_secs = self.gen_secs();
+            let phase = (((self.sim_clock - self.gen_started) / gen_secs) as f32).clamp(0.0, 1.0);
+            // Choose before checking board-dependent eligibility, so every scheduled
+            // turn is a uniform four-way draw. A visitor with no valid plan becomes a
+            // rocket rather than delaying or silently losing the arrival.
             let critter: Box<dyn Critter> = match random_critter_kind(&mut rng) {
                 CritterKind::Rocket => Box::new(Rocket::new(&view, &mut rng)),
                 CritterKind::Walker => Walker::new(&view, &mut rng)
                     .map(|w| Box::new(w) as Box<dyn Critter>)
                     .unwrap_or_else(|| Box::new(Rocket::new(&view, &mut rng))),
                 CritterKind::Bee => Box::new(Bee::new(&view, &mut rng)),
+                CritterKind::Ufo => Ufo::new(&view, phase, &mut rng)
+                    .map(|ufo| Box::new(ufo) as Box<dyn Critter>)
+                    .unwrap_or_else(|| Box::new(Rocket::new(&view, &mut rng))),
             };
             self.critters_sent += 1;
             self.viz.add_critter(critter);
@@ -5707,6 +8191,18 @@ mod web {
     const MAX_DPR: f64 = 2.0;
     use wasm_bindgen::prelude::*;
     use wasm_bindgen::JsCast;
+
+    /// Keep the latest renderer failure inspectable without requiring a browser
+    /// console. This is intentionally tiny and inert during healthy rendering.
+    fn record_renderer_error(message: &str) {
+        if let Some(win) = web_sys::window() {
+            let _ = js_sys::Reflect::set(
+                win.as_ref(),
+                &JsValue::from_str("__conwayBgError"),
+                &JsValue::from_str(message),
+            );
+        }
+    }
 
     struct App {
         surface: wgpu::Surface<'static>,
@@ -5906,7 +8402,9 @@ mod web {
         // good, with no way back short of a reload. A handler here degrades that to a
         // console warning and, at worst, a visual glitch.
         device.on_uncaptured_error(std::sync::Arc::new(|e| {
-            web_sys::console::warn_1(&JsValue::from_str(&format!("conwaybg gpu: {e}")));
+            let message = format!("conwaybg gpu: {e}");
+            record_renderer_error(&message);
+            web_sys::console::warn_1(&JsValue::from_str(&message));
         }));
 
         // Prefer a plain (non-sRGB) surface format and encode ourselves, so the
@@ -5983,6 +8481,7 @@ mod web {
     pub fn start() {
         wasm_bindgen_futures::spawn_local(async {
             if let Err(e) = run().await {
+                record_renderer_error(&e);
                 web_sys::console::warn_1(&JsValue::from_str(&format!("conwaybg disabled: {e}")));
             }
         });
@@ -6262,6 +8761,87 @@ mod tests {
             viz.on_generation(&life.view(), t);
             t += 0.3;
         }
+    }
+
+    #[test]
+    fn an_adjacent_birth_slides_from_only_one_of_multiple_deaths() {
+        let (cols, rows) = (9, 7);
+        let mut life = planted(cols, rows, &[(3, 3), (5, 3), (6, 4)]);
+        let mut viz = Viz::new(&life, 0x51de);
+
+        // The middle birth has two orthogonal candidates. The lower-right birth has
+        // only a diagonal death, so both of those must retain their ordinary fades.
+        life.boards[life.head].fill(false);
+        life.boards[life.head][3 * cols + 4] = true;
+        life.boards[life.head][5 * cols + 7] = true;
+        viz.on_generation(&life.view(), 2.0);
+
+        let moved = viz.inst[3 * cols + 4];
+        assert_eq!(moved.state, [1.0, 1.0]);
+        assert!(
+            moved.slide_from == [3.0, 3.0] || moved.slide_from == [5.0, 3.0],
+            "birth did not select one of its orthogonal deaths"
+        );
+        assert_eq!(moved.t, 2.0);
+
+        let left = viz.inst[3 * cols + 3];
+        let right = viz.inst[3 * cols + 5];
+        let suppressed = [left, right]
+            .iter()
+            .filter(|inst| inst.state == [0.0, 0.0])
+            .count();
+        let normally_fading = [left, right]
+            .iter()
+            .filter(|inst| inst.state == [0.0, 1.0])
+            .count();
+        assert_eq!(suppressed, 1, "both dying tiles were consumed by one birth");
+        assert_eq!(
+            normally_fading, 1,
+            "unchosen dying tile lost its normal fade"
+        );
+
+        let diagonal_death = viz.inst[4 * cols + 6];
+        let unpaired_birth = viz.inst[5 * cols + 7];
+        assert_eq!(diagonal_death.state, [0.0, 1.0]);
+        assert_eq!(diagonal_death.slide_from, [6.0, 4.0]);
+        assert_eq!(unpaired_birth.state, [1.0, 0.0]);
+        assert_eq!(unpaired_birth.slide_from, [7.0, 5.0]);
+    }
+
+    #[test]
+    fn one_death_can_slide_into_only_one_of_multiple_births() {
+        let (cols, rows) = (9, 7);
+        let mut life = planted(cols, rows, &[(4, 3)]);
+        let mut viz = Viz::new(&life, 0x0ce1);
+
+        life.boards[life.head].fill(false);
+        life.boards[life.head][3 * cols + 3] = true;
+        life.boards[life.head][3 * cols + 5] = true;
+        viz.on_generation(&life.view(), 4.0);
+
+        let births = [viz.inst[3 * cols + 3], viz.inst[3 * cols + 5]];
+        assert_eq!(
+            births
+                .iter()
+                .filter(|inst| inst.state == [1.0, 1.0] && inst.slide_from == [4.0, 3.0])
+                .count(),
+            1,
+            "one death was assigned to more than one birth"
+        );
+        assert_eq!(
+            births
+                .iter()
+                .filter(|inst| { inst.state == [1.0, 0.0] && inst.slide_from == inst.cell })
+                .count(),
+            1,
+            "unmatched birth lost its normal fade-in"
+        );
+        assert_eq!(viz.inst[3 * cols + 4].state, [0.0, 0.0]);
+
+        let shader = shader_source();
+        assert!(shader.contains("tile_animated_cell"));
+        assert!(shader.contains("tile_animated_color"));
+        assert!(!shader.contains("TILE_SLIDE_SECS_LIT"));
     }
 
     /// A critter that reads the whole lookahead and draws a couple of tiles, purely to
@@ -6996,6 +9576,698 @@ mod tests {
         assert_eq!(indices, [0, 1, 2, 0, 2, 3]);
     }
 
+    fn assert_generated_mask(
+        label: &str,
+        (pixels, width, height): (Vec<u8>, u32, u32),
+        expected: (u32, u32),
+        (quad, indices): (Vec<PropVertex>, Vec<u16>),
+    ) {
+        assert_eq!((width, height), expected);
+        assert_eq!(pixels.len(), width as usize * height as usize * 4);
+        let samples = width as usize * height as usize;
+        let transparent = pixels.chunks_exact(4).filter(|p| p[3] == 0).count();
+        let visible = pixels.chunks_exact(4).filter(|p| p[3] > 180).count();
+        assert!(
+            transparent > samples / 20,
+            "{label} has no transparent outside"
+        );
+        assert!(visible > samples / 2, "{label} is missing or too faint");
+
+        assert_eq!(quad.len(), 4);
+        assert_eq!(indices, [0, 1, 2, 0, 2, 3]);
+        let quad_width = quad[1].pos[0] - quad[0].pos[0];
+        let quad_height = quad[3].pos[1] - quad[0].pos[1];
+        let expected_aspect = expected.1 as f32 / expected.0 as f32;
+        assert!(
+            (quad_height / quad_width - expected_aspect).abs() < 1e-5,
+            "{label} quad lost the asset aspect"
+        );
+    }
+
+    #[test]
+    fn noh_mask_asset_and_quad_are_well_formed() {
+        assert_generated_mask(
+            "Noh mask",
+            noh_mask_pixels(),
+            (290, 384),
+            build_noh_mask_quad(),
+        );
+    }
+
+    #[test]
+    fn monkey_mask_asset_and_quad_are_well_formed() {
+        assert_generated_mask(
+            "monkey mask",
+            monkey_mask_pixels(),
+            (384, 373),
+            build_monkey_mask_quad(),
+        );
+    }
+
+    #[test]
+    fn comedy_tragedy_mask_asset_and_quad_are_well_formed() {
+        assert_generated_mask(
+            "comedy/tragedy mask",
+            comedy_tragedy_mask_pixels(),
+            (293, 384),
+            build_comedy_tragedy_mask_quad(),
+        );
+    }
+
+    fn assert_generated_sprite(
+        label: &str,
+        (pixels, width, height): (Vec<u8>, u32, u32),
+        expected: (u32, u32),
+        (quad, indices): (Vec<PropVertex>, Vec<u16>),
+    ) {
+        assert_eq!((width, height), expected);
+        assert_eq!(pixels.len(), width as usize * height as usize * 4);
+        let samples = width as usize * height as usize;
+        let transparent = pixels.chunks_exact(4).filter(|p| p[3] == 0).count();
+        let visible = pixels.chunks_exact(4).filter(|p| p[3] > 180).count();
+        assert!(
+            transparent > samples / 20,
+            "{label} has no transparent outside"
+        );
+        assert!(
+            visible > samples / 4,
+            "{label} is missing or too faint ({visible}/{samples} pixels)"
+        );
+
+        assert_eq!(quad.len(), 4);
+        assert_eq!(indices, [0, 1, 2, 0, 2, 3]);
+        let quad_width = quad[1].pos[0] - quad[0].pos[0];
+        let quad_height = quad[3].pos[1] - quad[0].pos[1];
+        let expected_aspect = expected.1 as f32 / expected.0 as f32;
+        assert!(
+            (quad_height / quad_width - expected_aspect).abs() < 1e-5,
+            "{label} quad lost the asset aspect"
+        );
+    }
+
+    #[test]
+    fn penguin_asset_and_quad_are_well_formed() {
+        assert_generated_sprite(
+            "penguin",
+            penguin_pixels(),
+            (305, 384),
+            build_penguin_quad(),
+        );
+    }
+
+    #[test]
+    fn godzilla_layer_assets_and_quads_are_well_formed() {
+        let (body, body_width, body_height) = godzilla_body_pixels();
+        let (tail, tail_width, tail_height) = godzilla_tail_pixels();
+        assert_eq!((body_width, body_height), (384, 266));
+        assert_eq!((tail_width, tail_height), (384, 266));
+        let samples = body_width as usize * body_height as usize;
+        assert!(body.chunks_exact(4).filter(|p| p[3] > 180).count() > samples / 5);
+        assert!(tail.chunks_exact(4).filter(|p| p[3] > 180).count() > samples / 100);
+        for y in 0..body_height as usize {
+            assert!((0..82).all(|x| body[(y * body_width as usize + x) * 4 + 3] == 0));
+            assert!(
+                (90..tail_width as usize).all(|x| tail[(y * tail_width as usize + x) * 4 + 3] == 0)
+            );
+        }
+        let overlap_visible = (0..body_height as usize)
+            .flat_map(|y| (82..90).map(move |x| (y, x)))
+            .filter(|&(y, x)| {
+                body[(y * body_width as usize + x) * 4 + 3] > 0
+                    && tail[(y * tail_width as usize + x) * 4 + 3] > 0
+            })
+            .count();
+        assert!(
+            overlap_visible > 20,
+            "Godzilla tail cut lost its seam-hiding overlap"
+        );
+        for (quad, indices) in [build_godzilla_body_quad(), build_godzilla_tail_quad()] {
+            assert_eq!(quad.len(), 4);
+            assert_eq!(indices, [0, 1, 2, 0, 2, 3]);
+        }
+        let (tail_quad, _) = build_godzilla_tail_quad();
+        assert!(tail_quad[0].pos[0] < 0.0 && tail_quad[1].pos[0] > 0.0);
+        assert!(tail_quad[0].pos[1] < 0.0 && tail_quad[3].pos[1] > 0.0);
+
+        let (pixels, width, height) = godzilla_legs_pixels();
+        assert_eq!((width, height), (1536, 266));
+        let visible = pixels.chunks_exact(4).filter(|p| p[3] > 180).count();
+        assert!(
+            visible > pixels.len() / 4 / 50,
+            "Godzilla leg atlas is missing or too faint"
+        );
+        for slot in 0..4 {
+            let (quad, indices) = build_godzilla_leg_quad(slot);
+            assert_eq!(quad.len(), 4);
+            assert_eq!(indices, [0, 1, 2, 0, 2, 3]);
+            assert!(quad[0].pos[0] < 0.0 && quad[1].pos[0] > 0.0);
+            assert!(quad[0].pos[1] < 0.0 && quad[3].pos[1] > 0.0);
+            assert!(quad.iter().all(|v| v.uv[0] >= slot as f32 * 0.25));
+            assert!(quad.iter().all(|v| v.uv[0] <= (slot + 1) as f32 * 0.25));
+        }
+    }
+
+    #[test]
+    fn fog_atlas_has_eight_soft_independent_cells() {
+        let (pixels, width, height) = fog_blob_pixels();
+        assert_eq!((width, height), (1024, 512));
+        let transparent = pixels.chunks_exact(4).filter(|p| p[3] == 0).count();
+        let partial = pixels
+            .chunks_exact(4)
+            .filter(|p| p[3] > 0 && p[3] < 255)
+            .count();
+        assert!(transparent > pixels.len() / 4 * 2 / 3);
+        assert!(partial > pixels.len() / 4 / 30);
+        for slot in 0..FOG_ATLAS_CELL_COUNT {
+            let (quad, indices) = build_fog_blob_quad(slot);
+            assert_eq!(quad.len(), 4);
+            assert_eq!(indices, [0, 1, 2, 0, 2, 3]);
+            let col = slot % FOG_ATLAS_COLS;
+            let row = slot / FOG_ATLAS_COLS;
+            assert!(quad.iter().all(|v| {
+                v.uv[0] >= col as f32 / FOG_ATLAS_COLS as f32
+                    && v.uv[0] <= (col + 1) as f32 / FOG_ATLAS_COLS as f32
+                    && v.uv[1] >= row as f32 / FOG_ATLAS_ROWS as f32
+                    && v.uv[1] <= (row + 1) as f32 / FOG_ATLAS_ROWS as f32
+            }));
+            assert!(MODEL_UNLIT[MODEL_FOG_FIRST + slot]);
+        }
+    }
+
+    #[test]
+    fn dense_gray_fog_drifts_in_front_of_distant_visitors() {
+        assert_eq!(FOG_ALPHA, 0.45);
+        let life = Life::new(24, 18, 0xf09);
+        let mut fog = FogLayer::new(&life.view(), 0x6169_6d6c_6573_736c);
+        let mut before = PropSink::default();
+        fog.props(&mut before);
+        assert_eq!(before.total(), FOG_BLOB_COUNT);
+        assert!(fog.blobs.iter().all(|blob| {
+            blob.size[0] >= 330.0 * FOG_SCALE && blob.size[0] <= 690.0 * FOG_SCALE
+        }));
+        let original_positions: Vec<[f32; 3]> = (MODEL_FOG_FIRST..=MODEL_FOG_LAST)
+            .flat_map(|model| before.group(model).iter().map(|blob| blob.pos))
+            .collect();
+        assert_eq!(original_positions.len(), FOG_BLOB_COUNT);
+        let page_gray = srgb_hex_to_linear(BG);
+        for model in MODEL_FOG_FIRST..=MODEL_FOG_LAST {
+            assert!((7..=8).contains(&before.group(model).len()));
+            for blob in before.group(model) {
+                assert_eq!(blob.alpha, FOG_ALPHA);
+                assert_eq!(blob.tint, page_gray);
+                assert_eq!(blob.pos[2], FOG_Z);
+            }
+        }
+
+        fog.update(5.0);
+        let mut after = PropSink::default();
+        fog.props(&mut after);
+        assert!((MODEL_FOG_FIRST..=MODEL_FOG_LAST)
+            .flat_map(|model| after.group(model).iter().map(|blob| blob.pos))
+            .zip(original_positions)
+            .any(|(new, old)| new != old));
+    }
+
+    #[test]
+    fn procedural_marshmallow_sailor_turns_and_walks_as_one_depth_rig() {
+        for (label, (verts, indices)) in [
+            ("marshmallow puff", build_marshmallow_puff()),
+            ("marshmallow body", build_marshmallow_body()),
+            ("marshmallow head", build_marshmallow_head()),
+        ] {
+            assert!(verts.len() > 200, "{label} lost its rounded 3D surface");
+            assert!(indices.len() > 600, "{label} lost its closed mesh");
+            assert!(indices.iter().all(|&i| (i as usize) < verts.len()));
+            assert!(verts.iter().all(|v| {
+                v.pos.into_iter().all(f32::is_finite)
+                    && v.nrm.into_iter().all(f32::is_finite)
+                    && v.col.into_iter().all(f32::is_finite)
+            }));
+        }
+        let (body, _) = build_marshmallow_body();
+        assert!(
+            body.iter().any(|v| v.col[0] > v.col[2] * 4.0),
+            "the red neckerchief disappeared"
+        );
+        assert!(
+            body.iter()
+                .any(|v| v.col.iter().copied().sum::<f32>() < 0.08),
+            "the navy sailor collar disappeared"
+        );
+        let (head, _) = build_marshmallow_head();
+        assert!(
+            head.iter()
+                .any(|v| v.col.iter().copied().sum::<f32>() < 0.03),
+            "the face and cap band lost their dark details"
+        );
+
+        let mut max_front = 0.0f32;
+        let mut min_front = 1.0f32;
+        let mut max_stride = 0.0f32;
+        for sample in 0..700 {
+            let pose = DistantBackground::marshmallow_pose_at(sample as f32 / 30.0, 0.73);
+            max_front = max_front.max(pose.body_front);
+            min_front = min_front.min(pose.body_front);
+            max_stride = max_stride.max((pose.upper_leg[0] - pose.upper_leg[1]).abs());
+            assert!(pose.head_front >= pose.body_front);
+            assert!((0.53..=0.80).contains(&pose.speed));
+            assert!(pose.depth >= -247.0 && pose.depth <= -193.0);
+        }
+        assert!(max_front > 0.69 && min_front < 0.001);
+        assert!(max_stride > 0.58, "the giant lost his lumbering stride");
+        let before_exchange = DistantBackground::marshmallow_foot_reach(-0.0001);
+        let after_exchange = DistantBackground::marshmallow_foot_reach(0.0001);
+        assert!(
+            (after_exchange - before_exchange).abs() < 0.0001,
+            "a marshmallow foot still snaps when its stride crosses zero"
+        );
+        assert!((DistantBackground::marshmallow_foot_reach(-0.30) - 0.030).abs() < 1e-6);
+        assert!((DistantBackground::marshmallow_foot_reach(0.30) - 0.080).abs() < 1e-6);
+
+        let life = Life::new(24, 18, 0x5a17);
+        let mut background = DistantBackground::new(&life.view(), 0x5a17);
+        background.crossing = None;
+        background.next_kind = DistantKind::Marshmallow;
+        background.start_crossing(&life.view());
+        background.crossing.as_mut().unwrap().t = 7.0;
+        let mut sink = PropSink::default();
+        background.props(&mut sink);
+        assert_eq!(sink.group(MODEL_MARSHMALLOW_PUFF).len(), 12);
+        assert_eq!(sink.group(MODEL_MARSHMALLOW_BODY).len(), 1);
+        assert_eq!(sink.group(MODEL_MARSHMALLOW_HEAD).len(), 1);
+        assert_eq!(sink.total(), 14);
+        assert!(sink.group(MODEL_PENGUIN).is_empty());
+        assert!(sink.group(MODEL_GODZILLA_BODY).is_empty());
+        assert_eq!(
+            sink.group(MODEL_MARSHMALLOW_BODY)[0].alpha,
+            DISTANT_MARSHMALLOW_ALPHA
+        );
+        assert_ne!(
+            sink.group(MODEL_MARSHMALLOW_BODY)[0].rot[1],
+            sink.group(MODEL_MARSHMALLOW_HEAD)[0].rot[1],
+            "the head stopped leading the occasional camera turn"
+        );
+        assert!((12.0..=22.0).contains(&DISTANT_MARSHMALLOW_OUTLINE_PX));
+        let shader = shader_source();
+        assert!(shader.contains("vs_distant_outline"));
+        assert!(shader.contains("fs_distant_outline"));
+        assert!(!shader.contains("DISTANT_MARSHMALLOW_OUTLINE_PX_LIT"));
+    }
+
+    #[test]
+    fn distant_visitors_cross_once_exclusively_and_tux_hop_lands() {
+        let takeoff = DistantBackground::tux_pose_at(PENGUIN_WADDLE_SECS, 0.0);
+        let apex =
+            DistantBackground::tux_pose_at(PENGUIN_WADDLE_SECS + PENGUIN_HOP_SECS * 0.5, 0.0);
+        let landed = DistantBackground::tux_pose_at(PENGUIN_WADDLE_SECS + PENGUIN_HOP_SECS, 0.0);
+        assert!(takeoff.y.abs() < 1e-5);
+        assert!((apex.y - PENGUIN_HOP_HEIGHT).abs() < 1e-4);
+        assert!(landed.y.abs() < 1e-5);
+        let mut max_upper_split = 0.0f32;
+        let mut max_knee_flex = 0.0f32;
+        let mut min_depth = f32::INFINITY;
+        let mut max_depth = f32::NEG_INFINITY;
+        for sample in 0..240 {
+            let t = sample as f32 / 30.0;
+            let pose = DistantBackground::godzilla_pose_at(t, 0.7);
+            assert!(pose.y <= 1.46);
+            assert!(pose.x_jitter.abs() <= 0.36);
+            assert!(pose.rot.abs() <= 0.020);
+            assert!((0.60..=0.88).contains(&pose.speed));
+            assert!((pose.scale_x - 1.0).abs() <= 0.0041);
+            assert!((pose.scale_y - 1.0).abs() <= 0.0041);
+            let legs = DistantBackground::godzilla_leg_angles_at(t, 0.7);
+            assert!(legs.upper[0].abs() <= 0.124);
+            assert!(legs.upper[1].abs() <= 0.111);
+            assert!(legs.lower[0].abs() <= 0.130);
+            assert!(legs.lower[1].abs() <= 0.120);
+            max_upper_split = max_upper_split.max((legs.upper[0] - legs.upper[1]).abs());
+            max_knee_flex = max_knee_flex.max(legs.lower[0].abs().max(legs.lower[1].abs()));
+            let depth = DistantBackground::godzilla_depth_at(t, 0.7);
+            min_depth = min_depth.min(depth);
+            max_depth = max_depth.max(depth);
+        }
+        assert!(
+            max_upper_split > 0.205,
+            "Godzilla legs lost their opposing stride"
+        );
+        assert!(max_knee_flex > 0.105, "Godzilla knees stopped articulating");
+        assert!(
+            max_depth - min_depth > 74.0,
+            "Godzilla lost his front/back Z sway"
+        );
+        let mid_stance = DistantBackground::godzilla_pose_at(0.0, 0.0);
+        let foot_exchange = DistantBackground::godzilla_pose_at(
+            std::f32::consts::FRAC_PI_2 / GODZILLA_STEP_RATE,
+            0.0,
+        );
+        assert!(
+            mid_stance.speed > foot_exchange.speed * 1.45,
+            "Godzilla's translation is no longer synchronized to the planted-leg sweep"
+        );
+        assert!(
+            (std::f32::consts::TAU / GODZILLA_STEP_RATE - 5.71).abs() < 0.01,
+            "Godzilla's gait no longer matches the wide stride distance"
+        );
+
+        let life = Life::new(24, 18, 90);
+        let mut background = DistantBackground::new(&life.view(), 90);
+        background.crossing = None;
+        background.next_kind = DistantKind::Tux;
+        background.start_crossing(&life.view());
+        let crossing = background.crossing.as_mut().unwrap();
+        crossing.t = (PENGUIN_WADDLE_SECS + PENGUIN_HOP_SECS) / DISTANT_TUX_TIME_SCALE;
+        let ground_y = crossing.ground_y;
+        let direction = crossing.direction;
+        let visible_edge = if direction > 0.0 {
+            -(life.cols as f32) * CELL_PX * 0.5 + MARGIN as f32 * CELL_PX
+        } else {
+            life.cols as f32 * CELL_PX * 0.5 - MARGIN as f32 * CELL_PX
+        };
+        assert!(
+            if direction > 0.0 {
+                crossing.x + DISTANT_TUX_W * 0.5 < visible_edge
+            } else {
+                crossing.x - DISTANT_TUX_W * 0.5 > visible_edge
+            },
+            "background visitor did not begin fully offscreen"
+        );
+        let mut sink = PropSink::default();
+        background.props(&mut sink);
+        assert_eq!(sink.group(MODEL_PENGUIN).len(), 1);
+        assert!(sink.group(MODEL_GODZILLA_REAR_UPPER).is_empty());
+        assert!(sink.group(MODEL_GODZILLA_REAR_LOWER).is_empty());
+        assert!(sink.group(MODEL_GODZILLA_FRONT_UPPER).is_empty());
+        assert!(sink.group(MODEL_GODZILLA_FRONT_LOWER).is_empty());
+        assert!(sink.group(MODEL_GODZILLA_TAIL).is_empty());
+        assert!(sink.group(MODEL_GODZILLA_BODY).is_empty());
+        assert_eq!(sink.total(), 1);
+        let sprite = sink.group(MODEL_PENGUIN)[0];
+        assert_eq!(sprite.alpha, DISTANT_TUX_ALPHA);
+        assert!(
+            sprite.scale[0].abs() > 600.0,
+            "Tux was not scaled into a distant giant"
+        );
+        let bottom = sprite.pos[1] - sprite.scale[1] * (384.0 / 305.0) * 0.5;
+        assert!(
+            (bottom - (ground_y - DISTANT_TUX_H * 0.5)).abs() < 1e-4,
+            "the completed hop did not land on its baseline"
+        );
+
+        // Put this individual over its finish line. It must retire, not wrap around.
+        let crossing = background.crossing.as_mut().unwrap();
+        crossing.x = crossing.to_x - crossing.direction * 0.01;
+        let ctx = CritterCtx {
+            life: life.view(),
+            dt: 1.0,
+            now: 1.0,
+            phase: 0.0,
+            gen_secs: 3.0,
+            spinning: None,
+        };
+        background.update(&ctx);
+        assert!(
+            background.crossing.is_none(),
+            "completed background visitor looped instead of retiring"
+        );
+        sink.clear();
+        background.props(&mut sink);
+        assert_eq!(sink.total(), 0);
+
+        // Once the one-shot Tux crossing has retired, the next crossing is Godzilla
+        // and remains the only source in the fog layer.
+        background.cooldown = 0.0;
+        background.update(&ctx);
+        sink.clear();
+        background.props(&mut sink);
+        assert!(sink.group(MODEL_PENGUIN).is_empty());
+        assert_eq!(sink.group(MODEL_GODZILLA_REAR_UPPER).len(), 1);
+        assert_eq!(sink.group(MODEL_GODZILLA_REAR_LOWER).len(), 1);
+        assert_eq!(sink.group(MODEL_GODZILLA_FRONT_UPPER).len(), 1);
+        assert_eq!(sink.group(MODEL_GODZILLA_FRONT_LOWER).len(), 1);
+        assert_eq!(sink.group(MODEL_GODZILLA_TAIL).len(), 1);
+        assert_eq!(sink.group(MODEL_GODZILLA_BODY).len(), 1);
+        assert_eq!(sink.total(), 6);
+        let body = sink.group(MODEL_GODZILLA_BODY)[0];
+        let tail = sink.group(MODEL_GODZILLA_TAIL)[0];
+        let rear_upper = sink.group(MODEL_GODZILLA_REAR_UPPER)[0];
+        let rear_lower = sink.group(MODEL_GODZILLA_REAR_LOWER)[0];
+        let front_upper = sink.group(MODEL_GODZILLA_FRONT_UPPER)[0];
+        let front_lower = sink.group(MODEL_GODZILLA_FRONT_LOWER)[0];
+        assert_eq!(body.alpha, DISTANT_GODZILLA_ALPHA);
+        for segment in [rear_upper, rear_lower, front_upper, front_lower] {
+            assert_eq!(segment.alpha, DISTANT_GODZILLA_ALPHA);
+            assert_eq!(segment.pos[2], body.pos[2]);
+        }
+        assert_eq!(tail.alpha, DISTANT_GODZILLA_ALPHA);
+        assert_eq!(tail.pos[2], body.pos[2]);
+        assert_eq!(tail.rot[1], 0.0);
+        assert_ne!(rear_upper.rot[2], body.rot[2]);
+        assert_ne!(front_upper.rot[2], body.rot[2]);
+        assert_ne!(rear_lower.rot[2], rear_upper.rot[2]);
+        assert_ne!(front_lower.rot[2], front_upper.rot[2]);
+
+        // The first event is randomly scheduled 4–10 seconds into the crossing.
+        // At full recession the cut stays pinned, the tip pitches into -Z, and its
+        // source opacity falls; after the 0.13-second hold it snaps exactly home.
+        {
+            let crossing = background.crossing.as_mut().unwrap();
+            assert!(
+                (GODZILLA_TAIL_FLICK_MIN..GODZILLA_TAIL_FLICK_MIN + GODZILLA_TAIL_FLICK_SPAN)
+                    .contains(&crossing.tail_next_flick_at)
+            );
+            crossing.tail_flick_started = Some(crossing.t);
+            crossing.t += GODZILLA_TAIL_AWAY_SECS + GODZILLA_TAIL_HOLD_SECS * 0.5;
+        }
+        sink.clear();
+        background.props(&mut sink);
+        let receded_tail = sink.group(MODEL_GODZILLA_TAIL)[0];
+        assert!(receded_tail.rot[1].abs() > 0.77);
+        assert!(receded_tail.alpha < DISTANT_GODZILLA_ALPHA * 0.34);
+        background.crossing.as_mut().unwrap().t +=
+            GODZILLA_TAIL_HOLD_SECS * 0.5 + GODZILLA_TAIL_RETURN_SECS;
+        sink.clear();
+        background.props(&mut sink);
+        let returned_tail = sink.group(MODEL_GODZILLA_TAIL)[0];
+        assert!(returned_tail.rot[1].abs() < 1e-5);
+        assert_eq!(returned_tail.alpha, DISTANT_GODZILLA_ALPHA);
+        assert!((GODZILLA_TAIL_FLICK_SECS - 0.637).abs() < 1e-6);
+
+        assert!((DISTANT_TUX_W / 430.0 - 1.40).abs() < 1e-5);
+        assert!((DISTANT_GODZILLA_W / 790.0 - 1.40).abs() < 1e-5);
+        assert!((DISTANT_LAYER_OPACITY * DISTANT_TUX_ALPHA - 0.28).abs() < 1e-5);
+        assert!((DISTANT_LAYER_OPACITY * DISTANT_GODZILLA_ALPHA - 0.33).abs() < 1e-5);
+        assert_eq!(DISTANT_TUX_BLUR_LAYER_PX, 10.0);
+        assert!(DISTANT_TUX_BASE_LIFT > 100.0);
+        let shader = shader_source();
+        assert!(shader.contains("fs_distant_source"));
+        assert!(shader.contains("fs_distant_composite"));
+        assert!(shader.contains("vs_distant_composite"));
+        assert!(!shader.contains("DISTANT_LAYER_OPACITY_LIT"));
+        assert!(!shader.contains("DISTANT_TUX_BLUR_LAYER_PX_LIT"));
+    }
+
+    fn life_with_ufo_target() -> Life {
+        for seed in 1..2_000u64 {
+            let life = Life::new(28, 20, seed);
+            if !ufo_target_candidates(&life.view(), 0.5).is_empty() {
+                return life;
+            }
+        }
+        panic!("could not find a deterministic UFO target board");
+    }
+
+    #[test]
+    fn ufo_reserves_only_a_death_strictly_between_one_and_two_iterations_away() {
+        let life = life_with_ufo_target();
+        let view = life.view();
+        let candidates = ufo_target_candidates(&view, 0.63);
+        assert!(!candidates.is_empty());
+        for &(x, y) in &candidates {
+            let (x, y) = (x as isize, y as isize);
+            assert!(view.alive(x, y, 0));
+            assert!(view.alive(x, y, 1));
+            assert!(!view.alive(x, y, 2));
+            assert!(!view.alive(x, y, 3));
+            assert!(!view.alive(x, y, 4));
+        }
+
+        let mut ufo = Ufo::new(&view, 0.63, &mut Rng::new(0x0f0)).unwrap();
+        assert!(candidates.contains(&ufo.target));
+        assert!((ufo.start_iterations - 1.37).abs() < 1e-5);
+        assert_eq!(ufo.claimed_cell(), Some(ufo.target));
+        ufo.profile_at_capture = false;
+        assert!(ufo.tilt_at(ufo.origin).abs() > 1.0);
+        assert!(ufo.tilt_at(ufo.hover_position()).abs() < 0.15);
+        ufo.profile_at_capture = true;
+        assert!(ufo.tilt_at(ufo.origin).abs() < 0.15);
+        assert!(ufo.tilt_at(ufo.hover_position()).abs() > 1.0);
+
+        // Exactly on a generation boundary, board(2) would be x == 2 and is not
+        // eligible. The strict interval instead uses a board(1) death at x == 1.
+        let boundary_life = (1..2_000u64)
+            .map(|seed| Life::new(28, 20, seed))
+            .find(|life| !ufo_target_candidates(&life.view(), 0.0).is_empty())
+            .expect("could not find an exact-boundary UFO board");
+        let boundary = ufo_target_candidates(&boundary_life.view(), 0.0);
+        for &(x, y) in &boundary {
+            let (x, y) = (x as isize, y as isize);
+            assert!(boundary_life.view().alive(x, y, 0));
+            assert!(!boundary_life.view().alive(x, y, 1));
+            assert!(!boundary_life.view().alive(x, y, 2));
+            assert!(!boundary_life.view().alive(x, y, 3));
+        }
+        let boundary_ufo = Ufo::new(&boundary_life.view(), 0.0, &mut Rng::new(7)).unwrap();
+        assert!((boundary_ufo.start_iterations - 1.0).abs() < 1e-5);
+    }
+
+    #[test]
+    fn ufo_replaces_the_dying_tile_on_the_boundary_then_tows_it_away() {
+        let mut life = life_with_ufo_target();
+        let mut viz = Viz::new(&life, 0xabdc07);
+        let ufo = Ufo::new(&life.view(), 0.5, &mut Rng::new(0x5150)).unwrap();
+        let target = ufo.target;
+        viz.add_critter(Box::new(ufo));
+
+        // The promised first generation arrives and the target remains an ordinary
+        // live tile while the saucer finishes its approach.
+        life.advance(0);
+        viz.on_generation(&life.view(), 1.0);
+        assert!(viz.drawn(target.0, target.1));
+        viz.update(&CritterCtx {
+            life: life.view(),
+            dt: 0.0,
+            now: 1.0,
+            phase: 0.0,
+            gen_secs: 3.0,
+            spinning: None,
+        });
+        assert!(viz.props().group(MODEL_CAPTURED_TILE).is_empty());
+
+        // On the second boundary Conway says dead. The field copy disappears without
+        // a fade and the UFO emits its cargo plus the layered beam in the same frame.
+        life.advance(0);
+        viz.on_generation(&life.view(), 2.0);
+        assert!(!viz.drawn(target.0, target.1));
+        viz.update(&CritterCtx {
+            life: life.view(),
+            dt: 0.0,
+            now: 2.0,
+            phase: 0.0,
+            gen_secs: 3.0,
+            spinning: None,
+        });
+        let first_tile = viz.props().group(MODEL_CAPTURED_TILE)[0];
+        assert_eq!(viz.props().group(MODEL_UFO_BEAM).len(), 3);
+
+        viz.update(&CritterCtx {
+            life: life.view(),
+            dt: 0.5,
+            now: 2.5,
+            phase: 0.0,
+            gen_secs: 3.0,
+            spinning: None,
+        });
+        let pulled_tile = viz.props().group(MODEL_CAPTURED_TILE)[0];
+        assert!(
+            pulled_tile.pos[2] > first_tile.pos[2] + 10.0,
+            "captured tile did not move outward in Z"
+        );
+        assert!(
+            (pulled_tile.pos[0] - first_tile.pos[0]).hypot(pulled_tile.pos[1] - first_tile.pos[1])
+                > 20.0,
+            "captured tile stayed hidden directly under the saucer"
+        );
+        assert_ne!(
+            pulled_tile.rot, first_tile.rot,
+            "captured tile did not spin"
+        );
+        let beam = viz.props().group(MODEL_UFO_BEAM);
+        assert_eq!(
+            beam.len(),
+            3,
+            "tractor beam did not persist through the pull"
+        );
+        assert!(beam
+            .iter()
+            .all(|layer| layer.alpha > 0.0 && layer.alpha < 0.25));
+
+        viz.update(&CritterCtx {
+            life: life.view(),
+            dt: 0.6,
+            now: 3.1,
+            phase: 0.0,
+            gen_secs: 3.0,
+            spinning: None,
+        });
+        assert_eq!(
+            viz.props().group(MODEL_UFO_BEAM).len(),
+            3,
+            "tractor beam switched off when the saucer began its escape"
+        );
+
+        viz.update(&CritterCtx {
+            life: life.view(),
+            dt: 2.8,
+            now: 5.9,
+            phase: 0.0,
+            gen_secs: 3.0,
+            spinning: None,
+        });
+        let late_beam = viz.props().group(MODEL_UFO_BEAM);
+        assert_eq!(
+            late_beam.len(),
+            3,
+            "tractor beam did not keep towing the tile through the getaway"
+        );
+        assert!(late_beam.iter().all(|layer| layer.alpha > 0.0));
+
+        viz.update(&CritterCtx {
+            life: life.view(),
+            dt: 0.31,
+            now: 6.21,
+            phase: 0.0,
+            gen_secs: 3.0,
+            spinning: None,
+        });
+        assert!(
+            viz.props().group(MODEL_UFO_BEAM).is_empty(),
+            "tractor beam remained after the saucer and cargo left"
+        );
+    }
+
+    #[test]
+    fn ufo_models_are_nonempty_and_the_beam_is_translucent_unlit_geometry() {
+        for (label, (vertices, indices)) in [
+            ("ufo", build_ufo()),
+            ("captured tile", build_captured_tile()),
+            ("beam", build_ufo_beam()),
+        ] {
+            assert!(!vertices.is_empty(), "{label} has no vertices");
+            assert!(!indices.is_empty(), "{label} has no indices");
+            assert!(indices.iter().all(|&i| (i as usize) < vertices.len()));
+        }
+        assert!(!MODEL_UNLIT[MODEL_UFO]);
+        assert!(!MODEL_UNLIT[MODEL_CAPTURED_TILE]);
+        assert!(MODEL_UNLIT[MODEL_UFO_BEAM]);
+
+        let (ufo, _) = build_ufo();
+        let amber = srgb_hex_to_linear(0xffc84f);
+        let porthole_vertices = ufo.iter().filter(|vertex| vertex.col == amber).count();
+        assert_eq!(
+            porthole_vertices,
+            8 * 6 * 10,
+            "UFO does not contain eight distinct porthole lenses"
+        );
+
+        let (beam, beam_indices) = build_ufo_beam();
+        assert_eq!(beam.len(), 65, "beam lost its filled footprint");
+        assert_eq!(beam_indices.len(), 32 * 9);
+        let (rot, len) = Ufo::beam_pose([0.0, 0.0, 0.0], [30.0, 40.0, 120.0]);
+        assert!(rot[0] > 0.0 && rot[2].is_finite());
+        assert!((len - 130.0).abs() < 1e-5);
+    }
+
     #[test]
     fn bee_flies_from_lower_right_toward_the_left_and_retires() {
         let life = planted(32, 22, &[]);
@@ -7627,6 +10899,9 @@ mod tests {
             .group(MODEL_TIKI_MASK)
             .iter()
             .chain(sink.group(MODEL_ASTRONAUT_HELMET))
+            .chain(sink.group(MODEL_NOH_MASK))
+            .chain(sink.group(MODEL_MONKEY_MASK))
+            .chain(sink.group(MODEL_COMEDY_TRAGEDY_MASK))
             .copied()
             .collect();
         assert_eq!(
@@ -7853,32 +11128,54 @@ mod tests {
     #[test]
     fn walkers_choose_headgear_evenly_and_draw_only_their_choice() {
         let mut rng = Rng::new(0xface_cafe);
-        let mut counts = [0usize; 2];
-        for _ in 0..20_000 {
+        let mut counts = [0usize; 5];
+        for _ in 0..50_000 {
             counts[match random_headgear(&mut rng) {
                 Headgear::Tiki => 0,
                 Headgear::Astronaut => 1,
+                Headgear::Noh => 2,
+                Headgear::Monkey => 3,
+                Headgear::ComedyTragedy => 4,
             }] += 1;
         }
-        let tiki_share = counts[0] as f32 / counts.iter().sum::<usize>() as f32;
-        assert!(
-            (tiki_share - 0.5).abs() < 0.015,
-            "headgear split was {:.1}% tiki",
-            tiki_share * 100.0
-        );
+        let total = counts.iter().sum::<usize>() as f32;
+        for (label, count) in ["tiki", "astronaut", "Noh", "monkey", "comedy/tragedy"]
+            .into_iter()
+            .zip(counts)
+        {
+            let share = count as f32 / total;
+            assert!(
+                (share - 0.2).abs() < 0.015,
+                "headgear split was {:.1}% {label}",
+                share * 100.0
+            );
+        }
 
         let life = planted(24, 18, &[]);
         let mut walker = drop_walker(&life, 5, 4.0);
         walker.pose = Pose::standing();
-        for (headgear, model, absent) in [
-            (Headgear::Tiki, MODEL_TIKI_MASK, MODEL_ASTRONAUT_HELMET),
-            (Headgear::Astronaut, MODEL_ASTRONAUT_HELMET, MODEL_TIKI_MASK),
+        for (headgear, model) in [
+            (Headgear::Tiki, MODEL_TIKI_MASK),
+            (Headgear::Astronaut, MODEL_ASTRONAUT_HELMET),
+            (Headgear::Noh, MODEL_NOH_MASK),
+            (Headgear::Monkey, MODEL_MONKEY_MASK),
+            (Headgear::ComedyTragedy, MODEL_COMEDY_TRAGEDY_MASK),
         ] {
             walker.headgear = headgear;
             let mut sink = PropSink::default();
             walker.draw_figure(&mut sink);
             assert_eq!(sink.group(model).len(), 1);
-            assert!(sink.group(absent).is_empty());
+            for other in [
+                MODEL_TIKI_MASK,
+                MODEL_ASTRONAUT_HELMET,
+                MODEL_NOH_MASK,
+                MODEL_MONKEY_MASK,
+                MODEL_COMEDY_TRAGEDY_MASK,
+            ] {
+                if other != model {
+                    assert!(sink.group(other).is_empty());
+                }
+            }
         }
     }
 
@@ -8690,27 +11987,29 @@ mod tests {
         assert!(saw_strain, "never bent over into the push");
     }
 
-    /// The public cadence request is literal, and the selector itself is uniform.
+    /// The public cadence stays literal and the UFO joins the foreground visitor
+    /// rotation without biasing the original three.
     #[test]
-    fn critters_arrive_every_sixteen_seconds_with_a_uniform_three_way_choice() {
+    fn critters_arrive_every_sixteen_seconds_with_a_uniform_four_way_choice() {
         assert_eq!(FIRST_CRITTER, 16.0);
         assert_eq!(CRITTER_EVERY, 16.0);
 
         let mut rng = Rng::new(0x5eed_cafe);
-        let mut counts = [0usize; 3];
-        let draws = 30_000usize;
+        let mut counts = [0usize; 4];
+        let draws = 40_000usize;
         for _ in 0..draws {
             let slot = match random_critter_kind(&mut rng) {
                 CritterKind::Rocket => 0,
                 CritterKind::Walker => 1,
                 CritterKind::Bee => 2,
+                CritterKind::Ufo => 3,
             };
             counts[slot] += 1;
         }
-        for (kind, count) in ["rocket", "walker", "bee"].into_iter().zip(counts) {
+        for (kind, count) in ["rocket", "walker", "bee", "UFO"].into_iter().zip(counts) {
             let share = count as f32 / draws as f32;
             assert!(
-                (share - 1.0 / 3.0).abs() < 0.015,
+                (share - 0.25).abs() < 0.015,
                 "{kind} selector produced {:.1}%",
                 share * 100.0
             );
