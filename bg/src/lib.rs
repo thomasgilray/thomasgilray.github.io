@@ -481,7 +481,15 @@ pub const MODEL_UFO: usize = 35;
 pub const MODEL_CAPTURED_TILE: usize = 36;
 /// The translucent tractor-beam cone. Kept last so it blends over the solids.
 pub const MODEL_UFO_BEAM: usize = 37;
-pub const MODEL_COUNT: usize = 38;
+/// The tile mimic is a tiny clockwork crab whose carapace is an ordinary tile.
+/// Its articulated pieces remain separate so the six legs, eyes, claws, and key can
+/// each carry their own small secondary motion.
+pub const MODEL_MIMIC_BODY: usize = 38;
+pub const MODEL_MIMIC_SEGMENT: usize = 39;
+pub const MODEL_MIMIC_EYE: usize = 40;
+pub const MODEL_MIMIC_CLAW: usize = 41;
+pub const MODEL_MIMIC_KEY: usize = 42;
+pub const MODEL_COUNT: usize = 43;
 
 /// Which models are drawn flat and unlit — blended over the scene without writing
 /// depth. Embers are their own light source; line art wants to stay the colour it is
@@ -494,6 +502,11 @@ const fn model_unlit() -> [bool; MODEL_COUNT] {
     result[MODEL_MARSHMALLOW_PUFF] = false;
     result[MODEL_MARSHMALLOW_BODY] = false;
     result[MODEL_MARSHMALLOW_HEAD] = false;
+    result[MODEL_MIMIC_BODY] = false;
+    result[MODEL_MIMIC_SEGMENT] = false;
+    result[MODEL_MIMIC_EYE] = false;
+    result[MODEL_MIMIC_CLAW] = false;
+    result[MODEL_MIMIC_KEY] = false;
     result
 }
 const MODEL_UNLIT: [bool; MODEL_COUNT] = model_unlit();
@@ -578,6 +591,11 @@ fn prop_model_meshes() -> [(Vec<PropVertex>, Vec<u16>); MODEL_COUNT] {
         build_ufo(),
         build_captured_tile(),
         build_ufo_beam(),
+        build_mimic_body(),
+        build_mimic_segment(),
+        build_mimic_eye(),
+        build_mimic_claw(),
+        build_mimic_key(),
     ]
 }
 
@@ -1180,10 +1198,12 @@ pub fn build_marshmallow_head() -> (Vec<PropVertex>, Vec<u16>) {
     );
 
     // The cap is a stack of squashed superellipsoids, tilted like the references.
+    // Anchor the brim over the head and let the upper pieces follow that tilt;
+    // shifting the entire stack made the hat look detached during camera turns.
     append_superellipsoid(
         &mut verts,
         &mut indices,
-        [-0.025, 0.142, -0.005],
+        [0.0, 0.142, -0.005],
         [0.205, 0.023, 0.155],
         0.70,
         -0.13,
@@ -1192,7 +1212,7 @@ pub fn build_marshmallow_head() -> (Vec<PropVertex>, Vec<u16>) {
     append_superellipsoid(
         &mut verts,
         &mut indices,
-        [-0.043, 0.176, -0.006],
+        [-0.0045, 0.176, -0.006],
         [0.147, 0.041, 0.126],
         0.64,
         -0.13,
@@ -1201,7 +1221,7 @@ pub fn build_marshmallow_head() -> (Vec<PropVertex>, Vec<u16>) {
     append_superellipsoid(
         &mut verts,
         &mut indices,
-        [-0.050, 0.217, -0.008],
+        [-0.010, 0.217, -0.008],
         [0.137, 0.050, 0.116],
         0.64,
         -0.13,
@@ -1376,6 +1396,193 @@ pub fn build_ufo_beam() -> (Vec<PropVertex>, Vec<u16>) {
     });
     for k in 0..SEGS {
         indices.extend_from_slice(&[center, ((k + 1) % SEGS) as u16, k as u16]);
+    }
+    (verts, indices)
+}
+
+/// Petrol-blue underbody of the tile mimic. The broad copper side cheeks remain
+/// visible beneath its oversized tile shell and make the little mechanism legible
+/// against both grey and coloured cells.
+pub fn build_mimic_body() -> (Vec<PropVertex>, Vec<u16>) {
+    let shell_shadow = srgb_hex_to_linear(0x132f35);
+    let body = srgb_hex_to_linear(0x1f5961);
+    let copper = srgb_hex_to_linear(0xb76f3f);
+    let rivet = srgb_hex_to_linear(0xf2c36e);
+    let mut verts = Vec::new();
+    let mut indices = Vec::new();
+    append_superellipsoid(
+        &mut verts,
+        &mut indices,
+        [0.0, 0.0, 0.0],
+        [24.0, 18.0, 7.4],
+        0.70,
+        0.0,
+        shell_shadow,
+    );
+    append_superellipsoid(
+        &mut verts,
+        &mut indices,
+        [5.0, 0.0, 5.2],
+        [18.0, 14.5, 4.8],
+        0.74,
+        0.0,
+        body,
+    );
+    for side in [-1.0f32, 1.0] {
+        append_superellipsoid(
+            &mut verts,
+            &mut indices,
+            [-1.5, side * 17.2, 1.0],
+            [13.0, 3.1, 4.0],
+            0.72,
+            -0.04 * side,
+            copper,
+        );
+        for x in [-8.0f32, 7.0] {
+            append_superellipsoid(
+                &mut verts,
+                &mut indices,
+                [x, side * 19.9, 1.8],
+                [1.8, 1.4, 1.8],
+                0.88,
+                0.0,
+                rivet,
+            );
+        }
+    }
+    (verts, indices)
+}
+
+/// A rounded unit segment running from the origin to +X. Non-uniform instance
+/// scaling turns it into every leg bone, eye stalk, and claw wrist.
+pub fn build_mimic_segment() -> (Vec<PropVertex>, Vec<u16>) {
+    let mut verts = Vec::new();
+    let mut indices = Vec::new();
+    append_superellipsoid(
+        &mut verts,
+        &mut indices,
+        [0.5, 0.0, 0.0],
+        [0.5, 0.5, 0.5],
+        0.82,
+        0.0,
+        [1.0; 3],
+    );
+    (verts, indices)
+}
+
+/// One swivelling ivory eye, authored looking down local +X. A raised petrol pupil
+/// and pinprick highlight keep its gaze readable even at the creature's small scale.
+pub fn build_mimic_eye() -> (Vec<PropVertex>, Vec<u16>) {
+    let ivory = srgb_hex_to_linear(0xf4ead2);
+    let pupil = srgb_hex_to_linear(0x102b31);
+    let glint = srgb_hex_to_linear(0xffffff);
+    let mut verts = Vec::new();
+    let mut indices = Vec::new();
+    append_superellipsoid(
+        &mut verts,
+        &mut indices,
+        [0.0; 3],
+        [1.0, 1.0, 1.0],
+        0.88,
+        0.0,
+        ivory,
+    );
+    append_superellipsoid(
+        &mut verts,
+        &mut indices,
+        [0.86, 0.0, 0.08],
+        [0.30, 0.42, 0.42],
+        0.86,
+        0.0,
+        pupil,
+    );
+    append_superellipsoid(
+        &mut verts,
+        &mut indices,
+        [1.10, 0.11, 0.23],
+        [0.075, 0.085, 0.085],
+        0.90,
+        0.0,
+        glint,
+    );
+    (verts, indices)
+}
+
+/// A deliberately oversized two-finger pincer. Its permanent little gap survives
+/// the top-down view, while whole-claw rotation supplies tapping and clacking.
+pub fn build_mimic_claw() -> (Vec<PropVertex>, Vec<u16>) {
+    let palm = srgb_hex_to_linear(0xb76f3f);
+    let tip = srgb_hex_to_linear(0xe0a45c);
+    let dark = srgb_hex_to_linear(0x5f352b);
+    let mut verts = Vec::new();
+    let mut indices = Vec::new();
+    append_superellipsoid(
+        &mut verts,
+        &mut indices,
+        [0.35, 0.0, 0.0],
+        [0.42, 0.34, 0.28],
+        0.72,
+        0.0,
+        palm,
+    );
+    for side in [-1.0f32, 1.0] {
+        append_superellipsoid(
+            &mut verts,
+            &mut indices,
+            [0.92, side * 0.25, 0.02],
+            [0.64, 0.15, 0.16],
+            0.76,
+            side * 0.25,
+            tip,
+        );
+        append_superellipsoid(
+            &mut verts,
+            &mut indices,
+            [1.40, side * 0.40, 0.01],
+            [0.20, 0.12, 0.13],
+            0.78,
+            side * 0.38,
+            dark,
+        );
+    }
+    (verts, indices)
+}
+
+/// Wind-up key rooted at z=0. It sits on the carried tile and counter-rotates against
+/// the gait, an intentionally unnecessary mechanism that gives the mimic personality.
+pub fn build_mimic_key() -> (Vec<PropVertex>, Vec<u16>) {
+    let brass = srgb_hex_to_linear(0xe0a84e);
+    let shade = srgb_hex_to_linear(0x76512b);
+    let mut verts = Vec::new();
+    let mut indices = Vec::new();
+    append_superellipsoid(
+        &mut verts,
+        &mut indices,
+        [0.0, 0.0, 4.2],
+        [2.0, 2.0, 5.0],
+        0.80,
+        0.0,
+        shade,
+    );
+    append_superellipsoid(
+        &mut verts,
+        &mut indices,
+        [0.0, 0.0, 9.0],
+        [11.0, 2.1, 2.1],
+        0.76,
+        0.0,
+        brass,
+    );
+    for x in [-10.5f32, 10.5] {
+        append_superellipsoid(
+            &mut verts,
+            &mut indices,
+            [x, 0.0, 9.0],
+            [3.6, 5.5, 2.3],
+            0.72,
+            0.0,
+            brass,
+        );
     }
     (verts, indices)
 }
@@ -2132,10 +2339,11 @@ pub trait Critter {
 
 // ---------------------------------------------------------------------------
 
-/// A critter is drawn every sixteen seconds, starting sixteen seconds in. The available
-/// kinds are chosen uniformly; if a walker has no safe entrance on this board, the rocket
-/// is the graceful fallback for that turn. The distant Tux layer is independent of this
-/// schedule.
+/// A critter is drawn every sixteen seconds, starting sixteen seconds in. The first
+/// scheduled visitor is the tile mimic so its longer performance is discoverable without
+/// a lucky reload; subsequent draws give it two slots and each established kind one. If a
+/// planned visitor has no safe route on this board, the rocket is the graceful fallback.
+/// The distant background walkers are independent of this schedule.
 const FIRST_CRITTER: f64 = 16.0;
 const CRITTER_EVERY: f64 = 16.0;
 
@@ -2145,14 +2353,24 @@ enum CritterKind {
     Walker,
     Bee,
     Ufo,
+    Mimic,
 }
 
 fn random_critter_kind(rng: &mut Rng) -> CritterKind {
-    match rng.below(4) {
+    match rng.below(6) {
         0 => CritterKind::Rocket,
         1 => CritterKind::Walker,
         2 => CritterKind::Bee,
-        _ => CritterKind::Ufo,
+        3 => CritterKind::Ufo,
+        _ => CritterKind::Mimic,
+    }
+}
+
+fn scheduled_critter_kind(rng: &mut Rng, critters_sent: u32) -> CritterKind {
+    if critters_sent == 0 {
+        CritterKind::Mimic
+    } else {
+        random_critter_kind(rng)
     }
 }
 
@@ -2344,20 +2562,29 @@ impl Ufo {
 
     fn captured_tile_position(&self, ctx: &CritterCtx, age: f32) -> [f32; 3] {
         let tow = self.tow_offset();
-        if age <= UFO_PULL_SECS {
-            let p = Self::smooth(age / UFO_PULL_SECS);
-            return [
-                self.target_world[0] + tow[0] * p,
-                self.target_world[1] + tow[1] * p,
-                RISE + THICK * 0.5 + (UFO_TILE_TOW_Z - RISE - THICK * 0.5) * p,
-            ];
-        }
+        // This is the single cargo anchor used on both sides of the pull/escape
+        // boundary. Keeping it relative to the live saucer position includes the
+        // hover bob during the pull and the flight path during escape without
+        // changing coordinate systems between the two phases.
         let ufo = self.position(ctx);
-        [
+        let tow_position = [
             ufo[0] + tow[0],
             ufo[1] + tow[1],
             ufo[2] - (UFO_HOVER_Z - UFO_TILE_TOW_Z),
-        ]
+        ];
+        if age <= UFO_PULL_SECS {
+            let p = Self::smooth(age / UFO_PULL_SECS);
+            return Self::lerp3(
+                [
+                    self.target_world[0],
+                    self.target_world[1],
+                    RISE + THICK * 0.5,
+                ],
+                tow_position,
+                p,
+            );
+        }
+        tow_position
     }
 }
 
@@ -2443,6 +2670,629 @@ impl Critter for Ufo {
             self.target.0,
             self.target.1,
             self.capture_age.is_some()
+        ))
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Tile mimic — a clockwork crab hiding beneath an ordinary Conway tile
+// ---------------------------------------------------------------------------
+
+const MIMIC_HATCH_SECS: f32 = 1.38;
+const MIMIC_STEP_SECS: f32 = 0.86;
+const MIMIC_INSPECT_SECS: f32 = 2.35;
+const MIMIC_ALIGN_SECS: f32 = 0.46;
+const MIMIC_HIDE_SECS: f32 = 0.82;
+const MIMIC_EYE_LINGER_SECS: f32 = 0.90;
+const MIMIC_SAFE_TRANSITIONS: usize = 4;
+const MIMIC_BODY_Z: f32 = RISE + THICK + 13.0;
+const MIMIC_SHELL_SCALE: f32 = 0.76;
+
+struct MimicPose {
+    root: [f32; 3],
+    yaw: f32,
+    body_alpha: f32,
+    eye_alpha: f32,
+    eye_blink: f32,
+    shell_lift: f32,
+    shell_alpha: f32,
+    shell_mix: f32,
+    sample_flash: f32,
+    shell_tilt: [f32; 2],
+    walk_phase: f32,
+    stride: f32,
+    probe: f32,
+    inspect: f32,
+}
+
+struct Mimic {
+    route: Vec<(usize, usize)>,
+    world: Vec<[f32; 2]>,
+    age: f32,
+    start_tint: [f32; 3],
+    end_tint: [f32; 3],
+    personality: f32,
+}
+
+impl Mimic {
+    fn stable_for(view: &LifeView, x: isize, y: isize, generations: usize) -> bool {
+        (0..=generations).all(|ahead| view.alive(x, y, ahead))
+    }
+
+    fn safe_foothold(view: &LifeView, x: isize, y: isize) -> bool {
+        Self::stable_for(view, x, y, MIMIC_SAFE_TRANSITIONS)
+    }
+
+    fn tint(cell: (usize, usize)) -> [f32; 3] {
+        match cell_category(cell.0 as isize, cell.1 as isize) {
+            1 => srgb_hex_to_linear(C_GREEN),
+            2 => srgb_hex_to_linear(C_TEAL),
+            3 => srgb_hex_to_linear(C_BLUE),
+            _ => srgb_hex_to_linear(C_LIVE),
+        }
+    }
+
+    fn plan(view: &LifeView, rng: &mut Rng) -> Option<Vec<(usize, usize)>> {
+        // The legs and claws extend almost one cell beyond the shell. Two more cells
+        // than the simulation margin keeps the entire performance inside the viewport
+        // instead of choosing a technically visible tile that clips half the animal.
+        let creature_margin = MARGIN + 2;
+        let x0 = creature_margin.min(view.cols());
+        let y0 = creature_margin.min(view.rows());
+        let x1 = view.cols().saturating_sub(creature_margin);
+        let y1 = view.rows().saturating_sub(creature_margin);
+        let half_w = view.cols() as f32 * CELL_PX * 0.5;
+        let flank = if half_w > 560.0 { 300.0 } else { 0.0 };
+        let mut starts = Vec::new();
+        for y in y0..y1 {
+            for x in x0..x1 {
+                let world = view.cell_center(x as f32, y as f32);
+                if world[0].abs() >= flank && Self::safe_foothold(view, x as isize, y as isize) {
+                    starts.push((x, y));
+                }
+            }
+        }
+        if starts.is_empty() {
+            return None;
+        }
+
+        // Ordinary neighbours dominate, diagonals make turns less grid-bound, and
+        // the occasional two-cell reach gives the long legs a theatrical gap to vault.
+        const OFFSETS: [(isize, isize); 12] = [
+            (-1, 0),
+            (1, 0),
+            (0, -1),
+            (0, 1),
+            (-1, -1),
+            (1, -1),
+            (-1, 1),
+            (1, 1),
+            (-2, 0),
+            (2, 0),
+            (0, -2),
+            (0, 2),
+        ];
+        let mut best = Vec::new();
+        let mut best_score = i32::MIN;
+        for _ in 0..420 {
+            let wanted = 4 + rng.below(3);
+            let start = starts[rng.below(starts.len())];
+            let mut route = vec![start];
+            while route.len() < wanted {
+                let (x, y) = *route.last().unwrap();
+                let rotation = rng.below(OFFSETS.len());
+                let mut choices = Vec::new();
+                for step in 0..OFFSETS.len() {
+                    let (dx, dy) = OFFSETS[(rotation + step) % OFFSETS.len()];
+                    let (nx, ny) = (x as isize + dx, y as isize + dy);
+                    if nx < x0 as isize
+                        || ny < y0 as isize
+                        || nx >= x1 as isize
+                        || ny >= y1 as isize
+                        || route
+                            .iter()
+                            .filter(|&&cell| cell == (nx as usize, ny as usize))
+                            .count()
+                            >= 2
+                        || !Self::safe_foothold(view, nx, ny)
+                    {
+                        continue;
+                    }
+                    choices.push((nx as usize, ny as usize));
+                }
+                if choices.is_empty() {
+                    break;
+                }
+                // On the last hop, strongly prefer a coloured tile: that gives the
+                // camouflage-sampling finale an observable payoff.
+                if route.len() + 1 == wanted {
+                    let coloured: Vec<_> = choices
+                        .iter()
+                        .copied()
+                        .filter(|&(x, y)| is_colored(x, y))
+                        .collect();
+                    if !coloured.is_empty() {
+                        choices = coloured;
+                    }
+                }
+                route.push(choices[rng.below(choices.len())]);
+            }
+            if route.len() < 3 {
+                continue;
+            }
+            let home = *route.last().unwrap();
+            if !Self::safe_foothold(view, home.0 as isize, home.1 as isize) {
+                continue;
+            }
+            let mut score = route.len() as i32 * 20;
+            let unique = route
+                .iter()
+                .enumerate()
+                .filter(|(index, cell)| !route[..*index].contains(cell))
+                .count();
+            score += unique as i32 * 9;
+            if !is_colored(route[0].0, route[0].1) {
+                score += 12;
+            }
+            if is_colored(route.last().unwrap().0, route.last().unwrap().1) {
+                score += 52;
+            }
+            for segment in route.windows(2) {
+                let dx = segment[1].0.abs_diff(segment[0].0);
+                let dy = segment[1].1.abs_diff(segment[0].1);
+                if dx + dy > 1 {
+                    score += 4;
+                }
+            }
+            for bend in route.windows(3) {
+                let a = (
+                    bend[1].0 as isize - bend[0].0 as isize,
+                    bend[1].1 as isize - bend[0].1 as isize,
+                );
+                let b = (
+                    bend[2].0 as isize - bend[1].0 as isize,
+                    bend[2].1 as isize - bend[1].1 as isize,
+                );
+                if a != b {
+                    score += 5;
+                }
+            }
+            if score > best_score {
+                best_score = score;
+                best = route;
+            }
+        }
+        if best.len() >= 3 {
+            Some(best)
+        } else {
+            // A sparse board may have isolated long-lived tiles but no honest nearby
+            // route between them. Let the cautious mimic inspect and re-hide on one
+            // safe foothold instead of inventing a huge leap or falling back to a
+            // different critter.
+            let coloured: Vec<_> = starts
+                .iter()
+                .copied()
+                .filter(|&(x, y)| is_colored(x, y))
+                .collect();
+            let pool = if coloured.is_empty() {
+                &starts
+            } else {
+                &coloured
+            };
+            Some(vec![pool[rng.below(pool.len())]])
+        }
+    }
+
+    fn new(view: &LifeView, rng: &mut Rng) -> Option<Mimic> {
+        let route = Self::plan(view, rng)?;
+        let world = route
+            .iter()
+            .map(|&(x, y)| view.cell_center(x as f32, y as f32))
+            .collect();
+        Some(Mimic {
+            start_tint: Self::tint(route[0]),
+            end_tint: Self::tint(*route.last().unwrap()),
+            route,
+            world,
+            age: 0.0,
+            personality: rng.f32() * std::f32::consts::TAU,
+        })
+    }
+
+    fn travel_secs(&self) -> f32 {
+        self.route.len().saturating_sub(1) as f32 * MIMIC_STEP_SECS
+    }
+
+    fn total_secs(&self) -> f32 {
+        MIMIC_HATCH_SECS
+            + self.travel_secs()
+            + MIMIC_INSPECT_SECS
+            + MIMIC_ALIGN_SECS
+            + MIMIC_HIDE_SECS
+            + MIMIC_EYE_LINGER_SECS
+    }
+
+    fn angle(a: [f32; 2], b: [f32; 2]) -> f32 {
+        (b[1] - a[1]).atan2(b[0] - a[0])
+    }
+
+    fn angle_lerp(a: f32, b: f32, p: f32) -> f32 {
+        let delta =
+            (b - a + std::f32::consts::PI).rem_euclid(std::f32::consts::TAU) - std::f32::consts::PI;
+        a + delta * Self::smooth(p)
+    }
+
+    fn smooth(p: f32) -> f32 {
+        let p = p.clamp(0.0, 1.0);
+        p * p * (3.0 - 2.0 * p)
+    }
+
+    fn smoother(p: f32) -> f32 {
+        let p = p.clamp(0.0, 1.0);
+        p * p * p * (p * (p * 6.0 - 15.0) + 10.0)
+    }
+
+    fn orthogonal_yaw(yaw: f32) -> f32 {
+        let quarter_turn = std::f32::consts::FRAC_PI_2;
+        (yaw / quarter_turn).round() * quarter_turn
+    }
+
+    fn pose(&self) -> MimicPose {
+        let first_yaw = self
+            .world
+            .get(1)
+            .map(|&next| Self::angle(self.world[0], next))
+            .unwrap_or(0.0);
+        let last = self.world.len() - 1;
+        let last_yaw = if last > 0 {
+            Self::angle(self.world[last - 1], self.world[last])
+        } else {
+            first_yaw
+        };
+        let mut pose = MimicPose {
+            root: [self.world[0][0], self.world[0][1], MIMIC_BODY_Z],
+            yaw: first_yaw,
+            body_alpha: 1.0,
+            eye_alpha: 1.0,
+            eye_blink: 0.0,
+            shell_lift: 1.0,
+            shell_alpha: 1.0,
+            shell_mix: 0.0,
+            sample_flash: 0.0,
+            shell_tilt: [0.0; 2],
+            walk_phase: 0.0,
+            stride: 0.0,
+            probe: 0.0,
+            inspect: 0.0,
+        };
+
+        if self.age < MIMIC_HATCH_SECS {
+            let lift = Self::smooth((self.age - 0.12) / 0.92);
+            let reveal = Self::smooth((self.age - 0.26) / 0.62);
+            let tremble = (self.age * 38.0 + self.personality).sin() * (1.0 - lift);
+            pose.root[2] = RISE + THICK - 5.0 + (MIMIC_BODY_Z - (RISE + THICK - 5.0)) * reveal;
+            pose.body_alpha = reveal;
+            pose.eye_alpha = reveal;
+            pose.shell_lift = lift;
+            pose.shell_alpha = Self::smooth(self.age / 0.14);
+            pose.shell_tilt = [0.022 * tremble, -0.018 * tremble];
+            pose.probe = Self::smooth((self.age - 0.70) / 0.52) * 0.28;
+            return pose;
+        }
+
+        let travel_age = self.age - MIMIC_HATCH_SECS;
+        if travel_age < self.travel_secs() {
+            let segment = (travel_age / MIMIC_STEP_SECS).floor() as usize;
+            let local = (travel_age / MIMIC_STEP_SECS).fract();
+            let motion = Self::smooth((local - 0.07) / 0.86);
+            let a = self.world[segment];
+            let b = self.world[segment + 1];
+            pose.root[0] = a[0] + (b[0] - a[0]) * motion;
+            pose.root[1] = a[1] + (b[1] - a[1]) * motion;
+            let distance_cells = (b[0] - a[0]).hypot(b[1] - a[1]) / CELL_PX;
+            let vault = 2.4 + (distance_cells - 1.05).max(0.0) * 10.0;
+            pose.root[2] += (std::f32::consts::PI * motion).sin() * vault;
+            let current_yaw = Self::angle(a, b);
+            let previous_yaw = if segment == 0 {
+                current_yaw
+            } else {
+                Self::angle(self.world[segment - 1], a)
+            };
+            pose.yaw = Self::angle_lerp(previous_yaw, current_yaw, local / 0.27);
+            pose.walk_phase = (segment as f32 + motion) * std::f32::consts::TAU + self.personality;
+            pose.stride = (std::f32::consts::PI * local).sin().max(0.0);
+            pose.probe = if local < 0.28 {
+                (std::f32::consts::PI * local / 0.28).sin()
+            } else {
+                0.0
+            };
+            pose.shell_tilt = [
+                0.048 * pose.walk_phase.sin() * pose.stride,
+                0.060 * (pose.walk_phase + 0.8).sin() * pose.stride,
+            ];
+            return pose;
+        }
+
+        pose.root[0] = self.world[last][0];
+        pose.root[1] = self.world[last][1];
+        pose.yaw = last_yaw;
+        let inspect_age = travel_age - self.travel_secs();
+        if inspect_age < MIMIC_INSPECT_SECS {
+            let q = (inspect_age / MIMIC_INSPECT_SECS).clamp(0.0, 1.0);
+            let settle = Self::smooth(q / 0.18);
+            let taps = (q * std::f32::consts::TAU * 3.0).sin().max(0.0);
+            pose.inspect = settle;
+            pose.probe =
+                taps * Self::smooth((q - 0.05) / 0.15) * (1.0 - Self::smooth((q - 0.82) / 0.14));
+            pose.shell_mix = Self::smooth((q - 0.22) / 0.55);
+            pose.sample_flash = Self::smooth((q - 0.13) / 0.16)
+                * (1.0 - Self::smooth((q - 0.76) / 0.15))
+                * (0.74 + 0.26 * (q * std::f32::consts::TAU * 4.0).sin());
+            pose.root[2] += (q * std::f32::consts::TAU * 3.0).sin() * 1.2 * (1.0 - q);
+            pose.shell_tilt = [
+                -0.10 * settle + 0.035 * taps,
+                0.025 * (q * std::f32::consts::TAU * 2.0 + self.personality).sin(),
+            ];
+            return pose;
+        }
+
+        // Square up before folding. The shell may turn while the creature is still
+        // plainly itself, but once camouflage begins its yaw is locked to the tile
+        // grid so the new tile never corkscrews into place.
+        let grid_yaw = Self::orthogonal_yaw(last_yaw);
+        let finale_age = inspect_age - MIMIC_INSPECT_SECS;
+        if finale_age < MIMIC_ALIGN_SECS {
+            let align = Self::smoother(finale_age / MIMIC_ALIGN_SECS);
+            pose.yaw = Self::angle_lerp(last_yaw, grid_yaw, align);
+            pose.inspect = 1.0;
+            pose.shell_mix = 1.0;
+            pose.shell_tilt = [-0.10 * (1.0 - align), 0.0];
+            return pose;
+        }
+
+        pose.yaw = grid_yaw;
+        pose.inspect = 1.0;
+        pose.shell_mix = 1.0;
+        let hide_age = finale_age - MIMIC_ALIGN_SECS;
+        let hide = (hide_age / MIMIC_HIDE_SECS).clamp(0.0, 1.0);
+        let folded = Self::smoother(hide);
+        pose.body_alpha = 1.0 - folded;
+        pose.shell_lift = 1.0 - folded;
+        pose.root[2] -= folded * 13.0;
+        pose.probe = 0.0;
+        pose.shell_tilt = [-0.10 * (1.0 - folded), 0.0];
+        pose.shell_alpha = 1.0 - Self::smoother((hide - 0.82) / 0.18);
+        if hide_age >= MIMIC_HIDE_SECS {
+            let linger = ((hide_age - MIMIC_HIDE_SECS) / MIMIC_EYE_LINGER_SECS).clamp(0.0, 1.0);
+            // Hold the stare, blink once at dead centre, then retain a short beat
+            // before fading. Keeping opacity solid through the blink makes the squash
+            // unmistakable instead of reading as part of the disappearance.
+            let blink_distance = ((linger - 0.50) / 0.12).abs();
+            pose.eye_blink = Self::smoother(1.0 - blink_distance);
+            pose.eye_alpha = 1.0 - Self::smoother((linger - 0.78) / 0.22);
+        }
+        pose
+    }
+
+    fn local(root: [f32; 3], yaw: f32, p: [f32; 3]) -> [f32; 3] {
+        let (s, c) = yaw.sin_cos();
+        [
+            root[0] + p[0] * c - p[1] * s,
+            root[1] + p[0] * s + p[1] * c,
+            root[2] + p[2],
+        ]
+    }
+
+    fn segment(a: [f32; 3], b: [f32; 3], width: f32, tint: [f32; 3], alpha: f32) -> Prop {
+        let d = [b[0] - a[0], b[1] - a[1], b[2] - a[2]];
+        let len = d[0].hypot(d[1]).hypot(d[2]).max(0.01);
+        let pitch = -(d[2] / len).clamp(-1.0, 1.0).asin();
+        let yaw = d[1].atan2(d[0]);
+        Prop::stretched(a, [len, width, width], [0.0, pitch, yaw]).tinted(tint, alpha)
+    }
+
+    fn eyes_at(&self, pose: &MimicPose, out: &mut PropSink, stalk_alpha: f32, eye_alpha: f32) {
+        let stalk = srgb_hex_to_linear(0x315057);
+        for eye in 0..2 {
+            let side = if eye == 0 { -1.0 } else { 1.0 };
+            let base = Self::local(pose.root, pose.yaw, [14.5, side * 8.0, 3.0]);
+            let eye_local = [
+                24.0 + pose.probe * 3.0,
+                side * (10.0 + pose.inspect * 2.0),
+                24.0 + 2.2 * (self.age * 3.1 + eye as f32).sin(),
+            ];
+            let eye_pos = Self::local(pose.root, pose.yaw, eye_local);
+            if stalk_alpha > 0.001 {
+                out.push(
+                    MODEL_MIMIC_SEGMENT,
+                    Self::segment(base, eye_pos, 2.1, stalk, stalk_alpha),
+                );
+            }
+            if eye_alpha > 0.001 {
+                let glance = side * 0.10
+                    + 0.13 * (self.age * 1.8 + self.personality + eye as f32 * 0.7).sin();
+                let blink_height = 1.0 - pose.eye_blink * 0.88;
+                let blink_width = 1.0 + pose.eye_blink * 0.10;
+                out.push(
+                    MODEL_MIMIC_EYE,
+                    Prop::stretched(
+                        eye_pos,
+                        [5.8 * blink_width, 5.8 * blink_height, 5.8 * blink_height],
+                        [0.0, -0.82, pose.yaw + glance],
+                    )
+                    .tinted([1.0; 3], eye_alpha),
+                );
+            }
+        }
+    }
+
+    fn props_at(&self, pose: &MimicPose, out: &mut PropSink) {
+        let brass = srgb_hex_to_linear(0xc58a42);
+        let copper = srgb_hex_to_linear(0xa85e3c);
+        let foot_dark = srgb_hex_to_linear(0x3c3430);
+        let settled_tint = Ufo::lerp3(self.start_tint, self.end_tint, pose.shell_mix);
+        let tint = Ufo::lerp3(
+            settled_tint,
+            srgb_hex_to_linear(0x8ed8c5),
+            pose.sample_flash * 0.42,
+        );
+        let shell_scale = 1.0 + (MIMIC_SHELL_SCALE - 1.0) * pose.shell_lift;
+        let hidden_shell_z = RISE + THICK * 0.5 + 0.35;
+        let active_shell_z = pose.root[2] + 17.0;
+        let shell_z = hidden_shell_z + (active_shell_z - hidden_shell_z) * pose.shell_lift;
+        let grid_yaw = Self::orthogonal_yaw(pose.yaw);
+        let shell_yaw = Self::angle_lerp(grid_yaw, pose.yaw, pose.shell_lift);
+        let shell_pos = Self::local(
+            pose.root,
+            pose.yaw,
+            [-8.0 * pose.shell_lift, 0.0, shell_z - pose.root[2]],
+        );
+        out.push(
+            MODEL_CAPTURED_TILE,
+            Prop::new(
+                shell_pos,
+                shell_scale,
+                [pose.shell_tilt[0], pose.shell_tilt[1], shell_yaw],
+            )
+            .tinted(tint, pose.shell_alpha),
+        );
+
+        if pose.body_alpha <= 0.001 {
+            self.eyes_at(pose, out, 0.0, pose.eye_alpha);
+            return;
+        }
+        // Solid articulated props write depth. A long partial-alpha reveal therefore
+        // layers translucent limbs over one another; make material coverage snap in
+        // quickly while `body_alpha` continues to unfold the actual geometry.
+        let coverage = Self::smooth((pose.body_alpha - 0.04) / 0.22);
+        out.push(
+            MODEL_MIMIC_BODY,
+            Prop::new(pose.root, 1.05, [0.0, 0.0, pose.yaw]).tinted([1.0; 3], coverage),
+        );
+
+        // Six legs use an alternating tripod gait. Long hops stretch the same joint
+        // hierarchy naturally because feet remain near the surface while the body
+        // vaults, rather than scaling the entire creature like a sprite.
+        for side_i in 0..2 {
+            let side = if side_i == 0 { -1.0 } else { 1.0 };
+            for leg in 0..3 {
+                let anchor_x = -15.0 + leg as f32 * 15.0;
+                let tripod = if (leg + side_i) % 2 == 0 {
+                    0.0
+                } else {
+                    std::f32::consts::PI
+                };
+                let wave = (pose.walk_phase + tripod).sin() * pose.stride;
+                let lift = (pose.walk_phase + tripod).cos().max(0.0) * pose.stride;
+                let spread = 17.0 + 27.0 * pose.body_alpha;
+                let hip = Self::local(pose.root, pose.yaw, [anchor_x, side * 15.0, -1.5]);
+                let knee = Self::local(
+                    pose.root,
+                    pose.yaw,
+                    [
+                        anchor_x + wave * 4.5,
+                        side * (spread - 9.0),
+                        -6.0 + lift * 3.0,
+                    ],
+                );
+                let foot = Self::local(
+                    pose.root,
+                    pose.yaw,
+                    [
+                        anchor_x + wave * 10.5,
+                        side * spread,
+                        RISE + THICK + 1.4 - pose.root[2] + lift * 5.5,
+                    ],
+                );
+                let colour = if (leg + side_i) % 2 == 0 {
+                    brass
+                } else {
+                    copper
+                };
+                out.push(
+                    MODEL_MIMIC_SEGMENT,
+                    Self::segment(hip, knee, 4.2, colour, coverage),
+                );
+                out.push(
+                    MODEL_MIMIC_SEGMENT,
+                    Self::segment(knee, foot, 3.7, colour, coverage),
+                );
+                let toe = Self::local(foot, pose.yaw, [7.5 + wave * 1.5, side * 1.5, 0.0]);
+                out.push(
+                    MODEL_MIMIC_SEGMENT,
+                    Self::segment(foot, toe, 2.8, foot_dark, coverage),
+                );
+            }
+        }
+
+        // Eyes rise ahead of the shell and lead turns by a few degrees. Their pupils
+        // pitch toward the camera, so the gaze survives the near-top-down view. Unlike
+        // their stalks, the eyeballs keep peeking out after the rest has folded away.
+        self.eyes_at(pose, out, coverage, pose.eye_alpha);
+
+        // Both claws test the next landing before the body commits. At the final
+        // coloured tile they tap out of phase, as though comparing paint samples.
+        for claw in 0..2 {
+            let side = if claw == 0 { -1.0 } else { 1.0 };
+            let wrist = Self::local(pose.root, pose.yaw, [18.0, side * 13.0, 0.5]);
+            let reach = 29.0 + pose.probe * (13.0 + claw as f32 * 2.0);
+            let tip = Self::local(
+                pose.root,
+                pose.yaw,
+                [
+                    reach,
+                    side * (15.0 + pose.probe * 2.0),
+                    -1.0 - pose.probe * 2.0,
+                ],
+            );
+            out.push(
+                MODEL_MIMIC_SEGMENT,
+                Self::segment(wrist, tip, 3.2, copper, coverage),
+            );
+            let clack = side * (0.10 + 0.12 * pose.probe);
+            out.push(
+                MODEL_MIMIC_CLAW,
+                Prop::new(tip, 6.6, [0.0, -0.10 * pose.probe, pose.yaw + clack])
+                    .tinted([1.0; 3], coverage),
+            );
+        }
+
+        let key_base = [
+            shell_pos[0],
+            shell_pos[1],
+            shell_pos[2] + THICK * shell_scale * 0.5,
+        ];
+        let key_spin = pose.yaw - self.age * (2.8 + 0.35 * self.personality.sin());
+        out.push(
+            MODEL_MIMIC_KEY,
+            Prop::new(
+                key_base,
+                0.82,
+                [pose.shell_tilt[0], pose.shell_tilt[1], key_spin],
+            )
+            .tinted([1.0; 3], coverage * pose.shell_alpha),
+        );
+    }
+}
+
+impl Critter for Mimic {
+    fn update(&mut self, ctx: &CritterCtx) -> bool {
+        self.age += ctx.dt;
+        self.age < self.total_secs()
+    }
+
+    fn props(&self, _ctx: &CritterCtx, out: &mut PropSink) {
+        let pose = self.pose();
+        self.props_at(&pose, out);
+    }
+
+    #[cfg(test)]
+    fn debug_state(&self) -> Option<String> {
+        Some(format!(
+            "Mimic route={} age={:.2} endpoint={:?}",
+            self.route.len(),
+            self.age,
+            self.route.last()
         ))
     }
 }
@@ -8067,6 +8917,19 @@ impl Driver {
         }
     }
 
+    /// Development hook used by the headless renderer to study the complete mimic
+    /// performance from frame zero without waiting for or biasing the live scheduler.
+    #[doc(hidden)]
+    pub fn preview_mimic(&mut self, seed: u64) -> bool {
+        let mut rng = Rng::new(seed);
+        let Some(mimic) = Mimic::new(&self.life.view(), &mut rng) else {
+            return false;
+        };
+        self.viz.add_critter(Box::new(mimic));
+        self.next_critter = f64::INFINITY;
+        true
+    }
+
     pub fn shader_clock(&self, now: f64) -> f32 {
         (now - self.epoch) as f32
     }
@@ -8141,19 +9004,23 @@ impl Driver {
             let view = self.life.view();
             let gen_secs = self.gen_secs();
             let phase = (((self.sim_clock - self.gen_started) / gen_secs) as f32).clamp(0.0, 1.0);
-            // Choose before checking board-dependent eligibility, so every scheduled
-            // turn is a uniform four-way draw. A visitor with no valid plan becomes a
-            // rocket rather than delaying or silently losing the arrival.
-            let critter: Box<dyn Critter> = match random_critter_kind(&mut rng) {
-                CritterKind::Rocket => Box::new(Rocket::new(&view, &mut rng)),
-                CritterKind::Walker => Walker::new(&view, &mut rng)
-                    .map(|w| Box::new(w) as Box<dyn Critter>)
-                    .unwrap_or_else(|| Box::new(Rocket::new(&view, &mut rng))),
-                CritterKind::Bee => Box::new(Bee::new(&view, &mut rng)),
-                CritterKind::Ufo => Ufo::new(&view, phase, &mut rng)
-                    .map(|ufo| Box::new(ufo) as Box<dyn Critter>)
-                    .unwrap_or_else(|| Box::new(Rocket::new(&view, &mut rng))),
-            };
+            // Choose before checking board-dependent eligibility. A visitor with no
+            // valid plan becomes a rocket rather than delaying or silently losing the
+            // arrival.
+            let critter: Box<dyn Critter> =
+                match scheduled_critter_kind(&mut rng, self.critters_sent) {
+                    CritterKind::Rocket => Box::new(Rocket::new(&view, &mut rng)),
+                    CritterKind::Walker => Walker::new(&view, &mut rng)
+                        .map(|w| Box::new(w) as Box<dyn Critter>)
+                        .unwrap_or_else(|| Box::new(Rocket::new(&view, &mut rng))),
+                    CritterKind::Bee => Box::new(Bee::new(&view, &mut rng)),
+                    CritterKind::Ufo => Ufo::new(&view, phase, &mut rng)
+                        .map(|ufo| Box::new(ufo) as Box<dyn Critter>)
+                        .unwrap_or_else(|| Box::new(Rocket::new(&view, &mut rng))),
+                    CritterKind::Mimic => Mimic::new(&view, &mut rng)
+                        .map(|mimic| Box::new(mimic) as Box<dyn Critter>)
+                        .unwrap_or_else(|| Box::new(Rocket::new(&view, &mut rng))),
+                };
             self.critters_sent += 1;
             self.viz.add_critter(critter);
             self.next_critter += CRITTER_EVERY;
@@ -8439,9 +9306,21 @@ mod web {
         let mut scene = Scene::new(&device, &queue, format, samples, pw, ph);
 
         let (cols, rows) = grid_dims(css_w, css_h);
-        let seed = (js_sys::Math::random() * 9.0e15) as u64 ^ 0x9e37_79b9_7f4a_7c15;
+        let showcase_mimic = win
+            .location()
+            .search()
+            .map(|query| query.contains("showcase=mimic"))
+            .unwrap_or(false);
+        let seed = if showcase_mimic {
+            0xC0FFEE_1234_5678
+        } else {
+            (js_sys::Math::random() * 9.0e15) as u64 ^ 0x9e37_79b9_7f4a_7c15
+        };
         let now = win.performance().map(|p| p.now() * 0.001).unwrap_or(0.0);
-        let driver = Driver::new(cols, rows, seed, now);
+        let mut driver = Driver::new(cols, rows, seed, now);
+        if showcase_mimic {
+            let _ = driver.preview_mimic(0x71_1e_c4_ab);
+        }
         scene.upload_instances(&device, &queue, driver.viz.draw_list().0);
 
         let reduced_motion = win
@@ -8500,8 +9379,9 @@ mod web {
         app.borrow_mut()
             .frame(win.performance().map(|p| p.now()).unwrap_or(0.0));
 
-        // Only reveal the canvas once a device is up and the first frame is drawn;
-        // until then the plain #e8e8e8 body background stands in.
+        // Only reveal the canvas once a device is up and the first frame is drawn.
+        // CSS then blends that completed frame linearly over 2.5 seconds; until this
+        // handoff the plain #e8e8e8 body background stands in.
         let _ = canvas.style().set_property("opacity", "1");
 
         let f: Rc<RefCell<Option<Closure<dyn FnMut(f64)>>>> = Rc::new(RefCell::new(None));
@@ -9820,6 +10700,18 @@ mod tests {
                 .any(|v| v.col.iter().copied().sum::<f32>() < 0.03),
             "the face and cap band lost their dark details"
         );
+        for (label, color) in [
+            ("white crown and brim", srgb_hex_to_linear(0xf7f8f5)),
+            ("navy cap band", srgb_hex_to_linear(0x071722)),
+        ] {
+            let cap_verts: Vec<_> = head.iter().filter(|v| v.col == color).collect();
+            assert!(!cap_verts.is_empty(), "{label} disappeared");
+            let center_x = cap_verts.iter().map(|v| v.pos[0]).sum::<f32>() / cap_verts.len() as f32;
+            assert!(
+                center_x.abs() < 0.015,
+                "{label} drifted sideways off the marshmallow man's head: {center_x}"
+            );
+        }
 
         let mut max_front = 0.0f32;
         let mut min_front = 1.0f32;
@@ -10237,6 +11129,63 @@ mod tests {
     }
 
     #[test]
+    fn ufo_cargo_has_no_pull_to_escape_position_jump() {
+        let life = life_with_ufo_target();
+        let view = life.view();
+        let mut ufo = Ufo::new(&view, 0.5, &mut Rng::new(0x5150)).unwrap();
+        let [target_x, target_y] = ufo.target_world;
+        let approaches = [
+            [target_x + 260.0, target_y + 480.0, UFO_START_Z],
+            [target_x - 520.0, target_y + 190.0, UFO_START_Z],
+            [target_x + 520.0, target_y + 190.0, UFO_START_Z],
+        ];
+        let ctx = CritterCtx {
+            life: view,
+            dt: 0.0,
+            now: 0.0,
+            phase: 0.0,
+            gen_secs: 3.0,
+            spinning: None,
+        };
+        let frame = 1.0 / 240.0;
+        let distance =
+            |a: [f32; 3], b: [f32; 3]| (a[0] - b[0]).hypot(a[1] - b[1]).hypot(a[2] - b[2]);
+
+        // Exercise every approach family at several points in the hover-bob cycle.
+        // Both frame steps should contain only ordinary motion; the old split formula
+        // added the entire 66px hover lift to `after` in one frame.
+        for origin in approaches {
+            ufo.origin = origin;
+            for boundary_t in [0.0, 0.58, 1.16, 2.33] {
+                ufo.capture_age = Some(UFO_PULL_SECS - frame);
+                ufo.t = boundary_t - frame;
+                let before = ufo.captured_tile_position(&ctx, UFO_PULL_SECS - frame);
+
+                ufo.capture_age = Some(UFO_PULL_SECS);
+                ufo.t = boundary_t;
+                let boundary = ufo.captured_tile_position(&ctx, UFO_PULL_SECS);
+
+                ufo.capture_age = Some(UFO_PULL_SECS + frame);
+                ufo.t = boundary_t + frame;
+                let after = ufo.captured_tile_position(&ctx, UFO_PULL_SECS + frame);
+
+                let pull_step = distance(before, boundary);
+                let escape_step = distance(boundary, after);
+                assert!(
+                    pull_step < 1.0 && escape_step < 1.0,
+                    "cargo jumped at pull/escape boundary: {pull_step:.3}px then \
+                     {escape_step:.3}px from origin {origin:?} at t={boundary_t:.2}"
+                );
+                assert!(
+                    (pull_step - escape_step).abs() < 0.25,
+                    "cargo speed broke at pull/escape boundary: {pull_step:.3}px then \
+                     {escape_step:.3}px"
+                );
+            }
+        }
+    }
+
+    #[test]
     fn ufo_models_are_nonempty_and_the_beam_is_translucent_unlit_geometry() {
         for (label, (vertices, indices)) in [
             ("ufo", build_ufo()),
@@ -10266,6 +11215,129 @@ mod tests {
         let (rot, len) = Ufo::beam_pose([0.0, 0.0, 0.0], [30.0, 40.0, 120.0]);
         assert!(rot[0] > 0.0 && rot[2].is_finite());
         assert!((len - 130.0).abs() < 1e-5);
+    }
+
+    #[test]
+    fn tile_mimic_uses_only_footholds_safe_for_four_more_transitions() {
+        let life = Life::new(28, 20, 0xC0FFEE_1234_5678);
+        let mimic = Mimic::new(&life.view(), &mut Rng::new(0x71_1e_c4_ab))
+            .expect("preview board should support the tile mimic");
+
+        assert!((3..=6).contains(&mimic.route.len()));
+        let creature_margin = MARGIN + 2;
+        for (index, &(x, y)) in mimic.route.iter().enumerate() {
+            assert!(x >= creature_margin && x < life.cols - creature_margin);
+            assert!(y >= creature_margin && y < life.rows - creature_margin);
+            assert!(
+                Mimic::stable_for(&life.view(), x as isize, y as isize, MIMIC_SAFE_TRANSITIONS),
+                "waypoint {index} does not survive four forthcoming transitions"
+            );
+        }
+        for pair in mimic.route.windows(2) {
+            let dx = pair[0].0.abs_diff(pair[1].0);
+            let dy = pair[0].1.abs_diff(pair[1].1);
+            assert!(dx <= 2 && dy <= 2 && (dx == 0 || dy == 0 || (dx == 1 && dy == 1)));
+        }
+    }
+
+    #[test]
+    fn tile_mimic_unfolds_into_a_complete_rig_then_camouflages_cleanly() {
+        for (label, model) in [
+            ("body", build_mimic_body()),
+            ("segment", build_mimic_segment()),
+            ("eye", build_mimic_eye()),
+            ("claw", build_mimic_claw()),
+            ("key", build_mimic_key()),
+        ] {
+            assert!(!model.0.is_empty(), "{label} has no vertices");
+            assert!(!model.1.is_empty(), "{label} has no indices");
+            assert!(model.1.iter().all(|&i| (i as usize) < model.0.len()));
+        }
+        for model in MODEL_MIMIC_BODY..=MODEL_MIMIC_KEY {
+            assert!(!MODEL_UNLIT[model], "mimic model {model} lost 3D lighting");
+        }
+
+        let life = Life::new(28, 20, 0xC0FFEE_1234_5678);
+        let mut mimic = Mimic::new(&life.view(), &mut Rng::new(0x71_1e_c4_ab)).unwrap();
+
+        mimic.age = MIMIC_HATCH_SECS + MIMIC_STEP_SECS * 0.5;
+        let mut active = PropSink::default();
+        mimic.props_at(&mimic.pose(), &mut active);
+        assert_eq!(active.group(MODEL_CAPTURED_TILE).len(), 1);
+        assert_eq!(active.group(MODEL_MIMIC_BODY).len(), 1);
+        assert_eq!(active.group(MODEL_MIMIC_SEGMENT).len(), 22);
+        assert_eq!(active.group(MODEL_MIMIC_EYE).len(), 2);
+        assert_eq!(active.group(MODEL_MIMIC_CLAW).len(), 2);
+        assert_eq!(active.group(MODEL_MIMIC_KEY).len(), 1);
+        assert!(active
+            .group(MODEL_MIMIC_SEGMENT)
+            .iter()
+            .all(|segment| segment.alpha > 0.99));
+
+        mimic.age = MIMIC_HATCH_SECS + mimic.travel_secs() + MIMIC_INSPECT_SECS * 0.45;
+        let sampling = mimic.pose();
+        assert!(sampling.sample_flash > 0.30);
+        assert!(sampling.shell_mix > 0.20 && sampling.shell_mix < 0.90);
+
+        let hide_starts =
+            MIMIC_HATCH_SECS + mimic.travel_secs() + MIMIC_INSPECT_SECS + MIMIC_ALIGN_SECS;
+        let mut hidden_yaws = Vec::new();
+        for hide in [0.02, 0.35, 0.78] {
+            mimic.age = hide_starts + MIMIC_HIDE_SECS * hide;
+            let hiding = mimic.pose();
+            let quarter_turns = hiding.yaw / std::f32::consts::FRAC_PI_2;
+            assert!((quarter_turns - quarter_turns.round()).abs() < 0.001);
+            let mut frame = PropSink::default();
+            mimic.props_at(&hiding, &mut frame);
+            hidden_yaws.push(frame.group(MODEL_CAPTURED_TILE)[0].rot[2]);
+        }
+        assert!(
+            hidden_yaws
+                .windows(2)
+                .all(|pair| (pair[0] - pair[1]).abs() < 0.001),
+            "the shell twists while becoming a tile"
+        );
+
+        mimic.age = hide_starts + MIMIC_HIDE_SECS + MIMIC_EYE_LINGER_SECS * 0.5;
+        let peeking = mimic.pose();
+        let mut eyes_only = PropSink::default();
+        mimic.props_at(&peeking, &mut eyes_only);
+        assert!(eyes_only.group(MODEL_MIMIC_BODY).is_empty());
+        assert!(eyes_only.group(MODEL_MIMIC_SEGMENT).is_empty());
+        assert_eq!(eyes_only.group(MODEL_MIMIC_EYE).len(), 2);
+        assert!(eyes_only
+            .group(MODEL_MIMIC_EYE)
+            .iter()
+            .all(|eye| eye.alpha > 0.99 && eye.scale[2] < eye.scale[0] * 0.15));
+        assert!(eyes_only.group(MODEL_MIMIC_CLAW).is_empty());
+        assert!(eyes_only.group(MODEL_MIMIC_KEY).is_empty());
+
+        for linger in [0.25, 0.75] {
+            mimic.age = hide_starts + MIMIC_HIDE_SECS + MIMIC_EYE_LINGER_SECS * linger;
+            let open = mimic.pose();
+            let mut open_frame = PropSink::default();
+            mimic.props_at(&open, &mut open_frame);
+            assert!(open_frame
+                .group(MODEL_MIMIC_EYE)
+                .iter()
+                .all(|eye| eye.scale[2] > eye.scale[0] * 0.95));
+        }
+
+        mimic.age = mimic.total_secs() - 0.001;
+        let folded = mimic.pose();
+        let mut hidden = PropSink::default();
+        mimic.props_at(&folded, &mut hidden);
+        assert!(hidden.group(MODEL_MIMIC_BODY).is_empty());
+        assert!(hidden.group(MODEL_MIMIC_SEGMENT).is_empty());
+        assert!(hidden.group(MODEL_MIMIC_EYE).is_empty());
+        assert!(hidden.group(MODEL_MIMIC_CLAW).is_empty());
+        assert!(hidden.group(MODEL_MIMIC_KEY).is_empty());
+        let shell = hidden.group(MODEL_CAPTURED_TILE)[0];
+        assert!((shell.scale[0] - 1.0).abs() < 0.001);
+        assert!((shell.pos[0] - mimic.world.last().unwrap()[0]).abs() < 0.01);
+        assert!((shell.pos[1] - mimic.world.last().unwrap()[1]).abs() < 0.01);
+        let quarter_turns = shell.rot[2] / std::f32::consts::FRAC_PI_2;
+        assert!((quarter_turns - quarter_turns.round()).abs() < 0.001);
     }
 
     #[test]
@@ -11987,33 +13059,59 @@ mod tests {
         assert!(saw_strain, "never bent over into the push");
     }
 
-    /// The public cadence stays literal and the UFO joins the foreground visitor
-    /// rotation without biasing the original three.
+    /// The public cadence stays literal. The mimic leads once for discoverability,
+    /// then occupies two of six slots without changing the relative odds of any
+    /// established critter.
     #[test]
-    fn critters_arrive_every_sixteen_seconds_with_a_uniform_four_way_choice() {
+    fn critters_arrive_every_sixteen_seconds_with_a_mimic_forward_rotation() {
         assert_eq!(FIRST_CRITTER, 16.0);
         assert_eq!(CRITTER_EVERY, 16.0);
 
         let mut rng = Rng::new(0x5eed_cafe);
-        let mut counts = [0usize; 4];
-        let draws = 40_000usize;
+        assert_eq!(scheduled_critter_kind(&mut rng, 0), CritterKind::Mimic);
+
+        let mut counts = [0usize; 5];
+        let draws = 60_000usize;
         for _ in 0..draws {
             let slot = match random_critter_kind(&mut rng) {
                 CritterKind::Rocket => 0,
                 CritterKind::Walker => 1,
                 CritterKind::Bee => 2,
                 CritterKind::Ufo => 3,
+                CritterKind::Mimic => 4,
             };
             counts[slot] += 1;
         }
-        for (kind, count) in ["rocket", "walker", "bee", "UFO"].into_iter().zip(counts) {
+        for (slot, (kind, count)) in ["rocket", "walker", "bee", "UFO", "tile mimic"]
+            .into_iter()
+            .zip(counts)
+            .enumerate()
+        {
             let share = count as f32 / draws as f32;
+            let expected = if slot == 4 { 2.0 / 6.0 } else { 1.0 / 6.0 };
             assert!(
-                (share - 0.25).abs() < 0.015,
-                "{kind} selector produced {:.1}%",
-                share * 100.0
+                (share - expected).abs() < 0.012,
+                "{kind} selector produced {:.1}% rather than {:.1}%",
+                share * 100.0,
+                expected * 100.0
             );
         }
+
+        // Exercise the live clock and its evolved board, not only the selector. This
+        // seed has no connected four-transition-safe flank route at sixteen seconds,
+        // so the cautious stationary performance must keep the promised first mimic
+        // from silently turning into the rocket fallback.
+        let mut driver = Driver::new(28, 20, 0xC0FFEE_1234_5678, 0.0);
+        for frame in 1..=(FIRST_CRITTER as usize * 60 + 2) {
+            driver.advance(frame as f64 / 60.0, 1.0);
+        }
+        assert!(
+            driver
+                .viz
+                .walker_probe()
+                .is_some_and(|state| state.starts_with("Mimic ")),
+            "the first live scheduled visitor was not the tile mimic"
+        );
     }
 
     /// The clock must be monotonic and deliver the rate the constants declare,

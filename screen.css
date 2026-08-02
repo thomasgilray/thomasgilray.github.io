@@ -240,8 +240,9 @@ div {
 }
 
 /* Conway's Game of Life, simulated and rendered as a field of glossy 3D tiles by
-   /js/background.js -> the wgpu/wasm module in /bg. The renderer fades this in
-   itself once a GPU device is up; if none is available the flat #e8e8e8 shows through. */
+   /js/background.js -> the wgpu/wasm module in /bg. The renderer reveals this only
+   after its first complete frame; until then (or if no GPU is available) the flat
+   #e8e8e8 shows through. */
 #bgcanvas {
 	position: fixed;
 	inset: 0;
@@ -251,7 +252,8 @@ div {
 	z-index: 5;
 	pointer-events: none;
 	opacity: 0;
-	transition: opacity 0.8s ease-out;
+	transition: opacity 2.5s linear;
+	will-change: opacity;
 }
 
 

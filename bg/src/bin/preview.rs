@@ -58,6 +58,13 @@ async fn run(out: &str, width: u32, height: u32, times: &[f64]) {
     let mut scene = Scene::new(&device, &queue, format, samples, width, height);
     let (cols, rows) = grid_dims(width as f64, height as f64);
     let mut driver = Driver::new(cols, rows, 0xC0FFEE_1234_5678, 0.0);
+    if std::env::var("CONWAYBG_FOCUS").as_deref() == Ok("mimic") {
+        assert!(
+            driver.preview_mimic(0x71_1e_c4_ab),
+            "the preview board had no safe tile-mimic route"
+        );
+        eprintln!("focused tile-mimic performance enabled");
+    }
     eprintln!("grid {cols}x{rows} = {} tiles", cols * rows);
     if std::env::var("CONWAYBG_CHECK").is_ok() {
         check_rules(&mut driver, cols, rows);

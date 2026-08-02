@@ -37,6 +37,7 @@ features = [
   "CssStyleDeclaration",
   "Performance",
   "MediaQueryList",
+  "Location",
   "console",
 ]
 
