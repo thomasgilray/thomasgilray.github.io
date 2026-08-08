@@ -30,7 +30,9 @@ build conwaybg
 # served a cached module against fresh markup — and background.js in particular
 # cannot bust itself, since a stale copy just keeps asking for its own stale version.
 VER=$(cat "$OUT"/conwaybg-webgpu_bg.wasm "$OUT"/conwaybg_bg.wasm | sha1sum | cut -c1-10)
-for page in ../index.html ../news/*.html; do
+# The notes generator (../notes/build.py) embeds the same URL, so it is stamped
+# too, along with any pages it has already emitted; both may not exist yet.
+for page in ../index.html ../news/*.html ../notes/*/*.html ../notes/build.py; do
   [ -f "$page" ] || continue
   sed -i -E "s#(/js/background\.js)(\?v=[A-Za-z0-9]+)?#\1?v=$VER#" "$page"
 done

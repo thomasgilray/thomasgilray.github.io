@@ -74,14 +74,55 @@ div#footer {
 	position: fixed;
 	z-index: 25;
 	top: 7px;
-	right: 18px;
-	font-size: calc(15px + var(--type-bump));
+	right: 66px;
+	font-size: calc(20px + var(--type-bump));
 	line-height: 1.35;
-	padding: 3px 10px;
-	border-radius: 9px;
+	padding: 4px 13px;
+	border-radius: 12px;
 	/* A half-opaque plate so the field still shows through behind it. Set on the
 	   background rather than via `opacity`, which would fade the link text too. */
 	background: rgba(255, 255, 255, 0.5);
+}
+
+/* Pause/resume control for the background animation, sitting just right of the
+   "(what?)" link on a matching half-opaque plate. */
+.pausebtn {
+	position: fixed;
+	z-index: 25;
+	top: 7px;
+	right: 18px;
+	width: 37px;
+	height: 37px;
+	padding: 0;
+	border: none;
+	border-radius: 12px;
+	background: rgba(255, 255, 255, 0.5);
+	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.pausebtn svg {
+	width: 22px;
+	height: 22px;
+	fill: #333;
+}
+
+.pausebtn:hover svg {
+	fill: #0a2;
+}
+
+.pausebtn .icon-play {
+	display: none;
+}
+
+.pausebtn.paused .icon-pause {
+	display: none;
+}
+
+.pausebtn.paused .icon-play {
+	display: block;
 }
 
 .whitexout {

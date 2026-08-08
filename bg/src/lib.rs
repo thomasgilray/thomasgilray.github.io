@@ -540,6 +540,18 @@ impl PropSink {
     pub fn total(&self) -> usize {
         self.models.iter().map(|m| m.len()).sum()
     }
+    /// Scale the coverage of every visitor for the pause fade. The fog is exempt:
+    /// it is weather rather than a visitor, and it stays through a pause.
+    pub fn scale_visitor_alpha(&mut self, factor: f32) {
+        for (model, props) in self.models.iter_mut().enumerate() {
+            if (MODEL_FOG_FIRST..=MODEL_FOG_LAST).contains(&model) {
+                continue;
+            }
+            for prop in props {
+                prop.alpha *= factor;
+            }
+        }
+    }
 }
 
 /// Packs every prop model into one vertex/index buffer pair and reports where each
@@ -4415,6 +4427,10 @@ struct DistantBackground {
     cooldown: f32,
     rng: Rng,
     next_kind: DistantKind,
+    /// The quieter page modes stretch the rest between crossings.
+    pause_scale: f32,
+    /// Cleared for pages that want the fog with no visitors at all.
+    enabled: bool,
 }
 
 impl DistantBackground {
@@ -4427,9 +4443,36 @@ impl DistantBackground {
             // refined. The one-shot cycle continues Marshmallow -> Tux -> Godzilla,
             // so the established giants remain in the background rotation.
             next_kind: DistantKind::Marshmallow,
+            pause_scale: 1.0,
+            enabled: true,
         };
         background.start_crossing(view);
         background
+    }
+
+    fn rest(&mut self) -> f32 {
+        (DISTANT_PAUSE_MIN + self.rng.f32() * DISTANT_PAUSE_SPAN) * self.pause_scale
+    }
+
+    /// Drop any crossing in progress without spending that visitor's turn, and rest
+    /// a full pause before the next one.
+    fn clear_crossing(&mut self) {
+        if let Some(crossing) = self.crossing.take() {
+            self.next_kind = crossing.kind;
+        }
+        self.cooldown = self.rest();
+    }
+
+    /// Stretch the gaps between crossings, and trade the crossing `new` opened with
+    /// for a first full pause.
+    fn calm(&mut self, pause_scale: f32) {
+        self.pause_scale = pause_scale;
+        self.clear_crossing();
+    }
+
+    fn disable(&mut self) {
+        self.enabled = false;
+        self.crossing = None;
     }
 
     fn start_crossing(&mut self, view: &LifeView) {
@@ -4692,11 +4735,11 @@ impl DistantBackground {
             };
             if finished {
                 self.crossing = None;
-                self.cooldown = DISTANT_PAUSE_MIN + self.rng.f32() * DISTANT_PAUSE_SPAN;
+                self.cooldown = self.rest();
             }
         } else {
             self.cooldown -= ctx.dt;
-            if self.cooldown <= 0.0 {
+            if self.cooldown <= 0.0 && self.enabled {
                 self.start_crossing(&ctx.life);
             }
         }
@@ -6630,6 +6673,8 @@ pub struct Viz {
     critters: Vec<Box<dyn Critter>>,
     /// Prop models the critters placed this frame.
     props: PropSink,
+    /// Pause-fade multiplier over every visitor's props; fog is exempt.
+    visitor_alpha: f32,
     rng: Rng,
 }
 
@@ -6663,6 +6708,7 @@ impl Viz {
             fog,
             critters: Vec::new(),
             props: PropSink::default(),
+            visitor_alpha: 1.0,
             rng: Rng::new(rng_seed),
         };
         viz.repack(&[]);
@@ -6671,6 +6717,25 @@ impl Viz {
 
     pub fn add_critter(&mut self, c: Box<dyn Critter>) {
         self.critters.push(c);
+    }
+
+    pub fn set_visitor_alpha(&mut self, alpha: f32) {
+        self.visitor_alpha = alpha;
+    }
+
+    /// Drop every visitor — foreground critters and any distant crossing — so a
+    /// user pause resumes onto a clean field.
+    pub fn clear_critters(&mut self) {
+        self.critters.clear();
+        self.distant.clear_crossing();
+    }
+
+    pub fn calm_distant(&mut self, pause_scale: f32) {
+        self.distant.calm(pause_scale);
+    }
+
+    pub fn disable_distant(&mut self) {
+        self.distant.disable();
     }
 
     pub fn critter_count(&self) -> usize {
@@ -6837,6 +6902,9 @@ impl Viz {
         for c in &critters {
             c.draw(&critter_ctx, &mut emitted);
             c.props(&critter_ctx, &mut self.props);
+        }
+        if self.visitor_alpha != 1.0 {
+            self.props.scale_visitor_alpha(self.visitor_alpha);
         }
         self.critters = critters;
         self.repack(&emitted);
@@ -8897,6 +8965,12 @@ pub struct Driver {
     /// Simulation-clock time the next critter is due, and how many have arrived.
     next_critter: f64,
     critters_sent: u32,
+    /// Runtime spacing between arrivals; the quieter page modes stretch it.
+    critter_every: f64,
+    /// Distant-layer pacing, carried here so it survives the Viz rebuild a
+    /// resize's `reseed` performs.
+    distant_pause_scale: f32,
+    distant_enabled: bool,
 }
 
 impl Driver {
@@ -8914,6 +8988,34 @@ impl Driver {
             gen_started: 0.0,
             next_critter: FIRST_CRITTER,
             critters_sent: 0,
+            critter_every: CRITTER_EVERY,
+            distant_pause_scale: 1.0,
+            distant_enabled: true,
+        }
+    }
+
+    /// Quieter mode: scheduled arrivals every `every` seconds, with distant
+    /// crossings resting `pause_scale` times longer and opening on a rest instead
+    /// of a walk.
+    pub fn calm_visitors(&mut self, every: f64, pause_scale: f32) {
+        self.critter_every = every;
+        self.distant_pause_scale = pause_scale;
+        self.viz.calm_distant(pause_scale);
+    }
+
+    /// Quietest mode: no scheduled critters and no distant crossings, ever. The
+    /// fog stays.
+    pub fn disable_visitors(&mut self) {
+        self.next_critter = f64::INFINITY;
+        self.distant_enabled = false;
+        self.viz.disable_distant();
+    }
+
+    /// After a user pause, push the next arrival a full interval out so resuming
+    /// doesn't fire one on the spot.
+    pub fn rearm_critters(&mut self) {
+        if self.next_critter.is_finite() {
+            self.next_critter = self.sim_clock + self.critter_every;
         }
     }
 
@@ -8938,6 +9040,12 @@ impl Driver {
         let seed = self.life.rng.next_u64();
         self.life = Life::new(cols, rows, seed);
         self.viz = Viz::new(&self.life, seed ^ 0x5bf0_3635_ca8d_9e11);
+        if self.distant_pause_scale != 1.0 {
+            self.viz.calm_distant(self.distant_pause_scale);
+        }
+        if !self.distant_enabled {
+            self.viz.disable_distant();
+        }
     }
 
     /// Seconds a generation currently lasts.
@@ -9023,7 +9131,7 @@ impl Driver {
                 };
             self.critters_sent += 1;
             self.viz.add_critter(critter);
-            self.next_critter += CRITTER_EVERY;
+            self.next_critter += self.critter_every;
         }
 
         // Critters run every frame, not every generation, so they always have
@@ -9054,6 +9162,9 @@ mod web {
     /// Boost ("what?" link) multiplier and duration.
     const BOOST_RATE: f64 = 4.0;
     const BOOST_SECS: f64 = 14.0;
+    /// How long the pause button takes to fade the visitors out (and, on resuming,
+    /// to bring the multiplier back so future visitors render).
+    const PAUSE_FADE_SECS: f64 = 0.5;
     /// Rendering a background at 3x on a hidpi display is not worth the fill rate.
     const MAX_DPR: f64 = 2.0;
     use wasm_bindgen::prelude::*;
@@ -9089,10 +9200,22 @@ mod web {
         reduced_motion: bool,
         /// Set when something changed; under reduced motion nothing else redraws.
         needs_draw: bool,
+        /// The page mode's speed multiplier, composed under any boost.
+        mode_rate: f64,
+        /// Wall-clock timestamp of the previous frame, for the pause fade, which
+        /// runs on real time rather than the (pausable) simulation clock.
+        last_ts: f64,
+        /// 1 while running, easing to 0 across `PAUSE_FADE_SECS` when the user
+        /// pauses; multiplied over every visitor's alpha.
+        pause_fade: f64,
+        /// Once the fade completes: the shader clock and light time captured at
+        /// the freeze, held until unpaused so the still frame doesn't drift.
+        frozen: Option<(f32, f32)>,
     }
 
     thread_local! {
         static BOOST_UNTIL: Cell<f64> = const { Cell::new(f64::NEG_INFINITY) };
+        static USER_PAUSED: Cell<bool> = const { Cell::new(false) };
     }
 
     impl App {
@@ -9151,11 +9274,30 @@ mod web {
             if self.paused {
                 self.paused = false;
                 self.driver.resume(now);
+                self.last_ts = now;
             }
 
             self.check_size();
 
-            if self.reduced_motion {
+            let user_paused = USER_PAUSED.with(|p| p.get());
+            let dt = (now - self.last_ts).clamp(0.0, MAX_FRAME_DT);
+            self.last_ts = now;
+            if user_paused {
+                self.pause_fade = (self.pause_fade - dt / PAUSE_FADE_SECS).max(0.0);
+            } else {
+                if self.frozen.take().is_some() {
+                    // Waking from the user pause: nothing missed is replayed, the
+                    // field is clean even if a resize reseeded it mid-freeze, and
+                    // the next arrival waits a full interval rather than firing
+                    // on the spot.
+                    self.driver.resume(now);
+                    self.driver.viz.clear_critters();
+                    self.driver.rearm_critters();
+                }
+                self.pause_fade = (self.pause_fade + dt / PAUSE_FADE_SECS).min(1.0);
+            }
+
+            if self.reduced_motion || self.frozen.is_some() {
                 // Hold a single still frame: no stepping, and a fixed key light so the
                 // sheen doesn't drift either. Redraw only when the viewport changes.
                 if !self.needs_draw {
@@ -9166,8 +9308,17 @@ mod web {
                     BOOST_RATE
                 } else {
                     1.0
-                };
+                } * self.mode_rate;
+                self.driver.viz.set_visitor_alpha(self.pause_fade as f32);
                 self.driver.advance(now, rate);
+                if user_paused && self.pause_fade == 0.0 {
+                    // The fade has finished: drop every visitor so unpausing opens
+                    // on a clean field, then hold the clocks where they stopped.
+                    // This frame's buffers were built at alpha zero, so nothing
+                    // visible is being cut.
+                    self.driver.viz.clear_critters();
+                    self.frozen = Some((self.driver.shader_clock(now), now as f32));
+                }
                 self.scene.upload_instances(
                     &self.device,
                     &self.queue,
@@ -9178,13 +9329,17 @@ mod web {
             }
             self.needs_draw = false;
 
+            let (shader_clock, light_time) = match self.frozen {
+                Some(held) => held,
+                None => (self.driver.shader_clock(now), now as f32),
+            };
             let g = globals_for(
                 self.driver.life.cols,
                 self.driver.life.rows,
                 self.config.width as f32 / self.config.height.max(1) as f32,
                 self.css_h as f32,
-                self.driver.shader_clock(now),
-                if self.reduced_motion { 0.0 } else { now as f32 },
+                shader_clock,
+                if self.reduced_motion { 0.0 } else { light_time },
                 self.scene.encode_srgb,
             );
             self.scene.set_globals(&self.queue, &g);
@@ -9321,6 +9476,24 @@ mod web {
         if showcase_mimic {
             let _ = driver.preview_mimic(0x71_1e_c4_ab);
         }
+
+        // background.js resolves the page's mode — inline script or ?bgmode=
+        // override — onto this global before instantiating the module.
+        let mode = js_sys::Reflect::get(win.as_ref(), &JsValue::from_str("conwayBgMode"))
+            .ok()
+            .and_then(|v| v.as_string())
+            .unwrap_or_default();
+        let mode_rate = match mode.as_str() {
+            "fewcritters" => {
+                driver.calm_visitors(CRITTER_EVERY * 4.0, 1.7);
+                0.5
+            }
+            "nocritters" => {
+                driver.disable_visitors();
+                0.5
+            }
+            _ => 1.0,
+        };
         scene.upload_instances(&device, &queue, driver.viz.draw_list().0);
 
         let reduced_motion = win
@@ -9345,6 +9518,10 @@ mod web {
             dpr,
             reduced_motion,
             needs_draw: true,
+            mode_rate,
+            last_ts: now,
+            pause_fade: 1.0,
+            frozen: None,
         })
     }
 
@@ -9354,6 +9531,14 @@ mod web {
         if let Some(p) = web_sys::window().and_then(|w| w.performance()) {
             BOOST_UNTIL.with(|b| b.set(p.now() * 0.001 + BOOST_SECS));
         }
+    }
+
+    /// Pause or resume the whole animation (wired to the pause button). Pausing
+    /// fades the visitors out over half a second and then holds a still frame;
+    /// resuming picks the clock back up without replaying the gap.
+    #[wasm_bindgen]
+    pub fn set_paused(paused: bool) {
+        USER_PAUSED.with(|p| p.set(paused));
     }
 
     #[wasm_bindgen(start)]

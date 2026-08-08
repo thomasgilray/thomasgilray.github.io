@@ -13,6 +13,16 @@ const VERSION = new URL(import.meta.url).searchParams.get('v') ?? 'dev';
 
 const name = 'gpu' in navigator ? 'conwaybg-webgpu' : 'conwaybg';
 
+// Resolve the page's critter-density mode before the module is instantiated: the
+// renderer reads window.conwayBgMode once at startup. A ?bgmode= query on the page
+// URL wins (for experimentation); otherwise an inline script's choice is respected.
+const bgmode = new URLSearchParams(window.location.search).get('bgmode');
+if (['default', 'fewcritters', 'nocritters'].includes(bgmode)) {
+  window.conwayBgMode = bgmode;
+} else if (!window.conwayBgMode) {
+  window.conwayBgMode = 'default';
+}
+
 import(`./${name}.js?v=${VERSION}`)
   .then((wasm) =>
     wasm.default({
@@ -20,6 +30,21 @@ import(`./${name}.js?v=${VERSION}`)
     }).then(() => {
       // Keeps the old "(what?)" link working.
       window.crazyConway = wasm.boost;
+      // The pause button's shared contract: flip the renderer, then restyle the
+      // #pausebg button (if the page has one) to show the other icon.
+      let paused = false;
+      window.toggleConwayPause = () => {
+        paused = !paused;
+        wasm.set_paused(paused);
+        const btn = document.getElementById('pausebg');
+        if (btn) {
+          btn.classList.toggle('paused', paused);
+          btn.setAttribute(
+            'aria-label',
+            paused ? 'Resume background animation' : 'Pause background animation',
+          );
+        }
+      };
     }),
   )
   .catch((err) => console.warn('background renderer unavailable:', err));
