@@ -1,0 +1,263 @@
+/* Plain defaults for the light-DOM <run-code> component. */
+run-code {
+  --runcode-background: #ffffff;
+  --runcode-surface: #f6f8fa;
+  --runcode-border: #d8dee4;
+  --runcode-text: #1f2328;
+  --runcode-muted: #59636e;
+  --runcode-accent: #0969da;
+  --runcode-accent-hover: #0757b3;
+  --runcode-accent-text: #ffffff;
+  --runcode-error: #cf222e;
+  --runcode-success: #1a7f37;
+  --runcode-radius: 0.6rem;
+  --runcode-font: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+  display: block;
+  margin: 1rem 0;
+  color: var(--runcode-text);
+}
+
+.runcode {
+  overflow: hidden;
+  border: 1px solid var(--runcode-border);
+  border-radius: var(--runcode-radius);
+  background: var(--runcode-background);
+  box-shadow: 0 1px 2px rgb(31 35 40 / 5%);
+}
+
+.runcode:focus-within {
+  border-color: color-mix(in srgb, var(--runcode-accent) 65%, var(--runcode-border));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--runcode-accent) 18%, transparent);
+}
+
+.runcode__header {
+  display: flex;
+  min-height: 2.8rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.55rem 0.7rem 0.55rem 0.9rem;
+  border-bottom: 1px solid var(--runcode-border);
+  background: var(--runcode-surface);
+  font: 600 0.875rem/1.3 system-ui, sans-serif;
+}
+
+.runcode__identity {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  gap: 0.65rem;
+}
+
+.runcode__label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.runcode__language {
+  color: var(--runcode-muted);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.runcode__run {
+  appearance: none;
+  min-width: 4.4rem;
+  padding: 0.46rem 0.85rem;
+  border: 0;
+  border-radius: 0.42rem;
+  background: var(--runcode-accent);
+  color: var(--runcode-accent-text);
+  cursor: pointer;
+  font: 650 0.85rem/1.2 system-ui, sans-serif;
+}
+
+.runcode__run:hover:not(:disabled) {
+  background: var(--runcode-accent-hover);
+}
+
+.runcode__run:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--runcode-accent) 30%, transparent);
+  outline-offset: 2px;
+}
+
+.runcode__run:disabled {
+  cursor: wait;
+  opacity: 0.62;
+}
+
+.runcode__editor {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: stretch;
+  background: var(--runcode-background);
+}
+
+.runcode[data-line-numbers="false"] .runcode__editor {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.runcode__lines,
+.runcode__code,
+.runcode__result-body {
+  tab-size: 2;
+  font-family: var(--runcode-font);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.runcode__lines {
+  box-sizing: border-box;
+  min-width: 3.25rem;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  padding: 0.8rem 0.75rem;
+  border-right: 1px solid var(--runcode-border);
+  background: var(--runcode-surface);
+  color: var(--runcode-muted);
+  text-align: right;
+  user-select: none;
+}
+
+.runcode__lines[hidden] {
+  display: none;
+}
+
+.runcode__code {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  overflow: auto;
+  padding: 0.8rem 0.9rem;
+  border: 0;
+  border-radius: 0;
+  outline: 0;
+  background: transparent;
+  color: inherit;
+  resize: none;
+  white-space: pre;
+}
+
+.runcode__code[data-resize="vertical"] {
+  resize: vertical;
+}
+
+.runcode__code[data-resize="both"] {
+  resize: both;
+}
+
+.runcode[data-readonly="true"] .runcode__code {
+  background: color-mix(in srgb, var(--runcode-surface) 45%, transparent);
+}
+
+.runcode__attestation {
+  overflow: hidden;
+}
+
+.runcode__attestation[hidden] {
+  display: none;
+}
+
+.runcode__attestation-widget {
+  min-height: 0;
+}
+
+.runcode__attestation[data-interactive="true"] {
+  padding: 0.8rem 0;
+  border-top: 1px solid var(--runcode-border);
+  background: var(--runcode-surface);
+}
+
+.runcode__attestation[data-interactive="true"] .runcode__attestation-widget {
+  min-height: 65px;
+  padding: 0 0.9rem;
+}
+
+.runcode__result {
+  border-top: 1px solid var(--runcode-border);
+  background: var(--runcode-surface);
+}
+
+.runcode__result[hidden] {
+  display: none;
+}
+
+.runcode__spinner {
+  box-sizing: border-box;
+  width: 1.2rem;
+  height: 1.2rem;
+  margin: 0.9rem auto;
+  border: 2px solid color-mix(in srgb, var(--runcode-muted) 25%, transparent);
+  border-top-color: var(--runcode-accent);
+  border-radius: 50%;
+}
+
+.runcode__spinner[hidden],
+.runcode__result-header[hidden],
+.runcode__result-body[hidden] {
+  display: none;
+}
+
+.runcode__result-header {
+  padding: 0.62rem 0.9rem;
+  border-bottom: 1px solid var(--runcode-border);
+  color: var(--runcode-muted);
+  font: 650 0.8rem/1.3 system-ui, sans-serif;
+  text-transform: capitalize;
+}
+
+.runcode__result[data-kind="ok"] .runcode__result-header {
+  color: var(--runcode-success);
+}
+
+.runcode__result[data-kind="error"] .runcode__result-header,
+.runcode__result[data-kind="build_error"] .runcode__result-header,
+.runcode__result[data-kind="run_error"] .runcode__result-header,
+.runcode__result[data-kind="build_timeout"] .runcode__result-header,
+.runcode__result[data-kind="run_timeout"] .runcode__result-header,
+.runcode__result[data-kind="output_limit"] .runcode__result-header {
+  color: var(--runcode-error);
+}
+
+.runcode__result-body {
+  margin: 0;
+  overflow: auto;
+  padding: 0.8rem 0.9rem;
+  color: var(--runcode-text);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+@media (prefers-color-scheme: dark) {
+  run-code {
+    --runcode-background: #0d1117;
+    --runcode-surface: #161b22;
+    --runcode-border: #30363d;
+    --runcode-text: #e6edf3;
+    --runcode-muted: #8b949e;
+    --runcode-accent: #2f81f7;
+    --runcode-accent-hover: #58a6ff;
+    --runcode-error: #ff7b72;
+    --runcode-success: #3fb950;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .runcode,
+  .runcode__run {
+    transition: border-color 120ms ease, box-shadow 120ms ease, background-color 120ms ease;
+  }
+
+  .runcode__spinner {
+    animation: runcode-spin 700ms linear infinite;
+  }
+}
+
+@keyframes runcode-spin {
+  to {
+    transform: rotate(1turn);
+  }
+}

@@ -1,0 +1,5 @@
+{
+    "title": "The λ-Calculus",
+    "keywords": "lambda calculus, racket, scheme, functional programming, beta reduction, church encoding, evaluation strategies, y combinator, thomas gilray, lecture notes",
+    "pages": ["intro", "reduction", "evaluation", "church"]
+}

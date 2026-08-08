@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en-US">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="author" content="Thomas Gilray">
+		<meta name="copyright" content="(c) Thomas Gilray, 2018-2026">
+		<meta name="robots" content="index, follow">
+		<meta name="description" content="The heart of any functional programming language is the λ-calculus: a tiny language with just unary functions, function application, and variable reference. Everything else in Scheme—or any other programming language—can be compiled down to these three forms.">
+		<meta name="keywords" content="lambda calculus, racket, scheme, functional programming, beta reduction, church encoding, evaluation strategies, y combinator, thomas gilray, lecture notes">
+
+		<title>The λ-Calculus: The three essential forms</title>
+
+		<link rel="icon" href="/favicon.ico" sizes="any">
+		<link rel="stylesheet" href="/screen.css?v=d345645e00">
+		<link rel="stylesheet" href="/vendor/run-client/runcode.css?v=2c50731a46">
+		<link rel="stylesheet" href="/notes/notes.css?v=ff10cf27ba">
+		<script>window.conwayBgMode = 'fewcritters';</script>
+		<script type="module" src="/js/background.js?v=1b7020a210"></script>
+		<script type="module" src="/vendor/run-client/embed.js"></script>
+	</head>
+
+	<body class="notes">
+	<a href="https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life" target="_blank" rel="noopener" class="conwaylink" onclick="window.crazyConway &amp;&amp; window.crazyConway();">(what?)</a>
+	<button id="pausebg" class="pausebtn" aria-label="Pause background animation" onclick="window.toggleConwayPause &amp;&amp; window.toggleConwayPause();"><svg class="icon-pause" viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="2.5" width="3.4" height="11" rx="1"/><rect x="9.6" y="2.5" width="3.4" height="11" rx="1"/></svg><svg class="icon-play" viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 2.8v10.4c0 .8.9 1.3 1.6.9l8.2-5.2c.6-.4.6-1.4 0-1.8L6.1 1.9c-.7-.4-1.6.1-1.6.9z"/></svg></button>
+	<canvas id="bgcanvas" aria-hidden="true"></canvas>
+
+	<div id="wrapper">
+		<div class="rounded">
+			<div class="content notes-top">
+<div class="notes-crumbs"><a href="/">Thomas Gilray</a> <span class="sep">&middot;</span> notes <span class="sep">&middot;</span> The λ-Calculus</div>
+<h1>The three essential forms</h1>
+<div class="notes-tldr">The heart of any functional programming language is the λ-calculus: a tiny language with just unary functions, function application, and variable reference. Everything else in Scheme—or any other programming language—can be compiled down to these three forms.</div>
+<div class="notes-pagenav"><strong class="here">Three essential forms</strong> <span class="sep">&middot;</span> <a href="reduction.html">Reducing expressions</a> <span class="sep">&middot;</span> <a href="evaluation.html">Evaluation strategies</a> <span class="sep">&middot;</span> <a href="church.html">Church encodings</a></div>
+			</div>
+			<div class="a"></div>
+			<div class="b"></div>
+			<div class="c"></div>
+			<div class="d"></div>
+		</div>
+
+		<div class="rounded">
+			<div class="content">
+<p>The heart of any functional programming language are the three essential forms of the <em>lambda calculus</em>: lambda abstraction (defining a function), application (invoking a function), and variable reference. In fact, the rest of Scheme (or any other programming language) can be compiled down into the language consisting of just these three forms: defining unary (single input) functions that bind a variable when invoked, invoking functions on a single argument expression, and referencing a variable. Compiling down to the pure lambda calculus is called <em>Church compiling/encoding</em>, after the creator of the lambda calculus, Alonzo Church.</p>
+			</div>
+			<div class="a"></div>
+			<div class="b"></div>
+			<div class="c"></div>
+			<div class="d"></div>
+		</div>
+
+		<div class="rounded">
+			<div class="content">
+<h2 id="a-grammar-for-terms">A grammar for λ-terms</h2>
+<p>While there are many different lambda calculi—systems for calculating (calculi) using functions (lambdas)—<em>the lambda calculus</em> generally refers to a specific classic system: the untyped, three-form lambda calculus with unary functions. We can define a grammar for its expressions/terms like so:</p>
+<div class="tex-display"><img src="tex/8959b7526135.svg" style="width:537.79px" alt="\begin{array}{rcll}
+e,t \in \mathrm{E} &amp; ::= &amp; \texttt{(\lm{} (x) e$_{b}$)} &amp; [\text{lambda abstraction}]\\[3pt]
+ &amp; \vert &amp; \texttt{(e$_{f}$ e$_{a}$)} &amp; [\text{application}]\\[3pt]
+ &amp; \vert &amp; \texttt{x} &amp; [\text{variable reference}]\\[9pt]
+x,y \in \mathrm{Var} &amp; = &amp; \multicolumn{2}{l}{\langle \text{program identifiers} \rangle}
+\end{array}"></div>
+
+<p>It&rsquo;s also common to see a notation without (required) parentheses and with a dot before the body of lambdas—written <img class="tex-inline" src="tex/d0c9b674bf18.svg" style="width:51.97px;vertical-align:-4.83px" alt="\lm x.e_{b}">, <img class="tex-inline" src="tex/425ee386f0b0.svg" style="width:45.56px;vertical-align:-9.46px" alt="e_{f}\;e_{b}">, and <img class="tex-inline" src="tex/7ada49e20f28.svg" style="width:12.76px;vertical-align:-0.22px" alt="x">—where <img class="tex-inline" src="tex/f8fc5b18ad72.svg" style="width:14.56px;vertical-align:-0.28px" alt="\lm"> is highest precedence.</p>
+			</div>
+			<div class="a"></div>
+			<div class="b"></div>
+			<div class="c"></div>
+			<div class="d"></div>
+		</div>
+
+		<div class="rounded">
+			<div class="content">
+<h2 id="first-class-functions">First-class functions</h2>
+<p>Lambda calculus is found within many programming languages; it is the heart of functional programming languages such as Racket, Haskell, OCaml, but is also found within multi-paradigm languages permitting first-class functions such as Python, Ruby, Javascript, and even Java, and C++. First-class functions are now in most modern languages, e.g.:</p>
+<pre><code>Python:       id = lambda x: x
+Java:         Function&lt;Object, Object&gt; id = x -&gt; x;
+Javascript:   const id = x =&gt; x;
+</code></pre>
+			</div>
+			<div class="a"></div>
+			<div class="b"></div>
+			<div class="c"></div>
+			<div class="d"></div>
+		</div>
+
+		<div class="rounded">
+			<div class="content">
+<h2 id="applying-the-identity-function">Applying the identity function</h2>
+<p>With an application form, we may apply an identity function on a value, which will yield that value unchanged. Let&rsquo;s take the identity function <code>(λ (x) x)</code> and apply it to the number 5. This expression may be textually simplified using an evaluation-step relation (<img class="tex-inline" src="tex/e76dc57f180f.svg" style="width:24.66px;vertical-align:-0.00px" alt="\rightarrow">): <img class="tex-inline" src="tex/fe7d41f4453e.svg" style="width:206.64px;vertical-align:-1.93px" alt="\texttt{((\lm{} (x) x) 5)} \rightarrow \texttt{5}">. Racket agrees—this example is live, so press run (and edit it, if you like):</p>
+<run-code language="racket" mode="expr">
+((λ (x) x) 5)
+</run-code>
+
+<p>In the pure lambda calculus, we do not have the ability to represent a constant like 5, but could still apply the identity function on itself: <img class="tex-inline" src="tex/cfbd75d7545a.svg" style="width:402.24px;vertical-align:-5.14px" alt="\texttt{((\lm{} (x) x) (\lm{} (y) y))} \rightarrow \texttt{(\lm{} (y) y)}">.</p>
+<run-code language="racket" mode="expr">
+((λ (x) x) (λ (y) y))
+</run-code>
+
+<p>Racket prints the resulting value as an opaque <code>#&lt;procedure&gt;</code>; in the pure λ-calculus we would write the answer as the term <code>(λ (y) y)</code> itself.</p>
+			</div>
+			<div class="a"></div>
+			<div class="b"></div>
+			<div class="c"></div>
+			<div class="d"></div>
+		</div>
+
+		<div class="rounded">
+			<div class="content">
+<div class="notes-endnav"><span></span><a href="reduction.html">Reducing expressions &#8608;</a></div>
+			</div>
+			<div class="a"></div>
+			<div class="b"></div>
+			<div class="c"></div>
+			<div class="d"></div>
+		</div>
+
+		<div id="footer">
+			Copyright (c) Thomas Gilray, 2026, <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc/4.0/">Some Rights Reserved</a>.
+		</div>
+	</div>
+	</body>
+</html>

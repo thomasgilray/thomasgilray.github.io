@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en-US">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="author" content="Thomas Gilray">
+		<meta name="copyright" content="(c) Thomas Gilray, 2018-2026">
+		<meta name="robots" content="index, follow">
+		<meta name="description" content="A reducible expression, or redex, can be simplified by applying a reduction rule. β-reduction simulates function application using capture-avoiding substitution, α-conversion renames variables without changing meaning, and η-reduction eliminates a lambda that merely defers to another function.">
+		<meta name="keywords" content="lambda calculus, racket, scheme, functional programming, beta reduction, church encoding, evaluation strategies, y combinator, thomas gilray, lecture notes">
+
+		<title>The λ-Calculus: Reducing expressions</title>
+
+		<link rel="icon" href="/favicon.ico" sizes="any">
+		<link rel="stylesheet" href="/screen.css?v=d345645e00">
+		<link rel="stylesheet" href="/vendor/run-client/runcode.css?v=2c50731a46">
+		<link rel="stylesheet" href="/notes/notes.css?v=ff10cf27ba">
+		<script>window.conwayBgMode = 'fewcritters';</script>
+		<script type="module" src="/js/background.js?v=1b7020a210"></script>
+		<script type="module" src="/vendor/run-client/embed.js"></script>
+	</head>
+
+	<body class="notes">
+	<a href="https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life" target="_blank" rel="noopener" class="conwaylink" onclick="window.crazyConway &amp;&amp; window.crazyConway();">(what?)</a>
+	<button id="pausebg" class="pausebtn" aria-label="Pause background animation" onclick="window.toggleConwayPause &amp;&amp; window.toggleConwayPause();"><svg class="icon-pause" viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="2.5" width="3.4" height="11" rx="1"/><rect x="9.6" y="2.5" width="3.4" height="11" rx="1"/></svg><svg class="icon-play" viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 2.8v10.4c0 .8.9 1.3 1.6.9l8.2-5.2c.6-.4.6-1.4 0-1.8L6.1 1.9c-.7-.4-1.6.1-1.6.9z"/></svg></button>
+	<canvas id="bgcanvas" aria-hidden="true"></canvas>
+
+	<div id="wrapper">
+		<div class="rounded">
+			<div class="content notes-top">
+<div class="notes-crumbs"><a href="/">Thomas Gilray</a> <span class="sep">&middot;</span> notes <span class="sep">&middot;</span> The λ-Calculus</div>
+<h1>Reducing expressions</h1>
+<div class="notes-tldr">A reducible expression, or redex, can be simplified by applying a reduction rule. β-reduction simulates function application using capture-avoiding substitution, α-conversion renames variables without changing meaning, and η-reduction eliminates a lambda that merely defers to another function.</div>
+<div class="notes-pagenav"><a href="intro.html">Three essential forms</a> <span class="sep">&middot;</span> <strong class="here">Reducing expressions</strong> <span class="sep">&middot;</span> <a href="evaluation.html">Evaluation strategies</a> <span class="sep">&middot;</span> <a href="church.html">Church encodings</a></div>
+			</div>
+			<div class="a"></div>
+			<div class="b"></div>
+			<div class="c"></div>
+			<div class="d"></div>
+		</div>
+
+		<div class="rounded">
+			<div class="content">
+<h2 id="-reduction">β-reduction</h2>
+<p>A <em>reducible expression</em>, or <em>redex</em>, is an expression that can be simplified by applying a reduction rule. The primary reduction rule for the λ-calculus is <em>β reduction</em>, which simulates function application. We define β reduction for an application expression with a lambda, ready to apply, in function position and any expression in argument position:</p>
+<div class="tex-display"><img src="tex/9f5c14799454.svg" style="width:517.39px" alt="\overbrace{\texttt{((\lm{} (x) e$_{\mathit{body}}$) e$_{\mathit{arg}}$)}}^{\text{redex}}
+\;\;\rightarrow_{\beta}\;\;
+\overbrace{\texttt{e$_{\mathit{body}}$[x $\mapsto$ e$_{\mathit{arg}}$]}}^{\text{capture-avoiding substitution}}"></div>
+
+<p>Given a lambda applied on an argument expression, we can textually simulate function application by substituting every occurrence of the formal parameter in the body of the function with the argument. The notation <img class="tex-inline" src="tex/2b06786a2988.svg" style="width:103.04px;vertical-align:-6.03px" alt="e_{b}[x \mapsto e_{a}]"> refers to <img class="tex-inline" src="tex/350a0431a2aa.svg" style="width:18.88px;vertical-align:-4.83px" alt="e_{b}">, the body of the function, except with each reference to <img class="tex-inline" src="tex/7ada49e20f28.svg" style="width:12.76px;vertical-align:-0.22px" alt="x"> swapped with the argument expression <img class="tex-inline" src="tex/752561df07a3.svg" style="width:18.81px;vertical-align:-3.63px" alt="e_{a}">. This is called <em>capture-avoiding substitution</em> (defined below), which is simply a substitution operation on terms in the λ-calculus that respects the rules of scope and binding for the language; for example, substitution must respect shadowing variables:</p>
+<div class="tex-display"><img src="tex/17076b3d4b8c.svg" style="width:449.16px" alt="\begin{array}{l}
+\texttt{((\lm{} (x) (x (\lm{} (x) x))) (\lm{} (y) y))}\\[4pt]
+\quad\rightarrow_{\beta}\;\;\texttt{(x (\lm{} (x) x))[x $\mapsto$ (\lm{} (y) y)]}\\[4pt]
+\quad=\;\;\texttt{((\lm{} (y) y) (\lm{} (x) x))}
+\end{array}"></div>
+
+<p>An outer reference to <code>x</code> is replaced with the argument (i.e., <code>(λ (y) y)</code>) but an inner reference to <code>x</code> is not. This is because <em>static scope</em> dictates that the <code>x</code> in <code>(λ (x) x)</code> always refers to the closest enclosing declaration, making this always the identity function, in all contexts. (None of the variables in <code>(λ (x) x)</code> are free—none are defined outside the function.) Racket implements exactly this scoping discipline; the value printed below is the inner identity function:</p>
+<run-code language="racket" mode="expr">
+((λ (x) (x (λ (x) x))) (λ (y) y))
+</run-code>
+			</div>
+			<div class="a"></div>
+			<div class="b"></div>
+			<div class="c"></div>
+			<div class="d"></div>
+		</div>
+
+		<div class="rounded">
+			<div class="content">
+<h2 id="free-and-bound-variables">Free and bound variables</h2>
+<p>An occurrence of a variable in an expression may be either free or bound. A variable is called <em>free</em> in an expression if it is used within that expression but not defined above its use within that expression. λ is a binding operator as it binds a variable within a particular scope (its body). In the identity function, <code>(λ (x) x)</code>, the variable <code>x</code> in the body is bound by the λ. However, given the function <code>(λ (b) a)</code>, we may conclude the variable <code>a</code> is a free variable in our function, meaning it must be defined in the context surrounding this lambda in order to have a meaning. In the function <code>(λ (a) (λ (b) a))</code>, however, <code>a</code> is not free as it is defined by the outer lambda. With respect to the inner lambda, <code>a</code> is free because its binding lambda must be located in the <em>context</em> of this expression, surrounding it. A variable alone is never called free, but always relative to a sub-expression (scope).</p>
+<p>We may formally define free variables like so:</p>
+<div class="tex-display"><img src="tex/3037e6a87ae0.svg" style="width:415.50px" alt="\begin{array}{lcl}
+\mathit{FV}(\texttt{x}) &amp; \triangleq &amp; \{\texttt{x}\}\\[3pt]
+\mathit{FV}(\texttt{(e$_{f}$ e$_{a}$)}) &amp; \triangleq &amp; \mathit{FV}(\texttt{e$_{f}$}) \cup \mathit{FV}(\texttt{e$_{a}$})\\[3pt]
+\mathit{FV}(\texttt{(\lm{} (x) e$_{b}$)}) &amp; \triangleq &amp; \mathit{FV}(\texttt{e$_{b}$}) - \{\texttt{x}\}
+\end{array}"></div>
+
+<p>To aid in understanding, consider the following examples with their free variables:</p>
+<div class="tex-display"><img src="tex/d1dca66e1b2e.svg" style="width:604.48px" alt="\begin{array}{l@{\qquad\qquad}l}
+\texttt{((\lm{} (x) x) y)} &amp; \mathit{FV} = \{\texttt{y}\}\\[3pt]
+\texttt{((\lm{} (x) (x x)) (\lm{} (x) (x x)))} &amp; \mathit{FV} = \{\}\\[3pt]
+\texttt{((\lm{} (x) (z y)) x)} &amp; \mathit{FV} = \{\texttt{x},\texttt{y},\texttt{z}\}
+\end{array}"></div>
+
+<p><em>Open</em> λ-calculus terms contain free variables, while <em>closed</em> terms have no free variables. Closed lambdas are known as <em>combinators</em> and are self-contained functions with a stable interpretation across all contexts. Consider some examples:</p>
+<div class="tex-display"><img src="tex/87b55e0df87a.svg" style="width:615.32px" alt="\begin{array}{l@{\qquad\qquad}r}
+\texttt{(\lm{} (x) (x x))} &amp; \textit{closed}\\[3pt]
+\texttt{((\lm{} (x) x) y)} &amp; \textit{open}\\[3pt]
+\texttt{(\lm{} (x) ((\lm{} (y) y) ((\lm{} (z) (z z)) d)))} &amp; \textit{open}
+\end{array}"></div>
+
+<p>In Racket, a free variable is an <em>unbound identifier</em>—a closed term can evaluate, while an open term is a scoping error before it ever runs:</p>
+<run-code language="racket" mode="expr" label="An open term is an error">
+((λ (x) x) y)
+</run-code>
+			</div>
+			<div class="a"></div>
+			<div class="b"></div>
+			<div class="c"></div>
+			<div class="d"></div>
+		</div>
+
+		<div class="rounded">
+			<div class="content">
+<h2 id="capture-avoiding-substitution">Capture-avoiding substitution</h2>
+<p>As we perform substitution, we must take care to avoid inadvertent capture of any otherwise-bound variables. Let us take the abstract example <code>((λ (x) e_body) e_arg)</code>. At a β reduction, we would replace any instances of <img class="tex-inline" src="tex/7ada49e20f28.svg" style="width:12.76px;vertical-align:-0.22px" alt="x"> within <img class="tex-inline" src="tex/c672a6c93fe1.svg" style="width:43.47px;vertical-align:-9.54px" alt="e_{\mathit{body}}"> with <img class="tex-inline" src="tex/4c86a555c453.svg" style="width:33.21px;vertical-align:-8.25px" alt="e_{\mathit{arg}}">. The two expressions involved within the substitution may use the same variable name at distinct binding sites (lambdas). If so, this could lead to us changing the meaning of the resulting expression if we are not careful. To illustrate this, consider the naïve (non-capture-avoiding) substitution:</p>
+<div class="tex-display"><img src="tex/0742a6b47ef3.svg" style="width:321.87px" alt="\begin{array}{l}
+\texttt{((\lm{} (x) ((\lm{} (y) x) z)) y)}\\[4pt]
+\quad\rightarrow_{\beta}\;\;\texttt{((\lm{} (y) y) z)}\\[4pt]
+\quad\rightarrow_{\beta}\;\;\texttt{z}
+\end{array}"></div>
+
+<p>We&rsquo;ve directly substituted <code>y</code> for <code>x</code> in the expression <code>((λ (y) x) z)</code> and that&rsquo;s how we ended up with <code>(λ (y) y)</code>. This changes the meaning of the inner lambda (to match the identity function), because the <code>y</code> we originally wanted to substitute for was a free variable in the overall expression, and not the same <code>y</code> that is bound by the inner lambda. In our resulting expression, the <code>y</code> we substituted became incorrectly captured by the inner λ. Our aim is to avoid this through <em>capture-avoiding substitution</em>. This works by preventing such substitutions that would lead to a reference being captured by the wrong binding lambda in cases with shadowing.</p>
+<p>We can also simply rename variables to eliminate shadowing, using <em>α-conversion</em>. Equivalent expressions that only differ in the names of variables are <em>α-equivalent</em>. α-conversion does not alter the structure of the lambda like a β reduction would. E.g., <img class="tex-inline" src="tex/fca4f89c446d.svg" style="width:262.06px;vertical-align:-5.14px" alt="\texttt{(\lm{} (x) x)} \equiv_{\alpha} \texttt{(\lm{} (y) y)}">. In this example, both are equally the identity function. We can define <em>α equivalence</em> (or directionally, <em>α conversion</em>) using substitution, just as with β, but also must use capture-avoiding substitution:</p>
+<div class="tex-display"><img src="tex/414aff65c7f9.svg" style="width:409.60px" alt="\begin{array}{c}
+\texttt{(\lm{} (x) e$_{b}$)} \;\equiv_{\alpha}\; \texttt{(\lm{} (y) e$_{b}$[x $\mapsto$ y])}\\[4pt]
+\text{where } y \notin \mathit{FV}(e_{b})
+\end{array}"></div>
+
+<p>Renaming variables can enable a correct substitution that would otherwise be <em>incorrect</em> using naïve substitution and <em>undefined</em> using capture-avoiding substitution. Let&rsquo;s take a look at the same example but with a preparatory renaming before substitution:</p>
+<div class="tex-display"><img src="tex/bb4d01b1a8e4.svg" style="width:394.10px" alt="\begin{array}{l}
+\texttt{((\lm{} (x) ((\lm{} (y) x) z)) y)}\\[4pt]
+\quad\equiv_{\alpha}\;\;\texttt{((\lm{} (x) ((\lm{} (a) x) z)) y)}\\[4pt]
+\quad\rightarrow_{\beta}\;\;\texttt{((\lm{} (a) y) z)}\\[4pt]
+\quad\rightarrow_{\beta}\;\;\texttt{y}
+\end{array}"></div>
+
+<p>We notice by first α renaming our variables we preserve the meaning of our lambda expression while only changing the names of variables. Now we may formally define <em>capture-avoiding substitution</em> so that we stop substitution at a shadowing binding, and forbid substitution where we&rsquo;d substitute a free variable under a shadowing binding site:</p>
+<div class="tex-display"><img src="tex/a15319874f44.svg" style="width:857.92px" alt="\begin{array}{lcll}
+\texttt{y[x $\mapsto$ e$_{x}$]} &amp; \triangleq &amp; \texttt{e$_{x}$}, &amp; \text{where } x = y\\[5pt]
+\texttt{y[x $\mapsto$ e$_{x}$]} &amp; \triangleq &amp; \texttt{y}, &amp; \text{where } x \neq y\\[5pt]
+\texttt{(\lm{} (y) e$_{\mathit{body}}$)[x $\mapsto$ e$_{x}$]} &amp; \triangleq &amp; \texttt{(\lm{} (y) e$_{\mathit{body}}$)}, &amp; \text{where } x = y\\[5pt]
+\texttt{(\lm{} (y) e$_{\mathit{body}}$)[x $\mapsto$ e$_{x}$]} &amp; \triangleq &amp; \texttt{(\lm{} (y) e$_{\mathit{body}}$[x $\mapsto$ e$_{x}$])}, &amp; \text{where } x \neq y,\; y \notin \mathit{FV}(e_{x})\\[5pt]
+\texttt{(e$_{f}$ e$_{a}$)[x $\mapsto$ e$_{x}$]} &amp; \triangleq &amp; \multicolumn{2}{l}{\texttt{(e$_{f}$[x $\mapsto$ e$_{x}$] e$_{a}$[x $\mapsto$ e$_{x}$])}}
+\end{array}"></div>
+			</div>
+			<div class="a"></div>
+			<div class="b"></div>
+			<div class="c"></div>
+			<div class="d"></div>
+		</div>
+
+		<div class="rounded">
+			<div class="content">
+<h2 id="-reduction_1">η-reduction</h2>
+<p>We&rsquo;ve seen the two principal notions of intensional evaluation: β reduction and α equivalence. Now we&rsquo;ll present a third and final notion of extensional equivalence: η reduction/expansion. While we may avoid η reduction during evaluation (which may use only β), it assists us in establishing meaningful equalities among λ-calculus terms. η equivalence is formally defined like so:</p>
+<div class="tex-display"><img src="tex/3ed2a5cce7dd.svg" style="width:265.95px" alt="\begin{array}{c}
+\texttt{(\lm{} (x) (e$_{f}$ x))} \;\equiv_{\eta}\; \texttt{e$_{f}$}\\[4pt]
+\text{where } x \notin \mathit{FV}(e_{f})
+\end{array}"></div>
+
+<p>In essence, η reduction says any lambda that simply defers to its function-position expression (<img class="tex-inline" src="tex/2334a12b9edc.svg" style="width:20.26px;vertical-align:-9.46px" alt="e_{f}">) may be reduced to that expression. In this way, it anticipates a β reduction that may or may not be performed later and eliminates the need for it, preemptively. η expansion says that every sub-expression which reduces to a value reduces to a unary lambda equivalent to applying the sub-expression on a fresh formal parameter. η expansion lets us reify an arbitrary expression as the value it denotes by making that lambda explicit. If the expression would non-terminate, this new explicit lambda non-terminates when invoked, and if it yields a value, this new lambda will be equivalent to it. Any expression may be η expanded, but only expressions with the particular shape above may be η reduced.</p>
+			</div>
+			<div class="a"></div>
+			<div class="b"></div>
+			<div class="c"></div>
+			<div class="d"></div>
+		</div>
+
+		<div class="rounded">
+			<div class="content">
+<h2 id="normal-forms-and">Normal forms and Ω</h2>
+<p>To summarize, the concepts of free variables, α-conversion, β-reduction, η-reduction and capture-avoiding substitution are fundamental to the inner workings of lambda calculus and functional programming. We&rsquo;ve seen how we may apply these reductions non-deterministically, essentially using a combined reduction relation (<img class="tex-inline" src="tex/e76dc57f180f.svg" style="width:24.66px;vertical-align:-0.00px" alt="\rightarrow">):</p>
+<div class="tex-display"><img src="tex/875c363129aa.svg" style="width:311.01px" alt="(\rightarrow) \;\triangleq\; (\equiv_{\alpha}) \,\cup\, (\rightarrow_{\beta}) \,\cup\, (\equiv_{\eta})"></div>
+
+<p>We can also define the reflexive, transitive closure of this step relation (<img class="tex-inline" src="tex/5fbbd40e940f.svg" style="width:35.09px;vertical-align:-0.00px" alt="\rightarrow^{*}">), in order to take multiple steps at once. You can read the proposition <img class="tex-inline" src="tex/387e59898f53.svg" style="width:63.01px;vertical-align:-0.22px" alt="e \rightarrow e&#x27;"> as &ldquo;e steps to e prime&rdquo; or &ldquo;e reduces to e prime, in one step&rdquo;, while <img class="tex-inline" src="tex/9ebf233fc9c4.svg" style="width:73.44px;vertical-align:-0.22px" alt="e \rightarrow^{*} e&#x27;"> means &ldquo;e reduces to e prime&rdquo; (in some number of steps—which may be zero, meaning they are already equal).</p>
+<p>By applying these notions of equivalence or reduction to a term, we may eventually reach a <em>normal form</em>: a term that cannot be further reduced and has no internal redexes. However, not all terms in the lambda calculus can be reduced to a normal form. The smallest such term, known as <img class="tex-inline" src="tex/c1d0e2e79e22.svg" style="width:19.78px;vertical-align:-0.14px" alt="\Omega">, is <code>((λ (u) (u u)) (λ (u) (u u)))</code>. Just <code>(λ (u) (u u))</code> is known as the U combinator and is the abstraction of self-application. <img class="tex-inline" src="tex/c1d0e2e79e22.svg" style="width:19.78px;vertical-align:-0.14px" alt="\Omega"> is just <code>(U U)</code>, the U combinator applied to itself, which reduces to itself in a single beta reduction.</p>
+<p>Since Ω β-reduces only to itself, forever, running it never produces a value—the sandbox eventually gives up and reports a timeout:</p>
+<run-code language="racket" mode="expr" label="Ω reduces only to itself">
+((λ (u) (u u)) (λ (u) (u u)))
+</run-code>
+			</div>
+			<div class="a"></div>
+			<div class="b"></div>
+			<div class="c"></div>
+			<div class="d"></div>
+		</div>
+
+		<div class="rounded">
+			<div class="content">
+<div class="notes-endnav"><a href="intro.html">&#8606; The three essential forms</a><a href="evaluation.html">Evaluation strategies &#8608;</a></div>
+			</div>
+			<div class="a"></div>
+			<div class="b"></div>
+			<div class="c"></div>
+			<div class="d"></div>
+		</div>
+
+		<div id="footer">
+			Copyright (c) Thomas Gilray, 2026, <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc/4.0/">Some Rights Reserved</a>.
+		</div>
+	</div>
+	</body>
+</html>
