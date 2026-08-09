@@ -74,11 +74,11 @@ div#footer {
 	position: fixed;
 	z-index: 25;
 	top: 7px;
-	right: 66px;
-	font-size: calc(20px + var(--type-bump));
+	right: 62px;
+	font-size: calc(18px + var(--type-bump));
 	line-height: 1.35;
-	padding: 4px 13px;
-	border-radius: 12px;
+	padding: 4px 12px;
+	border-radius: 11px;
 	/* A half-opaque plate so the field still shows through behind it. Set on the
 	   background rather than via `opacity`, which would fade the link text too. */
 	background: rgba(255, 255, 255, 0.5);
@@ -91,11 +91,11 @@ div#footer {
 	z-index: 25;
 	top: 7px;
 	right: 18px;
-	width: 37px;
-	height: 37px;
+	width: 33px;
+	height: 33px;
 	padding: 0;
 	border: none;
-	border-radius: 12px;
+	border-radius: 11px;
 	background: rgba(255, 255, 255, 0.5);
 	cursor: pointer;
 	display: inline-flex;
@@ -104,8 +104,8 @@ div#footer {
 }
 
 .pausebtn svg {
-	width: 22px;
-	height: 22px;
+	width: 20px;
+	height: 20px;
 	fill: #333;
 }
 

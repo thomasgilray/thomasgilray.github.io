@@ -29,7 +29,8 @@ build conwaybg
 # renderer. The filenames are stable, so without this a returning visitor can be
 # served a cached module against fresh markup — and background.js in particular
 # cannot bust itself, since a stale copy just keeps asking for its own stale version.
-VER=$(cat "$OUT"/conwaybg-webgpu_bg.wasm "$OUT"/conwaybg_bg.wasm | sha1sum | cut -c1-10)
+# background.js is included so that loader-only changes also bust page caches.
+VER=$(cat "$OUT"/conwaybg-webgpu_bg.wasm "$OUT"/conwaybg_bg.wasm "$OUT"/background.js | sha1sum | cut -c1-10)
 # The notes generator (../notes/build.py) embeds the same URL, so it is stamped
 # too, along with any pages it has already emitted; both may not exist yet.
 for page in ../index.html ../news/*.html ../notes/*/*.html ../notes/build.py; do

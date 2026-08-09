@@ -31,11 +31,11 @@ import(`./${name}.js?v=${VERSION}`)
       // Keeps the old "(what?)" link working.
       window.crazyConway = wasm.boost;
       // The pause button's shared contract: flip the renderer, then restyle the
-      // #pausebg button (if the page has one) to show the other icon.
-      let paused = false;
-      window.toggleConwayPause = () => {
-        paused = !paused;
+      // #pausebg button (if the page has one) to show the other icon. The choice
+      // lives in a cookie so it follows the reader across pages and reloads.
+      const applyPause = (paused) => {
         wasm.set_paused(paused);
+        document.cookie = `conwaypaused=${paused ? 1 : 0}; path=/; max-age=31536000; samesite=lax`;
         const btn = document.getElementById('pausebg');
         if (btn) {
           btn.classList.toggle('paused', paused);
@@ -45,6 +45,12 @@ import(`./${name}.js?v=${VERSION}`)
           );
         }
       };
+      let paused = /(?:^|;\s*)conwaypaused=1(?:;|\s*$)/.test(document.cookie);
+      window.toggleConwayPause = () => {
+        paused = !paused;
+        applyPause(paused);
+      };
+      if (paused) applyPause(true);
     }),
   )
   .catch((err) => console.warn('background renderer unavailable:', err));
