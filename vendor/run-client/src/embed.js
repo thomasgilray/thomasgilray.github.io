@@ -375,14 +375,18 @@ export class RunCodeElement extends (globalThis.HTMLElement ?? class {}) {
     this._result.hidden = false;
     this._result.dataset.kind = kind;
     this._spinner.hidden = true;
-    this._resultHeader.hidden = false;
-    this._resultBody.hidden = false;
-    this._resultHeader.textContent = title;
-    this._resultBody.textContent = body;
+    this._resultHeader.hidden = !title;
+    this._resultBody.hidden = !body;
+    this._resultHeader.textContent = title ?? "";
+    this._resultBody.textContent = body ?? "";
   }
 
   _renderResult(result) {
-    this._showResult(statusLabel(result.status), resultText(result), result.status);
+    const output = resultText(result);
+    // Output that arrived speaks for itself, and a status that produced none needs no empty
+    // body: one of the two is dropped rather than repeating or padding the result.
+    const title = result.status === "ok" && output ? "" : statusLabel(result.status);
+    this._showResult(title, output, result.status);
   }
 }
 
@@ -736,16 +740,21 @@ function parseRows(value, lines) {
 
 function resultText(result) {
   const sections = [];
-  if (result.error?.message) sections.push(result.error.message);
+  if (result.error?.message) sections.push({ label: null, text: result.error.message });
   for (const [phaseName, phase] of [
     ["Build", result.build],
     ["Output", result.run],
   ]) {
     if (!phase) continue;
-    if (phase.stdout) sections.push(`${phaseName}:\n${phase.stdout.replace(/\n$/u, "")}`);
-    if (phase.stderr) sections.push(`${phaseName} errors:\n${phase.stderr.replace(/\n$/u, "")}`);
+    if (phase.stdout) sections.push({ label: phaseName, text: phase.stdout.replace(/\n$/u, "") });
+    if (phase.stderr) {
+      sections.push({ label: `${phaseName} errors`, text: phase.stderr.replace(/\n$/u, "") });
+    }
   }
-  return sections.join("\n\n") || "(no output)";
+  // A single section needs no heading to tell it apart; an empty result needs no placeholder,
+  // because the status label carries that news on its own.
+  if (sections.length === 1) return sections[0].text;
+  return sections.map(({ label, text }) => (label ? `${label}:\n${text}` : text)).join("\n\n");
 }
 
 function statusLabel(status) {

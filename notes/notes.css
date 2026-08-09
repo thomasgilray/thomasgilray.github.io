@@ -85,11 +85,20 @@
 	font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
 	font-size: 0.9rem;
 	line-height: 1.55;
+	padding: 0;
+	background: none;
+	white-space: pre;
 }
 
+/* Inline code (any `...` in the markdown): a faint tint so short λ-terms and
+   identifiers read as code inside prose, and never break across lines. */
 .notes code {
 	font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
 	font-size: 0.88em;
+	padding: 1px 3px;
+	border-radius: 3px;
+	background: #f2f2f2;
+	white-space: nowrap;
 }
 
 /* LaTeX-rendered math (build.py compiles latex fences and $...$ spans to

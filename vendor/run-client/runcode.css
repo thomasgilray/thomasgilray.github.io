@@ -209,6 +209,11 @@ run-code {
   text-transform: capitalize;
 }
 
+/* A status with no output under it must not leave a divider hanging below itself. */
+.runcode__result:has(.runcode__result-body[hidden]) .runcode__result-header {
+  border-bottom: 0;
+}
+
 .runcode__result[data-kind="ok"] .runcode__result-header {
   color: var(--runcode-success);
 }
