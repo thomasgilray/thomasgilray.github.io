@@ -5,6 +5,7 @@ const DEFAULT_ENDPOINT = "https://run.gilray.net";
 const TURNSTILE_SCRIPT =
   "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
 const DEFAULT_TURNSTILE_LOAD_TIMEOUT_MS = 15_000;
+const TURNSTILE_POLL_INTERVAL_MS = 250;
 const DEFAULT_TURNSTILE_VERIFICATION_TIMEOUT_MS = 120_000;
 const LANGUAGE_ALIASES = new Map([
   ["c++", "cpp20"],
@@ -564,32 +565,41 @@ function loadTurnstile(document, configuration, signal) {
         if (settled) return;
         settled = true;
         clearTimeout(timeout);
+        clearInterval(watch);
         callback(value);
       };
       const finish = () => {
         const api = document.defaultView?.turnstile;
-        if (!api) {
-          settle(reject, new Error("Cloudflare Turnstile loaded without its browser API."));
-          return;
-        }
+        if (!api) return;
+        clearInterval(watch);
         api.ready(() => settle(resolve, api));
+      };
+      const giveUp = (message) => {
+        // A dead script tag would silence the load event for every later attempt, so the
+        // failed request is dropped and the next attempt fetches Turnstile again.
+        script.remove();
+        settle(reject, new Error(message));
       };
       const timeout = setTimeout(
         () =>
-          settle(
-            reject,
-            new Error(
-              "Cloudflare Turnstile did not load. Check content blockers or network policy and try again.",
-            ),
+          giveUp(
+            "Cloudflare Turnstile did not load. Check content blockers or network policy and try again.",
           ),
         configuration.turnstileLoadTimeoutMs,
       );
-      script.addEventListener("load", finish, { once: true });
-      script.addEventListener(
-        "error",
-        () => settle(reject, new Error("Cloudflare Turnstile could not be loaded.")),
-        { once: true },
+      // An inherited script tag may have loaded before these listeners were attached, so the
+      // global is polled too; its load event would never fire a second time.
+      const watch = setInterval(
+        finish,
+        Math.max(
+          1,
+          Math.min(TURNSTILE_POLL_INTERVAL_MS, Math.floor(configuration.turnstileLoadTimeoutMs / 4)),
+        ),
       );
+      script.addEventListener("load", finish, { once: true });
+      script.addEventListener("error", () => giveUp("Cloudflare Turnstile could not be loaded."), {
+        once: true,
+      });
       if (!existing) {
         script.src = TURNSTILE_SCRIPT;
         script.async = true;
@@ -600,6 +610,7 @@ function loadTurnstile(document, configuration, signal) {
         }
         document.head.append(script);
       }
+      finish();
     }).catch((error) => {
       turnstileLoads.delete(document);
       throw error;
