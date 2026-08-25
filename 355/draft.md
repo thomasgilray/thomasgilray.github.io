@@ -71,7 +71,7 @@ I will also hand out **coding exercises** through the term. These sit outside th
 
 You will be assigned to a study group early in the term. Each group agrees on a fixed weekly time and keeps it for the rest of the term, meeting either in person or on Zoom. Each week one member rotates into the role of **scribe** and writes up a half page of thoughtful bulleted notes: who attended, what the group discussed, and what you learned. Those weekly reports are **10%** of your grade.
 
-The other half is a **final project** of your group's own choosing, also **10%**. Pick something you actually want to build or dig into; a proposal deadline and details will come with the assignment.
+The remaining **10%** is a **final project** carried out in your study group. You will have an opportunity to select a project related to your interests, with some flexibility in scope; a proposal deadline and further details will come with the assignment.
 
 ### Letter grades
 
