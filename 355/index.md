@@ -111,7 +111,7 @@ Primary assessment in this course is proctored: five written exams in class and 
 
 So outside of the exams, you are encouraged to make delimited, thoughtful use of AI. You are permitted to treat an AI as you would a human classmate and use one arbitrarily on any out-of-class work — the extra-credit coding exercises, your study group meetings, and your group's final project all included. Ask it to explain a concept, walk you through documentation, review code you wrote, or argue with you about a design choice. Collaboration with your classmates on the same work is equally unrestricted.
 
-How you use that freedom is genuinely your call, and the discipline you bring to it will matter more than any rule I could write here. A study partner who does the work for you leaves you with nothing to show in a proctored room. Use a model to reach understanding faster and to get yourself unstuck, not to alienate yourself from your own process of learning.
+How you use that freedom is your call, and the discipline you bring to it will matter more than any rule I could write here. A study partner who does the work for you leaves you with nothing to show in a proctored room. Use a model to reach understanding faster and to get yourself unstuck, not to alienate yourself from your own process of learning.
 
 ## University policies and student resources
 
