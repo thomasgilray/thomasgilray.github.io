@@ -100,7 +100,7 @@ Cut-offs can move down but never up: an A or A− will not require more than 90%
 
 **Regrades** may be requested within one week of a grade being posted, by email to me or a TA, saying specifically which part you believe was misgraded.
 
-**Questions** are best asked in class or on the course discussion board, where the answer helps everyone. Email me or a TA for anything personal; we aim to reply within one business day.
+**Questions** are best asked in class or on the course discussion board, where the answer helps everyone. Email me or a TA for anything personal.
 
 ## Academic integrity
 
