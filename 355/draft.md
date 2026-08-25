@@ -104,7 +104,7 @@ Cut-offs can move down but never up: an A or A− will not require more than 90%
 
 ## Academic integrity
 
-Academic integrity is the cornerstone of the university. You are responsible for reading and understanding [WSU's Academic Integrity Policy](https://communitystandards.wsu.edu/policies-and-reporting/academic-integrity-policy/), which is grounded in Washington state law (WAC 504-26-010(3) and WAC 504-26-404).
+Academic integrity is a cornerstone of the university. You are responsible for reading and understanding [WSU's Academic Integrity Policy](https://communitystandards.wsu.edu/policies-and-reporting/academic-integrity-policy/), which is grounded in Washington state law (WAC 504-26-010(3) and WAC 504-26-404).
 
 In this course, cheating is almost entirely about one thing: **giving or getting unauthorized assistance on a proctored exam**, whether one of the five written exams or one of the three coding exams. That is where your grade is earned, and it is the one place where collaboration is off limits. Everything else is open. Studying together, working through the extra-credit coding exercises with whoever you like, and using whatever tools help you are all permitted without restriction; see [Use of AI tools](#ai) below. The only other way to run into trouble is misrepresenting your group's work, such as reporting attendance at a study group meeting that did not happen; that is treated the same way. If you are ever unsure whether something crosses either line, ask me first — I would much rather answer that question than the other one.
 
