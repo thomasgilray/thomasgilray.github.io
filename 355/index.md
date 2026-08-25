@@ -12,7 +12,7 @@ bg: fewcritters
 
 **Teaching assistants:** Aidan Johnson {{email:aidan.johnson@wsu.edu}} and Joseph Buchholz {{email:joseph.buchholz@wsu.edu}} — office hours <span class="tbd">TBD</span>
 
-**Lectures:** Tuesdays and Thursdays, <span class="tbd">time and room TBD</span> · 3 credits
+**Lectures:** Tuesdays and Thursdays, 4:20–5:35pm, in [SEH 105](https://maps.google.com/?q=46.7288,-117.1682) — Schweitzer Engineering Hall, the new engineering building · 3 credits
 
 </div>
 
