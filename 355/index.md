@@ -114,19 +114,19 @@ Readings and topics are filled in as the term progresses; assignment due dates a
 | Dates | Topics, readings, and due dates |
 |---|---|
 | **Aug 25, 27**<span class="wk">Week 1</span> | Syllabus and class policies; introduction to programming languages and paradigms; introduction to Python 3. |
-| **Sep 1, 3**<span class="wk">Week 2</span> | |
-| **Sep 8, 10**<span class="wk">Week 3</span> | *Labor Day (Mon Sep 7) is a university holiday; it does not fall on a class day.* |
-| **Sep 15, 17**<span class="wk">Week 4</span> | |
-| **Sep 22, 24**<span class="wk">Week 5</span> | |
-| **Sep 29, Oct 1**<span class="wk">Week 6</span> | |
-| **Oct 6, 8**<span class="wk">Week 7</span> | |
-| **Oct 13, 15**<span class="wk">Week 8</span> | |
-| **Oct 20, 22**<span class="wk">Week 9</span> | |
-| **Oct 27, 29**<span class="wk">Week 10</span> | |
-| **Nov 3, 5**<span class="wk">Week 11</span> | |
-| **Nov 10, 12**<span class="wk">Week 12</span> | *Veterans Day (Wed Nov 11) is a university holiday; it does not fall on a class day.* |
-| **Nov 17, 19**<span class="wk">Week 13</span> | |
+| **Sep 1, 3**<span class="wk">Week 2</span> | TBD |
+| **Sep 8, 10**<span class="wk">Week 3</span> | TBD |
+| **Sep 15, 17**<span class="wk">Week 4</span> | TBD |
+| **Sep 22, 24**<span class="wk">Week 5</span> | TBD |
+| **Sep 29, Oct 1**<span class="wk">Week 6</span> | TBD |
+| **Oct 6, 8**<span class="wk">Week 7</span> | TBD |
+| **Oct 13, 15**<span class="wk">Week 8</span> | TBD |
+| **Oct 20, 22**<span class="wk">Week 9</span> | TBD |
+| **Oct 27, 29**<span class="wk">Week 10</span> | TBD |
+| **Nov 3, 5**<span class="wk">Week 11</span> | TBD |
+| **Nov 10, 12**<span class="wk">Week 12</span> | TBD |
+| **Nov 17, 19**<span class="wk">Week 13</span> | TBD |
 | **Nov 24, 26**<span class="wk">Week 14</span> | *Thanksgiving break, Nov 23–27 — no class, no office hours.* {.row-off} |
-| **Dec 1, 3**<span class="wk">Week 15</span> | |
-| **Dec 8, 10**<span class="wk">Week 16</span> | Last day of instruction is Friday, Dec 11. |
-| **Dec 14–18**<span class="wk">Finals</span> | Final exam, at the time set by the [registrar's final exam schedule](https://registrar.wsu.edu/). |
+| **Dec 1, 3**<span class="wk">Week 15</span> | TBD |
+| **Dec 8, 10**<span class="wk">Week 16</span> | TBD |
+| **Dec 14–18**<span class="wk">Finals</span> | *There is no designated final exam.* |
