@@ -60,7 +60,7 @@ By the end of the term you should be able to:
 | 50% | Five written exams, in class at designated times — 10% each |
 | 30% | Three coding exams, proctored — 10% each |
 | 20% | Study group: weekly meeting reports and a final group project |
-| +10% | Coding exercises, handed out through the term |
+| +10% | Coding exercises, released throughout the term |
 
 {.compact}
 
@@ -80,7 +80,7 @@ Cut-offs can move down but never up: an A or A− will not require more than 90%
 
 ## Course policies
 
-**Coding exercises** are posted through the term and submitted through Canvas by 11:59pm on the posted date. Because they are extra credit there is no late penalty, but they track exactly what the exams cover, so treat the posted dates as the pace you want to keep.
+**Coding exercises** are released throughout the term and submitted online by 11:59pm on the posted date. Because they are extra credit there is no late penalty, but they track exactly what the exams cover, so treat the posted dates as the pace you want to keep.
 
 **Attendance** is not graded directly, but the five written exams are taken in class on the day they are scheduled, so those days are not optional. Come to the others too; this material is much easier to absorb in conversation than from a screenshot of someone else's notes.
 
