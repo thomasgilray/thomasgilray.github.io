@@ -64,7 +64,7 @@ By the end of the term you should be able to:
 
 {.compact}
 
-The **five written exams** are taken in class at times posted on the schedule below. The **three coding exams** are proctored; scheduling details are forthcoming.
+The **five written exams** are taken in class at times posted on the schedule below. The **three coding exams** are proctored; scheduling details are forthcoming. Every exam, written or coding, is closed book, closed internet, and closed model, with one exception: you may bring a single page of notes, front and back, printed or handwritten. You are welcome to build those notes collaboratively within your study group, but each student must bring their own page. Notes can evolve over the term, and yours need not be the same page twice.
 
 The **coding exercises** are additive, so there are more points available in this course than a perfect grade requires. Treat them as bonus credit: completing them can make up for points lost elsewhere.
 
@@ -104,7 +104,7 @@ In this course, cheating is almost entirely about one thing: **giving or getting
 
 ## Use of AI tools {: #ai }
 
-Primary assessment in this course is proctored: five written exams in class and three proctored coding exams. Those are closed-book, closed-notes, and closed-model, and they are where your grade actually comes from. Because of that, I have no reason to police how you prepare for them.
+Primary assessment in this course is proctored: five written exams in class and three proctored coding exams. Apart from the one page of notes you bring, those are closed book, closed internet, and closed model, and they are where your grade actually comes from. Because of that, I have no reason to police how you prepare for them.
 
 So outside of the exams, you are encouraged to make delimited, thoughtful use of AI. You are permitted to treat an AI as you would a human classmate and use one arbitrarily on any out-of-class work — the extra-credit coding exercises, your study group meetings, and your group's final project all included. Ask it to explain a concept, walk you through documentation, review code you wrote, or argue with you about a design choice. Collaboration with actual classmates on the same work is equally unrestricted.
 
