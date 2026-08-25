@@ -31,6 +31,7 @@ Programming Language Design is a tour of the surprisingly small set of ideas tha
 
 **Resources.** There is no textbook for this course. Readings will come from freely available and custom materials, listed in the weekly schedule below. These are all free, and any of them may help:
 
+- [*Structure and Interpretation of Computer Programs*](https://mitp-content-server.mit.edu/books/content/sectbyfn/books_pres_0/6515/sicp.zip/index.html) (SICP), Abelson and Sussman — the easiest introduction to programming in Scheme; free in full from MIT Press, and as a [PDF](https://web.mit.edu/6.001/6.037/sicp.pdf)
 - [*Programming Languages: Application and Interpretation*](https://www.plai.org/) (PLAI), Shriram Krishnamurthi — interpreters and semantics, the closest to what we do here
 - [*How to Design Programs*, 2nd ed.](https://htdp.org/) (HtDP), Felleisen, Findler, Flatt, and Krishnamurthi
 - [*Learn You a Haskell for Great Good!*](https://learnyouahaskell.github.io/) — a gentle way into typed functional programming
