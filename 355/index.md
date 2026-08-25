@@ -105,7 +105,7 @@ Large language models are good at exactly the thing this course asks you to lear
 
 WSU maintains a [University Syllabus](https://syllabus.wsu.edu/university-syllabus/) covering the policies that apply to every course at the university: the Student Care Network, Lauren's Promise, reasonable accommodations for disability, pregnancy and related conditions, religious accommodation, and campus safety procedures. You are responsible for reading and understanding it.
 
-If you need accommodations, reach out to the [Access Center](https://accesscenter.wsu.edu/) early in the term and then talk with me, so we can get things arranged well before an assignment or exam rather than during one.
+If you need accommodations, reach out to the [Access Center](https://accesscenter.wsu.edu/) early in the term and then talk with me **at least two weeks before any exam**, so that everything is arranged in advance rather than during one.
 
 ## Schedule
 
