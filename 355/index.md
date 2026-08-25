@@ -3,7 +3,6 @@ title: CptS 355 — Programming Language Design
 subtitle: Washington State University · Fall 2026
 description: Syllabus, schedule, notes, and readings for CptS 355, Programming Language Design, at Washington State University, Fall 2026.
 keywords: cpts 355, programming language design, wsu, washington state university, interpreters, semantics, python, racket, functional programming, thomas gilray
-crumbs: teaching | CptS 355
 bg: fewcritters
 ---
 
