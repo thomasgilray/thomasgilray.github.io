@@ -54,7 +54,7 @@ from pathlib import Path
 import markdown
 
 NOTES = Path(__file__).resolve().parent
-BACKGROUND_SRC = "/js/background.js?v=ff04838eec"
+BACKGROUND_SRC = "/js/background.js?v=667fb18518"
 NOTES_BG_MODE = "fewcritters"
 
 TEX_PREAMBLE = r"""\documentclass[12pt]{article}

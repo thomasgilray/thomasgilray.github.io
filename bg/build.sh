@@ -31,12 +31,15 @@ build conwaybg
 # cannot bust itself, since a stale copy just keeps asking for its own stale version.
 # background.js is included so that loader-only changes also bust page caches.
 VER=$(cat "$OUT"/conwaybg-webgpu_bg.wasm "$OUT"/conwaybg_bg.wasm "$OUT"/background.js | sha1sum | cut -c1-10)
-# The notes generator (../notes/build.py) embeds the same URL, so it is stamped
-# too, along with any pages it has already emitted; both may not exist yet.
-for page in ../index.html ../news/*.html ../notes/*/*.html ../notes/build.py; do
-  [ -f "$page" ] || continue
+# Found rather than globbed, so a new page or a new course directory is picked
+# up without editing this list. Both generators (../notes/build.py and
+# ../build.py) embed the same URL for pages they have yet to emit, so they are
+# stamped alongside the pages they have already written.
+while IFS= read -r page; do
   sed -i -E "s#(/js/background\.js)(\?v=[A-Za-z0-9]+)?#\1?v=$VER#" "$page"
-done
+done < <(grep -rl --include='*.html' --include='*.py' '/js/background\.js' .. \
+           --exclude-dir=.git --exclude-dir=target \
+           --exclude-dir=vendor --exclude-dir=node_modules)
 echo "stamped /js/background.js?v=$VER onto the pages"
 
 ls -la "$OUT"

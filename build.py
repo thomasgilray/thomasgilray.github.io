@@ -49,7 +49,7 @@ import markdown
 from PIL import Image, ImageDraw, ImageFont
 
 ROOT = Path(__file__).resolve().parent
-BACKGROUND_SRC = "/js/background.js?v=ff04838eec"
+BACKGROUND_SRC = "/js/background.js?v=667fb18518"
 DEFAULT_BG_MODE = "fewcritters"
 SKIP_DIRS = {".git", "notes", "vendor", "node_modules", "bg"}
 

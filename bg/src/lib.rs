@@ -9485,7 +9485,7 @@ mod web {
             .unwrap_or_default();
         let mode_rate = match mode.as_str() {
             "fewcritters" => {
-                driver.calm_visitors(CRITTER_EVERY * 4.0, 1.7);
+                driver.calm_visitors(CRITTER_EVERY * 8.0, 1.7);
                 0.5
             }
             "nocritters" => {
