@@ -37,9 +37,15 @@ Programming Language Design is a tour of the surprisingly small set of ideas tha
 - [*Write You a Haskell*](https://github.com/sdiehl/write-you-a-haskell), Stephen Diehl — building a typed functional language from nothing
 - [*The Rust Programming Language*](https://doc.rust-lang.org/book/) and [*Rust by Example*](https://doc.rust-lang.org/rust-by-example/) — the standard introductions
 - [*Learning Rust With Entirely Too Many Linked Lists*](https://rust-unofficial.github.io/too-many-lists/) — the clearest explanation of ownership and borrowing anywhere
+- [*Crafting Interpreters*](https://craftinginterpreters.com/), Robert Nystrom — builds two complete interpreters for the same language, one simple and one fast
 - [The Python 3 tutorial and language reference](https://docs.python.org/3/) and [The Racket Guide](https://docs.racket-lang.org/guide/)
 
-**Recommended.** [*A Tour of C++*, 3rd ed.](https://www.stroustrup.com/tour3.html), Bjarne Stroustrup (Addison-Wesley, 2022, ISBN 0-13-681648-7), covers C++20 in about 300 pages and is the quickest route into modern C++. Unlike the resources above it is not free, and it is not required; buy it only if you want a book for that part of the course.
+**Recommended.** These are not free and none is required. Each is excellent, and worth owning if you want to go further than this course can take you:
+
+- [*Essentials of Programming Languages*, 3rd ed.](https://eopl3.com/) (EOPL), Friedman and Wand (MIT Press, 2008, ISBN 978-0-262-06279-4) — the classic interpreter-first course text, and the deepest treatment of environments, closures, and continuations
+- [*Lisp in Small Pieces*](https://christian.queinnec.org/WWW/LiSP.html), Christian Queinnec (Cambridge, 2003, ISBN 978-0-521-54566-2) — eleven interpreters and two compilers for Scheme, each more sophisticated than the last
+- [*Types and Programming Languages*](https://www.cis.upenn.edu/~bcpierce/tapl/) (TAPL), Benjamin Pierce (MIT Press, 2002, ISBN 978-0-262-16209-8) — the standard reference on type systems, if the typing material grabs you
+- [*A Tour of C++*, 3rd ed.](https://www.stroustrup.com/tour3.html), Bjarne Stroustrup (Addison-Wesley, 2022, ISBN 0-13-681648-7) — covers C++20 in about 300 pages, the quickest route into modern C++
 
 **Software.** Everything we use is free and runs on every platform: [Python 3.12+](https://www.python.org/downloads/), [Racket 8.x](https://download.racket-lang.org/), [Rust](https://rustup.rs/) (installed with rustup), [GHC](https://www.haskell.org/ghcup/) for Haskell (installed with GHCup), and [clang](https://clang.llvm.org/get_started.html) for C++. There are no course or lab fees.
 
