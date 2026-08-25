@@ -60,12 +60,13 @@ By the end of the term you should be able to:
 | 50% | Five written exams, in class at designated times — 10% each |
 | 30% | Three coding exams, proctored — 10% each |
 | 20% | Study group: weekly meeting reports and a final group project |
+| +10% | Coding exercises, handed out through the term |
 
 {.compact}
 
 The **five written exams** are taken in class at times posted on the schedule below. The **three coding exams** are proctored; scheduling details are forthcoming.
 
-I will also hand out **coding exercises** through the term. These sit outside the 100% above: together they are worth up to **+10% extra credit**.
+The **coding exercises** are additive, so there are more points available in this course than a perfect grade requires. Treat them as bonus credit: completing them can make up for points lost elsewhere.
 
 ### Study groups
 
