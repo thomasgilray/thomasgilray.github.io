@@ -35,7 +35,7 @@ Programming Language Design is a tour of the surprisingly small set of ideas tha
 - [*Crafting Interpreters*](https://craftinginterpreters.com/), Robert Nystrom — builds two complete interpreters for the same language, one simple and one fast
 - [The Python 3 tutorial and language reference](https://docs.python.org/3/) and [The Racket Guide](https://docs.racket-lang.org/guide/)
 
-**Recommended.** These are not free and none is required. Each is excellent, and worth owning if you want to go further than this course can take you:
+**Recommended.** These are not free and none is required. Each is excellent, and worth owning if you want to go further in depth on this material:
 
 - [*Essentials of Programming Languages*, 3rd ed.](https://eopl3.com/) (EOPL), Friedman and Wand (MIT Press, 2008, ISBN 978-0-262-06279-4) — the classic interpreter-first course text, and the deepest treatment of environments, closures, and continuations
 - [*Lisp in Small Pieces*](https://christian.queinnec.org/WWW/LiSP.html), Christian Queinnec (Cambridge, 2003, ISBN 978-0-521-54566-2) — eleven interpreters and two compilers for Scheme, each more sophisticated than the last
