@@ -47,7 +47,7 @@ Programming Language Design is a tour of the surprisingly small set of ideas tha
 - [*Types and Programming Languages*](https://www.cis.upenn.edu/~bcpierce/tapl/) (TAPL), Benjamin Pierce (MIT Press, 2002, ISBN 978-0-262-16209-8) — the standard reference on type systems, if the typing material grabs you
 - [*A Tour of C++*, 3rd ed.](https://www.stroustrup.com/tour3.html), Bjarne Stroustrup (Addison-Wesley, 2022, ISBN 0-13-681648-7) — covers C++20 in about 300 pages, the quickest route into modern C++
 
-**Software.** Everything we use is free and runs on every platform: [Python 3.12+](https://www.python.org/downloads/), [Racket 8.x](https://download.racket-lang.org/), [Rust](https://rustup.rs/) (installed with rustup), [GHC](https://www.haskell.org/ghcup/) for Haskell (installed with GHCup), and [clang](https://clang.llvm.org/get_started.html) for C++. There are no course or lab fees.
+**Software.** Everything we use is free and runs on every platform: [Python 3.12+](https://www.python.org/downloads/), [Racket 8.x](https://download.racket-lang.org/), [Rust](https://rustup.rs/) (installed with rustup), [GHC](https://www.haskell.org/ghcup/) for Haskell (installed with GHCup), and [clang](https://clang.llvm.org/get_started.html) for C++.
 
 **Expected effort.** This is a 3-credit course, so plan on roughly six to nine hours per week outside of lecture, most of it spent writing and debugging code.
 
