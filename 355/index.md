@@ -34,7 +34,7 @@ CptS 355 is a tour of how programming languages are designed, and of the surpris
 - [*Learning Rust With Entirely Too Many Linked Lists*](https://rust-unofficial.github.io/too-many-lists/) — the clearest explanation of ownership and borrowing anywhere
 - [The Python 3 tutorial and language reference](https://docs.python.org/3/) and [The Racket Guide](https://docs.racket-lang.org/guide/)
 
-**Software.** [Python 3.12+](https://www.python.org/downloads/) and [Racket 8.x](https://download.racket-lang.org/), both free and available for every platform. Everything we use in this course is free; there are no course or lab fees.
+**Software.** Everything we use is free and runs on every platform: [Python 3.12+](https://www.python.org/downloads/), [Racket 8.x](https://download.racket-lang.org/), [Rust](https://rustup.rs/) (installed with rustup), [GHC](https://www.haskell.org/ghcup/) for Haskell (installed with GHCup), and [clang](https://clang.llvm.org/get_started.html) for C++. There are no course or lab fees.
 
 **Expected effort.** This is a 3-credit course, so plan on roughly six to nine hours per week outside of lecture, most of it spent writing and debugging code.
 
