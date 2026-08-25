@@ -29,15 +29,17 @@ CptS 355 is a tour of how programming languages are designed, and of the surpris
 
 **Prerequisite.** CPT_S 223 or CPT_S 233 with a C or better.
 
-**Texts.** There is no required textbook to purchase. We will read from these free sources, with specific sections listed in the schedule below:
+**Resources.** There is no textbook for this course. Readings will come from freely available and custom materials, listed in the weekly schedule below. These are all free, and any of them may help:
 
-- [*Programming Languages: Application and Interpretation*](https://www.plai.org/) (PLAI), Shriram Krishnamurthi — free online
-- [*How to Design Programs*, 2nd ed.](https://htdp.org/) (HtDP), Felleisen, Findler, Flatt, and Krishnamurthi — free online
+- [*Programming Languages: Application and Interpretation*](https://www.plai.org/) (PLAI), Shriram Krishnamurthi — interpreters and semantics, the closest to what we do here
+- [*How to Design Programs*, 2nd ed.](https://htdp.org/) (HtDP), Felleisen, Findler, Flatt, and Krishnamurthi
+- [*Learn You a Haskell for Great Good!*](https://learnyouahaskell.github.io/) — a gentle way into typed functional programming
+- [*Write You a Haskell*](https://github.com/sdiehl/write-you-a-haskell), Stephen Diehl — building a typed functional language from nothing
+- [*The Rust Programming Language*](https://doc.rust-lang.org/book/) and [*Rust by Example*](https://doc.rust-lang.org/rust-by-example/) — the standard introductions
+- [*Learning Rust With Entirely Too Many Linked Lists*](https://rust-unofficial.github.io/too-many-lists/) — the clearest explanation of ownership and borrowing anywhere
 - [The Python 3 tutorial and language reference](https://docs.python.org/3/) and [The Racket Guide](https://docs.racket-lang.org/guide/)
 
 **Software.** [Python 3.12+](https://www.python.org/downloads/) and [Racket 8.x](https://download.racket-lang.org/), both free and available for every platform. Everything we use in this course is free; there are no course or lab fees.
-
-**Notes.** Lecture notes are posted here as we go, with runnable examples you can edit in the browser: [the λ-calculus](/notes/lambda/) <span class="tbd">(more to come)</span>.
 
 **Expected effort.** This is a 3-credit course, so plan on roughly six to nine hours per week outside of lecture, most of it spent writing and debugging code.
 
@@ -67,7 +69,7 @@ I will also hand out **coding exercises** through the term. These sit outside th
 
 ### Study groups
 
-You will be assigned to a study group early in the term. Each group agrees on a fixed weekly time and keeps it for the rest of the term, meeting either in person or on Zoom. Each week one member rotates into the role of **scribe** and writes up a half page of thoughtful bulleted notes: who attended, what the group discussed, and what you learned. Those weekly reports are **10%** of your grade — half the study group credit.
+You will be assigned to a study group early in the term. Each group agrees on a fixed weekly time and keeps it for the rest of the term, meeting either in person or on Zoom. Each week one member rotates into the role of **scribe** and writes up a half page of thoughtful bulleted notes: who attended, what the group discussed, and what you learned. Those weekly reports are **10%** of your grade.
 
 The other half is a **final project** of your group's own choosing, also **10%**. Pick something you actually want to build or dig into; a proposal deadline and details will come with the assignment.
 
@@ -113,7 +115,7 @@ If you need accommodations, reach out to the [Access Center](https://accesscente
 
 ## Schedule
 
-Readings and topics are filled in as the term progresses; exam dates and exercise due dates appear here as they are posted.
+Topics and readings will be posted here ahead of time. Check back once or twice a week to stay up to date.
 
 | Dates | Topics, readings, and due dates |
 |---|---|
