@@ -50,14 +50,25 @@ By the end of the term you should be able to:
 
 | Weight | Component |
 |---|---|
-| 45% | Programming assignments (six, roughly biweekly) |
-| 10% | In-class exercises and short quizzes |
-| 20% | Midterm exam |
-| 25% | Final exam |
+| 50% | Five written exams, in class at designated times — 10% each |
+| 30% | Three coding exams, proctored — 10% each |
+| 20% | Study group: weekly meeting reports and a final group project |
 
 {.compact}
 
-Letter grades are assigned from the total weighted percentage on this scale:
+The **five written exams** are taken in class at times posted on the schedule below. The **three coding exams** are proctored; scheduling details are forthcoming.
+
+I will also hand out **coding exercises** through the term. These sit outside the 100% above: together they are worth up to **+10% extra credit**.
+
+### Study groups
+
+You will be assigned to a study group early in the term. Each group agrees on a fixed weekly time and keeps it for the rest of the term, meeting either in person or on Zoom. Each week one member rotates into the role of **scribe** and writes up a half page of thoughtful bulleted notes: who attended, what the group discussed, and what you learned. Those weekly reports are **10%** of your grade — half the study group credit.
+
+The other half is a **final project** of your group's own choosing, also **10%**. Pick something you actually want to build or dig into; a proposal deadline and details will come with the assignment.
+
+### Letter grades
+
+The total weighted percentage maps to a letter grade on this scale:
 
 | Percentage | Grade |
 |---|---|
@@ -79,11 +90,13 @@ Totals are rounded to the nearest tenth of a percent, and no further rounding is
 
 ## Course policies
 
-**Assignments** are submitted through Canvas and are due at 11:59pm on the posted date. Each may be turned in up to 48 hours late at a penalty of 10% per day. You also have **three late days** for the term, no explanation needed — say in your submission comment that you are using one, and the penalty is waived for that day.
+**Coding exercises** are posted through the term and submitted through Canvas by 11:59pm on the posted date. Because they are extra credit there is no late penalty, but they track exactly what the exams cover, so treat the posted dates as the pace you want to keep.
 
-**Attendance** is not graded directly, but in-class exercises are collected the day they are given and cannot be made up outside of a university-approved absence. Come to class; this material is much easier to absorb in conversation than from a screenshot of someone else's notes.
+**Attendance** is not graded directly, but the five written exams are taken in class on the day they are scheduled, so those days are not optional. Come to the others too; this material is much easier to absorb in conversation than from a screenshot of someone else's notes.
 
-**Exams** are taken in class on the scheduled day. Make-up exams are arranged in advance, for documented and university-approved absences. If something goes wrong the day of an exam, contact me as soon as you are able rather than after the fact.
+**Exams** — written exams are taken in class on the scheduled day; coding exams are proctored at times announced during the term. Make-up exams are arranged in advance, for documented and university-approved absences. If something goes wrong the day of an exam, contact me as soon as you are able rather than after the fact.
+
+**Study group reports** are due each week and submitted by that week's scribe.
 
 **Regrades** may be requested within one week of a grade being posted, by email to me or a TA, saying specifically which part you believe was misgraded.
 
@@ -109,7 +122,7 @@ If you need accommodations, reach out to the [Access Center](https://accesscente
 
 ## Schedule
 
-Readings and topics are filled in as the term progresses; assignment due dates appear here as they are posted.
+Readings and topics are filled in as the term progresses; exam dates and exercise due dates appear here as they are posted.
 
 | Dates | Topics, readings, and due dates |
 |---|---|
