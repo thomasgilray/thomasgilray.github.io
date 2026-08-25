@@ -64,7 +64,7 @@ By the end of the term you should be able to:
 
 {.compact}
 
-The **five written exams** are taken in class at times posted on the schedule below. The **three coding exams** are proctored; scheduling details are forthcoming. Every exam, written or coding, is closed book, closed internet, and closed model, with one exception: you may bring a single page of notes, front and back, printed or handwritten. You are welcome to build those notes collaboratively within your study group, but each student must bring their own page. Notes can evolve over the term, and yours need not be the same page twice.
+The **five written exams** are taken in class at times posted on the schedule below. The **three coding exams** are proctored; scheduling details are forthcoming. Every exam, written or coding, is closed book, closed internet, and closed model, with one exception: you may bring a single page of notes, front and back, printed or handwritten. You are welcome to build those notes collaboratively within your study group, but each student must bring their own page. You may rewrite your page before each exam, and probably should as the material moves on.
 
 The **coding exercises** are additive, so there are more points available in this course than a perfect grade requires. Treat them as bonus credit: completing them can make up for points lost elsewhere.
 
