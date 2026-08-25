@@ -2,7 +2,7 @@
 r"""Build standalone markdown pages into site-styled HTML.
 
     python3 build.py                    # every page.md in the repo (outside notes/)
-    python3 build.py CptS-355/index.md  # just these
+    python3 build.py 355/index.md       # just these
 
 This is the general single-page builder: one .md in, one .html out beside it,
 wrapped in the same rounded white boxes, Palatino type, and Conway background
@@ -284,7 +284,7 @@ def box(inner, extra_class=""):
 
 
 def crumb_html(spec):
-    """"teaching | CptS 355 => /CptS-355/" -> the crumb strip, always rooted at
+    """"teaching | CptS 355 => /355/" -> the crumb strip, always rooted at
     the site index."""
     items = [("Thomas Gilray", "/")]
     for chunk in (part.strip() for part in spec.split("|")):

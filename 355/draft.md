@@ -3,13 +3,13 @@ title: CptS 355 — Programming Language Design
 subtitle: Working draft · Washington State University · Fall 2026
 description: Working draft of the CptS 355 syllabus and schedule. Not the published version.
 keywords: cpts 355, programming language design, wsu, washington state university, interpreters, semantics, python, racket, functional programming, thomas gilray
-crumbs: teaching | CptS 355 => /CptS-355/ | draft
+crumbs: teaching | CptS 355 => /355/ | draft
 bg: fewcritters
 robots: noindex, nofollow, noarchive
 ---
 
 <div class="note" markdown="1">
-**This is the planning draft, not the syllabus.** Weeks are penciled in here first; nothing on this page is committed until it is copied into [the published page](/CptS-355/). If you are taking the course, read that one instead.
+**This is the planning draft, not the syllabus.** Weeks are penciled in here first; nothing on this page is committed until it is copied into [the published page](/355/). If you are taking the course, read that one instead.
 </div>
 
 <div class="page-people" markdown="1">
