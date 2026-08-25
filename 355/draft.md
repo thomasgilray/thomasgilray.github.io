@@ -13,11 +13,16 @@ robots: noindex, nofollow, noarchive
 
 <div class="page-people" markdown="1">
 
-**Instructor:** Thomas Gilray {{email:thomas.gilray@wsu.edu}} — EME B49, office hours <span class="tbd">TBD</span>
+**Instructor:** Thomas Gilray — EME B49, office hours <span class="tbd">TBD</span>
 
-**Teaching assistants:** Aidan Johnson {{email:aidan.johnson@wsu.edu}} and Joseph Buchholz {{email:joseph.buchholz@wsu.edu}} — office hours <span class="tbd">TBD</span>
+**Teaching assistants:** Aidan Johnson and Joseph Buchholz — office hours <span class="tbd">TBD</span>
 
 **Lectures:** Tuesdays and Thursdays, 4:20–5:35pm, in [SEH 105](https://maps.google.com/?q=46.7288,-117.1682)
+
+**Contact:** {{email:thomas.gilray@wsu.edu}} · {{email:aidan.johnson@wsu.edu}} · {{email:joseph.buchholz@wsu.edu}}
+
+We are always glad to help, by email or by appointment. Please **always include all three** of these addresses when you write to us.
+{: .people-note }
 
 </div>
 

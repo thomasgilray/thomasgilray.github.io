@@ -29,7 +29,7 @@ Inline shortcode:
 
     {{email:someone@wsu.edu}}
 
-renders "(someone@wsu.edu)" as a monospace PNG under /img/email/, drawn at
+renders the address as a monospace PNG under /img/email/, drawn at
 EMAIL_HEIGHT px and displayed at half that, baseline-aligned with the
 surrounding prose. The address appears in no text node, no alt attribute, and
 no filename, so it does not fall out of a page scrape.
@@ -126,9 +126,10 @@ def fitted_font():
 
 
 def email_png(address):
-    """Draw "(address)" to a hash-named PNG; return (src, css width, css depth
-    below the baseline) for the half-size rendering."""
-    text = f"({address})"
+    """Draw the address to a hash-named PNG; return (src, css width, css depth
+    below the baseline) for the half-size rendering. Any punctuation around it
+    belongs in the markdown as real text, not baked into the image."""
+    text = address
     font, ascent, _descent = fitted_font()
     digest = hashlib.sha1(
         f"{EMAIL_VERSION}|{EMAIL_HEIGHT}|{EMAIL_COLOR}|{text}".encode()
