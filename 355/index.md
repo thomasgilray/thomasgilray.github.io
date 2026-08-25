@@ -68,25 +68,7 @@ The other half is a **final project** of your group's own choosing, also **10%**
 
 ### Letter grades
 
-The total weighted percentage maps to a letter grade on this scale:
-
-| Percentage | Grade |
-|---|---|
-| 93 and above | A |
-| 90–92.9 | A− |
-| 87–89.9 | B+ |
-| 83–86.9 | B |
-| 80–82.9 | B− |
-| 77–79.9 | C+ |
-| 73–76.9 | C |
-| 70–72.9 | C− |
-| 67–69.9 | D+ |
-| 60–66.9 | D |
-| below 60 | F |
-
-{.compact}
-
-Totals are rounded to the nearest tenth of a percent, and no further rounding is applied. This scale is a floor: it may be adjusted in your favor at the end of the term, never against you.
+Cut-offs can move down but never up: an A or A− will not require more than 90%, a B or B− more than 80%, a C or C− more than 70%, and a D more than 60%. Totals are rounded to the nearest tenth of a percent. A substantial curve on grade cut-offs is unlikely.
 
 ## Course policies
 
