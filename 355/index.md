@@ -119,10 +119,10 @@ Topics and readings will be posted here ahead of time. Check back once or twice 
 
 | Dates | Topics, readings, and due dates |
 |---|---|
-| **Aug 25, 27**<span class="wk">Week 1</span> | Syllabus and class policies; introduction to programming languages and paradigms; introduction to Python 3. |
-| **Sep 1, 3**<span class="wk">Week 2</span> | TBD |
-| **Sep 8, 10**<span class="wk">Week 3</span> | TBD |
-| **Sep 15, 17**<span class="wk">Week 4</span> | TBD |
+| **Aug 25, 27**<span class="wk">Week 1</span> | Syllabus and class policies; introduction to programming languages and paradigms; recursive vs imperative control; introduction to Python 3. |
+| **Sep 1, 3**<span class="wk">Week 2</span> | Syntax and semantics; recursive-descent parsing; interpreters. |
+| **Sep 8, 10**<span class="wk">Week 3</span> | C/C++; structured and object-oriented programming; memory management; TBD. |
+| **Sep 15, 17**<span class="wk">Week 4</span> | **Exam 1 is on Tuesday, Sept 15.** Topics TBD. |
 | **Sep 22, 24**<span class="wk">Week 5</span> | TBD |
 | **Sep 29, Oct 1**<span class="wk">Week 6</span> | TBD |
 | **Oct 6, 8**<span class="wk">Week 7</span> | TBD |
