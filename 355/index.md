@@ -42,7 +42,7 @@ Programming Language Design is a tour of the surprisingly small set of ideas tha
 
 By the end of the term you should be able to:
 
-1. Read and write idiomatic programs in an imperative/object-oriented language (Python 3) and a functional one (Racket), and explain the differences in how each structures a solution.
+1. Read and write idiomatic programs in an imperative/object-oriented language (for example, Python 3, C++, or Rust) and a functional one (for example, Racket or Haskell), and explain the differences in how each structures a solution.
 2. Describe a language's syntax with a grammar, and its behavior with operational rules, precisely enough that someone else could implement it.
 3. Implement an interpreter for a small language, including environments, closures, recursion, and mutable state.
 4. Explain and demonstrate the consequences of core design choices — scoping discipline, evaluation order, parameter passing, mutability, and static versus dynamic typing.
@@ -77,7 +77,7 @@ Cut-offs can move down but never up: an A or A− will not require more than 90%
 
 ## Course policies
 
-**Coding exercises** are released throughout the term and submitted online by 11:59pm on the posted date. Because they are extra credit there is no late penalty, but they track exactly what the exams cover, so treat the posted dates as the pace you want to keep.
+**Coding exercises** are released throughout the term and submitted online. No individual exercise has its own deadline: any of them may be submitted for credit at any point through the last day of lecture, Thursday, December 10. They track exactly what the exams cover, though, so the release schedule is still the pace you want to keep.
 
 **Attendance** is not graded directly, but the five written exams are taken in class on the day they are scheduled, so those days are not optional. Come to the others too; this material is much easier to absorb in conversation than from a screenshot of someone else's notes.
 
