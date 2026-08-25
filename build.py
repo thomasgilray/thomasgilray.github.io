@@ -54,9 +54,11 @@ DEFAULT_BG_MODE = "fewcritters"
 SKIP_DIRS = {".git", "notes", "vendor", "node_modules", "bg"}
 
 # Email images are drawn at EMAIL_HEIGHT px tall and shown at 50%, so they stay
-# sharp on hidpi screens. Bump EMAIL_VERSION to re-render every cached PNG.
+# sharp on hidpi screens; 38 puts them on the page at 19px, which sits right
+# next to the ~19.3px Palatino body text. Bump EMAIL_VERSION to re-render every
+# cached PNG.
 EMAIL_DIR = ROOT / "img" / "email"
-EMAIL_HEIGHT = 32
+EMAIL_HEIGHT = 38
 EMAIL_COLOR = (34, 34, 34, 255)
 EMAIL_VERSION = "v1"
 MONO_FONTS = [
