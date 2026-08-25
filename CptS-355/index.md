@@ -94,7 +94,7 @@ Totals are rounded to the nearest tenth of a percent, and no further rounding is
 
 Academic integrity is the cornerstone of the university. You are responsible for reading and understanding [WSU's Academic Integrity Policy](https://communitystandards.wsu.edu/policies-and-reporting/academic-integrity-policy/), which is grounded in Washington state law (WAC 504-26-010(3) and WAC 504-26-404).
 
-***If you cheat on work in this class you will receive a zero on the assignment or exam in question, and a second violation will result in a failing grade for the course.*** You will also be reported to the Center for Community Standards. You have the right to appeal my decision; while an appeal is pending you may not drop or withdraw from the course. To ask for a change in my decision, use the form on the [Center for Community Standards](https://communitystandards.wsu.edu/) website.
+***If you cheat on work in this class you will fail the course.*** You will also be reported to the Center for Community Standards. You have the right to appeal my decision; while an appeal is pending you may not drop or withdraw from the course. To ask for a change in my decision, use the form on the [Center for Community Standards](https://communitystandards.wsu.edu/) website.
 
 In practice: talking through ideas, approaches, and error messages with your classmates is encouraged and is how most real programming gets done. What you submit must be written by you, and anything you took from a book, a website, or a classmate must be cited in a comment. Exams are closed-book. If you are ever unsure whether something is allowed, ask me before you turn it in — I would much rather answer that question than the other one.
 
