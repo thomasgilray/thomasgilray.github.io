@@ -111,13 +111,17 @@ Totals are rounded to the nearest tenth of a percent, and no further rounding is
 
 Academic integrity is the cornerstone of the university. You are responsible for reading and understanding [WSU's Academic Integrity Policy](https://communitystandards.wsu.edu/policies-and-reporting/academic-integrity-policy/), which is grounded in Washington state law (WAC 504-26-010(3) and WAC 504-26-404).
 
+In this course, cheating means one thing: **getting unauthorized assistance on a proctored exam** — any of the five written exams or the three coding exams. That is where your grade is earned, and it is the only place where collaboration is off limits. Everything else is open. Studying together, working through the extra-credit coding exercises with whoever you like, and using whatever tools help you are all permitted without restriction; see [Use of AI tools](#ai) below. If you are ever unsure whether something falls inside that one line, ask me first — I would much rather answer that question than the other one.
+
 ***If you cheat on work in this class you will fail the course.*** You will also be reported to the Center for Community Standards. You have the right to appeal my decision; while an appeal is pending you may not drop or withdraw from the course. To ask for a change in my decision, use the form on the [Center for Community Standards](https://communitystandards.wsu.edu/) website.
 
-In practice: talking through ideas, approaches, and error messages with your classmates is encouraged and is how most real programming gets done. What you submit must be written by you, and anything you took from a book, a website, or a classmate must be cited in a comment. Exams are closed-book. If you are ever unsure whether something is allowed, ask me before you turn it in — I would much rather answer that question than the other one.
+## Use of AI tools {: #ai }
 
-## Use of AI tools
+Primary assessment in this course is proctored: five written exams in class and three proctored coding exams. Those are closed-book, closed-notes, and closed-model, and they are where your grade actually comes from. Because of that, I have no reason to police how you prepare for them.
 
-Large language models are good at exactly the thing this course asks you to learn to do yourself, which makes them easy to lean on in a way that quietly costs you the class. Unless an assignment says otherwise, you **may** use AI assistants to explain a concept, to walk through documentation, to interpret an error message, or to review code you have already written. You **may not** submit code or prose generated for you by a model, and you may not use any AI assistant during exams. If a model contributed to something you submit, say so in a comment saying what you used and how — an honest note costs you nothing, and an undisclosed one is handled under the academic integrity policy above.
+So outside of the exams, you are encouraged to make delimited, thoughtful use of AI. You are permitted to treat an AI as you would a human classmate and use one arbitrarily on any out-of-class work — the extra-credit coding exercises, your study group meetings, and your group's final project all included. Ask it to explain a concept, walk you through documentation, review code you wrote, or argue with you about a design choice. Collaboration with actual classmates on the same work is equally unrestricted.
+
+How you use that freedom is genuinely your call, and the discipline you bring to it will matter more than any rule I could write here. A study partner who does the work for you leaves you with nothing to show in a proctored room. Use a model to reach understanding faster, not to skip it.
 
 ## University policies and student resources
 
