@@ -13,9 +13,11 @@ robots: noindex, nofollow, noarchive
 
 <div class="page-people" markdown="1">
 
-**Instructor:** Thomas Gilray — EME B49, office hours <span class="tbd">TBD</span>
+**Instructor:** Thomas Gilray — EME B49
 
-**Teaching assistants:** Aidan Johnson and Joseph Buchholz — office hours <span class="tbd">TBD</span>
+**Teaching assistants:** Aidan Johnson and Joseph Buchholz
+
+**Office hours:** 3–4pm Thursdays in Sloan 341, and <span class="tbd">TBD</span>
 
 **Lectures:** Tuesdays and Thursdays, 4:20–5:35pm, in [SEH 105](https://maps.google.com/?q=46.7288,-117.1682)
 
