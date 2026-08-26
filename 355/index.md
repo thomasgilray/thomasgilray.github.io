@@ -81,7 +81,7 @@ The **coding exercises** are additive, so there are more points available in thi
 
 You will spend the term working in a study group. **By Friday, August 28**, one member of each proposed group should email me the names of everyone in it, using the subject line **CptS 355 Group** and including the word **open** or **closed** to say whether I may add another student. Please do not register yourself as a closed group of one unless you are genuinely certain you want to work alone this term; if you are, include your unofficial transcript and a short note on why working alone is the right call for you. Anyone without a group by that Friday will be placed in one.
 
-Each group agrees on a fixed weekly time and keeps it for the rest of the term, meeting either in person or on Zoom. Each week one member rotates into the role of **scribe** and writes up a half page of thoughtful bulleted notes: who attended, what the group discussed, and what you learned. Those weekly reports are **10%** of your grade.
+Each group agrees on a fixed weekly time and keeps it for the rest of the term, meeting either in person or on Zoom. Each week one member rotates into the role of **scribe** and writes up a half page of thoughtful bulleted notes: who attended, what the group discussed, and what you learned. Here is [an example of what one should look like](/355/study-report-example.pdf). Those weekly reports are **10%** of your grade.
 
 The remaining **10%** is a **final project** carried out in your study group. You will have an opportunity to select a project related to your interests, with some flexibility in scope; a proposal deadline and further details will come with the assignment.
 
@@ -97,7 +97,7 @@ Cut-offs can move down but never up: an A or A− will not require more than 90%
 
 **Exams** — written exams are taken in class on the scheduled day; coding exams are proctored at times announced during the term. Make-up exams are arranged in advance, for documented and university-approved absences. If something goes wrong the day of an exam, contact me as soon as you are able rather than after the fact.
 
-**Study group reports** are due each week and submitted by that week's scribe.
+**Study group reports** are due each week and submitted by that week's scribe; see the [example report](/355/study-report-example.pdf) for the length and level of detail expected.
 
 **Regrades** may be requested within one week of a grade being posted, by email to me or a TA, saying specifically which part you believe was misgraded.
 
