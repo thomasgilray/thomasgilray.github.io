@@ -12,7 +12,7 @@ bg: fewcritters
 
 **Teaching assistants:** Aidan Johnson and Joseph Buchholz
 
-**Office hours:** 3–4pm Thursdays in Sloan 341, and <span class="tbd">TBD</span>
+**Office hours:** 3–4pm Tuesdays and 9–10am Wednesdays in EME 105; 3–4pm Thursdays in Sloan 341
 
 **Lectures:** Tuesdays and Thursdays, 4:20–5:35pm, in [SEH 105](https://maps.google.com/?q=46.7288,-117.1682)
 
