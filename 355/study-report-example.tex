@@ -22,13 +22,13 @@
   framexrightmargin=0.7em,
   framextopmargin=0.4em,
   framexbottommargin=0.4em,
-  aboveskip=0.9em,
-  belowskip=0.7em,
+  aboveskip=0.8em,
+  belowskip=0.6em,
   showstringspaces=false,
   columns=fullflexible,
   keepspaces=true,
-  language=Python,
-  keywordstyle=\color{black}\bfseries,
+  language=Lisp,
+  keywordstyle=\color{black},
   commentstyle=\color{note}\itshape,
 }
 
@@ -37,73 +37,47 @@
 \renewcommand{\headrulewidth}{0pt}
 \rhead{\small\color{note}(Example CptS 355 Study Group Report)}
 
-\setlist[itemize]{leftmargin=1.4em,itemsep=0.45em,topsep=0.5em}
+\setlist[itemize]{leftmargin=1.4em,itemsep=0.3em,topsep=0.5em}
 
 \begin{document}
 
-{\large\bfseries CptS 355 Study Group --- Week 2 (Sep 1 \& 3)}
+{\large\bfseries CptS 355 Study Group --- Week 8}
 
 \smallskip
 \textbf{Scribe:} Claire \qquad \textbf{Attended:} Jason, Sarah, Arvind, Claire (all four)
 
 \smallskip
-We met Thursday around 7 in the Terrell basement, went about an hour and a half.
+Met Wednesday at 7:00pm on the ground floor of SEH, for about 60 minutes.
 
 \begin{itemize}
 
-\item Warmed up on syntax vs.\ semantics from Tuesday, since half of us had written
-basically the same sentence for both on the reading response. Arvind's version is the one
-that stuck: the grammar decides which strings are even sentences, the semantics decides
-what those sentences \emph{do}. Same grammar, different semantics bolted on, different
-language.
+\item Went back over the lambda calculus part of Tuesday's lecture.
 
-\item Then recursive descent for most of the time. Sarah pointed out that every
-nonterminal in the grammar becomes a function, one for one, and that the only reason it
-terminates is that the grammar isn't left-recursive --- if \texttt{expr} started with
-\texttt{expr} then \texttt{parse\_expr} calls itself with nothing consumed and you blow
-the stack. That explained why the book keeps rewriting grammars before parsing them.
+\item Rule for free variables: free in a body if no enclosing lambda binds it.
 
-\item \textbf{Where we got stuck.} Three of us had written \texttt{parse\_expr}
-basically like this, and none of us could see why \texttt{1 - 2 - 3} was evaluating
-to \texttt{2}:
+\item Marked every variable free or bound in four small expressions. Sarah caught one.
 
-\begin{lstlisting}
-def parse_expr(toks):
-    left = parse_term(toks)
-    if peek(toks) == '-':
-        toks.pop(0)
-        right = parse_expr(toks)   # recursing on the whole expr
-        return ('-', left, right)
-    return left
-\end{lstlisting}
+\item A name can be free in the inner lambda and bound in the outer one.
 
-Jason drew both trees on the whiteboard and explained it to everyone and it made a lot
-better sense: recursing on \texttt{parse\_expr} on the right builds
-\texttt{1 - (2 - 3)}, which is right-associative, and subtraction groups to the left. We
-were reading the grammar as if it only said which tokens are legal, but the recursion is
-also deciding the shape of the tree. Fix is a loop:
+\item A closure is the lambda plus the bindings for its free variables.
 
-\begin{lstlisting}
-def parse_expr(toks):
-    node = parse_term(toks)
-    while peek(toks) == '-':
-        toks.pop(0)
-        node = ('-', node, parse_term(toks))
-    return node
-\end{lstlisting}
+\item Returned a lambda out of a Scheme function and called it after the outer call.
 
-Now the tree grows down the left, \texttt{(1 - 2) - 3}, and you get \texttt{-4}.
+\item Wrote down Church 0, 1, and 2, and what the two arguments are for.
 
-\item We'd never noticed with \texttt{+} because you only get punished on operators that
-aren't associative --- Sarah's point --- so \texttt{+} and \texttt{*} let you write the
-bug and pass all your own tests. Claire is trying \texttt{/} tonight. Arvind thinks
-right-associative ones like \texttt{**} are where you \emph{do} recurse on the right,
-which would be a nice symmetry, but we ran out of time; he's checking before next week.
+\item Could not get Church addition right. Ours gave the wrong numeral.
+
+\item Arvind is redoing addition. Jason will bring the substitution rules.
 
 \end{itemize}
 
-\textbf{What we actually learned:} associativity isn't a property of the operator symbol,
-it's a property of how you wrote the parsing function. All four of us thought it came
-from the grammar.
+The example we spent the most time on:
+
+\begin{lstlisting}
+(define (make-adder n) (lambda (x) (+ x n)))
+(define add5 (make-adder 5))   ; n is free in the inner lambda
+\end{lstlisting}
+
+By the time \texttt{add5} runs, \texttt{n} is out of scope, so the closure is carrying it.
 
 \end{document}

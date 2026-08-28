@@ -17,7 +17,7 @@ robots: noindex, nofollow, noarchive
 
 **Teaching assistants:** Aidan Johnson and Joseph Buchholz
 
-**Office hours:** 3–4pm Tuesdays and 9–10am Wednesdays in EME 105; 3–4pm Thursdays in Sloan 341
+**Office hours:** 3–4pm Tuesdays and 9–10am Wednesdays in EME 105, 3–4pm Thursdays in Sloan 341, or by appointment
 
 **Lectures:** Tuesdays and Thursdays, 4:20–5:35pm, in [SEH 105](https://maps.google.com/?q=46.7288,-117.1682)
 
@@ -88,7 +88,7 @@ The **coding exercises** are additive, so there are more points available in thi
 
 You will spend the term working in a study group. **By Friday, August 28**, one member of each proposed group should email me the names of everyone in it, using the subject line **CptS 355 Group** and including the word **open** or **closed** to say whether I may add another student. Please do not register yourself as a closed group of one unless you are genuinely certain you want to work alone this term; if you are, include your unofficial transcript and a short note on why working alone is the right call for you. Anyone without a group by that Friday will be placed in one.
 
-Each group agrees on a fixed weekly time and keeps it for the rest of the term, meeting either in person or on Zoom. Each week one member rotates into the role of **scribe** and writes up a half page of thoughtful bulleted notes: who attended, what the group discussed, and what you learned. Here is [an example of what one should look like](/355/study-report-example.pdf). Those weekly reports are **10%** of your grade.
+Each group agrees on a fixed weekly time and keeps it for the rest of the term, meeting either in person or on Zoom. Each week one member rotates into the role of **scribe** and writes up a half page of thoughtful bulleted notes: who attended, what the group discussed, and what you learned. Here is [an example of what one might look like](/355/study-report-example.pdf). Those weekly reports are **10%** of your grade.
 
 The remaining **10%** is a **final project** carried out in your study group. You will have an opportunity to select a project related to your interests, with some flexibility in scope; a proposal deadline and further details will come with the assignment.
 
