@@ -182,6 +182,11 @@
 }
 
 /* The small "Week 3" line under each date range in the schedule. */
+.page td .aside {
+	margin-left: 1.8em;
+	white-space: nowrap;
+}
+
 .page .wk {
 	display: block;
 	font-size: calc(13px + var(--type-bump));
