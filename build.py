@@ -19,6 +19,7 @@ Each page opens with a frontmatter block:
     crumbs: teaching | CptS 355        (optional; "Thomas Gilray" is prepended)
     bg: fewcritters                    (optional: default | fewcritters | nocritters)
     robots: noindex, nofollow          (optional; defaults to "index, follow")
+    emails: stu_emails                 (optional; email PNG folder under /img/)
     ---
 
 The body is standard markdown (python-markdown: fenced_code, tables, attr_list,
@@ -29,7 +30,8 @@ Inline shortcode:
 
     {{email:someone@wsu.edu}}
 
-renders the address as a monospace PNG under /img/email/, drawn at
+renders the address as a monospace PNG under /img/email/, or under the folder
+a page names in its `emails:` frontmatter key, drawn at
 EMAIL_HEIGHT px and displayed at half that, baseline-aligned with the
 surrounding prose. The address appears in no text node, no alt attribute, and
 no filename, so it does not fall out of a page scrape.
@@ -57,7 +59,9 @@ SKIP_DIRS = {".git", "notes", "vendor", "node_modules", "bg"}
 # sharp on hidpi screens; 38 puts them on the page at 19px, which sits right
 # next to the ~19.3px Palatino body text. Bump EMAIL_VERSION to re-render every
 # cached PNG.
-EMAIL_DIR = ROOT / "img" / "email"
+EMAIL_ROOT = ROOT / "img"
+EMAIL_DIR_DEFAULT = "email"
+EMAIL_DIR_NAME = re.compile(r"\A[a-z0-9_-]+\Z")
 EMAIL_HEIGHT = 38
 EMAIL_COLOR = (34, 34, 34, 255)
 EMAIL_VERSION = "v1"
@@ -125,17 +129,19 @@ def fitted_font():
     return best
 
 
-def email_png(address):
-    """Draw the address to a hash-named PNG; return (src, css width, css depth
-    below the baseline) for the half-size rendering. Any punctuation around it
-    belongs in the markdown as real text, not baked into the image."""
+def email_png(address, folder):
+    """Draw the address to a hash-named PNG in /img/<folder>/; return (src, css
+    width, css depth below the baseline) for the half-size rendering. Any
+    punctuation around it belongs in the markdown as real text, not baked into
+    the image."""
     text = address
     font, ascent, _descent = fitted_font()
     digest = hashlib.sha1(
         f"{EMAIL_VERSION}|{EMAIL_HEIGHT}|{EMAIL_COLOR}|{text}".encode()
     ).hexdigest()[:16]
-    EMAIL_DIR.mkdir(parents=True, exist_ok=True)
-    out = EMAIL_DIR / f"{digest}.png"
+    directory = EMAIL_ROOT / folder
+    directory.mkdir(parents=True, exist_ok=True)
+    out = directory / f"{digest}.png"
 
     if out.exists():
         width = Image.open(out).size[0]
@@ -147,13 +153,13 @@ def email_png(address):
             (pad, 0), text, font=font, fill=EMAIL_COLOR, anchor="la"
         )
         image.save(out, optimize=True)
-        print(f"  email {out.name}  {width}x{EMAIL_HEIGHT}")
+        print(f"  email {folder}/{out.name}  {width}x{EMAIL_HEIGHT}")
 
-    return f"/img/email/{out.name}", width / 2, (EMAIL_HEIGHT - ascent) / 2
+    return f"/img/{folder}/{out.name}", width / 2, (EMAIL_HEIGHT - ascent) / 2
 
 
-def email_html(address):
-    src, width, depth = email_png(address)
+def email_html(address, folder):
+    src, width, depth = email_png(address, folder)
     return (
         f'<img class="email-inline" src="{src}" '
         f'style="width:{width:.1f}px;height:{EMAIL_HEIGHT / 2:.0f}px;'
@@ -165,14 +171,22 @@ def email_html(address):
 STATIC_FENCE = re.compile(r"^```.*?^```[ \t]*$", re.S | re.M)
 
 
-def substitute_emails(source, tokens):
+def email_folder(meta, path):
+    """Which folder under /img/ this page's addresses are drawn into."""
+    folder = meta.get("emails", EMAIL_DIR_DEFAULT).strip() or EMAIL_DIR_DEFAULT
+    if not EMAIL_DIR_NAME.match(folder):
+        fail(f"{path}: emails: {folder!r} is not a plain folder name")
+    return folder
+
+
+def substitute_emails(source, tokens, folder):
     """Swap {{email:...}} for opaque tokens (resolved to <img> after markdown
     runs), leaving fenced blocks and `code spans` alone."""
 
     def handle_plain(segment):
         def replace(match):
             token = f"qemailtok{len(tokens)}q"
-            tokens[token] = email_html(match.group(1))
+            tokens[token] = email_html(match.group(1), folder)
             return token
 
         return EMAIL_SHORTCODE.sub(replace, segment)
@@ -353,7 +367,9 @@ def build_page(path):
         fail(f"{path}: frontmatter needs a title")
 
     tokens = {}
-    body_html = render_markdown(substitute_emails(source, tokens))
+    body_html = render_markdown(
+        substitute_emails(source, tokens, email_folder(meta, path))
+    )
     for token, embed in tokens.items():
         if token not in body_html:
             fail(f"{path}: email shortcode {token} was mangled by markdown")
@@ -388,21 +404,32 @@ def discover():
     return pages
 
 
-def prune_emails():
+def declared_email_folders(pages):
+    """Every /img/ folder the site draws addresses into, default included."""
+    folders = {EMAIL_DIR_DEFAULT}
+    for page in pages:
+        meta, _ = parse_frontmatter(page.read_text(encoding="utf-8"), page)
+        folders.add(email_folder(meta, page))
+    return folders
+
+
+def prune_emails(pages):
     """Drop cached email PNGs that no page on the site references any more."""
-    if not EMAIL_DIR.is_dir():
-        return
     referenced = set()
     for page in ROOT.rglob("*.html"):
         if ".git" in page.parts:
             continue
         referenced.update(
-            re.findall(r'/img/email/([^"\']+)', page.read_text(encoding="utf-8"))
+            re.findall(r'/img/[a-z0-9_-]+/[^"\']+', page.read_text(encoding="utf-8"))
         )
-    for stale in EMAIL_DIR.glob("*.png"):
-        if stale.name not in referenced:
-            stale.unlink()
-            print(f"  email pruned {stale.name}")
+    for folder in sorted(declared_email_folders(pages)):
+        directory = EMAIL_ROOT / folder
+        if not directory.is_dir():
+            continue
+        for stale in directory.glob("*.png"):
+            if f"/img/{folder}/{stale.name}" not in referenced:
+                stale.unlink()
+                print(f"  email pruned {folder}/{stale.name}")
 
 
 def main():
@@ -413,7 +440,7 @@ def main():
     for page in pages:
         build_page(page)
     if not args:
-        prune_emails()
+        prune_emails(pages)
 
 
 if __name__ == "__main__":
