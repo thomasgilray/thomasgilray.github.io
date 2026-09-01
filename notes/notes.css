@@ -5,22 +5,6 @@
 	padding: 16px 34px 20px 34px;
 }
 
-.notes .notes-crumbs {
-	font-size: calc(14px + var(--type-bump));
-	font-weight: bold;
-	color: #999;
-	margin: 0 0 6px 0;
-}
-
-.notes .notes-crumbs a,
-.notes .notes-crumbs a:visited {
-	color: #999;
-}
-
-.notes .notes-crumbs a:hover {
-	color: #0a2;
-}
-
 .notes .notes-tldr {
 	font-style: italic;
 	color: #555;

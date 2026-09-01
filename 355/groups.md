@@ -2,7 +2,6 @@
 title: CptS 355 — Study Groups
 subtitle: Washington State University · Fall 2026
 description: Study group assignments for CptS 355, Programming Language Design, at Washington State University, Fall 2026.
-crumbs: teaching | CptS 355 => /355/ | Study groups
 bg: fewcritters
 robots: noindex, nofollow
 emails: stu_emails

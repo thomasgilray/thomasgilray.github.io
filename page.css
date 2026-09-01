@@ -5,28 +5,6 @@
 	padding: 16px 34px 20px 34px;
 }
 
-.page .page-crumbs {
-	font-size: calc(14px + var(--type-bump));
-	font-weight: bold;
-	color: #999;
-	margin: 0 0 6px 0;
-}
-
-.page .page-crumbs a,
-.page .page-crumbs a:visited {
-	color: #999;
-}
-
-.page .page-crumbs a:hover {
-	color: #0a2;
-}
-
-.page .sep {
-	color: #bbb;
-	font-weight: normal;
-	margin: 0 8px;
-}
-
 .page .page-subtitle {
 	margin: 2px 0 14px 0;
 	font-size: calc(18px + var(--type-bump));

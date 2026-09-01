@@ -17,8 +17,8 @@ and one markdown file per page slug. Pages open with a small frontmatter block:
 
 The markdown body is standard (python-markdown: fenced_code, tables, attr_list,
 toc, smarty). Every level-2 heading starts a new rounded content box. The title
-box is generated: breadcrumbs, h1, the tldr, and a cdot-separated strip of all
-pages in the topic with the current page in bold.
+box is generated: the h1, the tldr, and a cdot-separated strip of all pages in
+the topic with the current page in bold.
 
 Fenced code blocks whose info string includes the bare token `run` become live
 <run-code> embeds executed by run.gilray.net; all other fences stay static:
@@ -335,9 +335,6 @@ def page_strip(pages, current_index):
 def render_page(topic, pages, index, body_html):
     page = pages[index]
     top = (
-        f'<div class="notes-crumbs"><a href="/">Thomas Gilray</a>'
-        f' <span class="sep">&middot;</span> notes'
-        f' <span class="sep">&middot;</span> {html.escape(topic["title"])}</div>\n'
         f'<h1>{html.escape(page["title"])}</h1>\n'
         f'<div class="notes-tldr">{page["tldr"]}</div>\n'
         f'<div class="notes-pagenav">{page_strip(pages, index)}</div>'

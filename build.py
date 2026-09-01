@@ -16,7 +16,6 @@ Each page opens with a frontmatter block:
     subtitle: Washington State University · Fall 2026
     description: One sentence for search engines and link previews.
     keywords: comma, separated, optional
-    crumbs: teaching | CptS 355        (optional; "Thomas Gilray" is prepended)
     bg: fewcritters                    (optional: default | fewcritters | nocritters)
     robots: noindex, nofollow          (optional; defaults to "index, follow")
     emails: stu_emails                 (optional; email PNG folder under /img/)
@@ -300,23 +299,6 @@ def box(inner, extra_class=""):
     )
 
 
-def crumb_html(spec):
-    """"teaching | CptS 355 => /355/" -> the crumb strip, always rooted at
-    the site index."""
-    items = [("Thomas Gilray", "/")]
-    for chunk in (part.strip() for part in spec.split("|")):
-        if not chunk:
-            continue
-        label, sep, href = chunk.partition("=>")
-        items.append((label.strip(), href.strip() if sep else None))
-    parts = []
-    for label, href in items:
-        label = html.escape(label)
-        parts.append(f'<a href="{html.escape(href, quote=True)}">{label}</a>'
-                     if href else label)
-    return ' <span class="sep">&middot;</span> '.join(parts)
-
-
 def document(meta, boxes):
     year = date.today().year
     body = "\n\n".join(boxes)
@@ -376,10 +358,7 @@ def build_page(path):
         body_html = body_html.replace(token, embed)
 
     sections = re.split(r"(?=<h2[ >])", body_html)
-    top = ""
-    if meta.get("crumbs"):
-        top += f'<div class="page-crumbs">{crumb_html(meta["crumbs"])}</div>\n'
-    top += f'<h1>{html.escape(meta["title"])}</h1>\n'
+    top = f'<h1>{html.escape(meta["title"])}</h1>\n'
     if meta.get("subtitle"):
         top += f'<div class="page-subtitle">{meta["subtitle"]}</div>\n'
     top += sections[0].strip()
