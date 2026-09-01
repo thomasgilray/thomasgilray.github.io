@@ -46,6 +46,7 @@ Programming Language Design is a tour of the surprisingly small set of ideas tha
 - [*The Rust Programming Language*](https://doc.rust-lang.org/book/) and [*Rust by Example*](https://doc.rust-lang.org/rust-by-example/) — the standard introductions
 - [*Learning Rust With Entirely Too Many Linked Lists*](https://rust-unofficial.github.io/too-many-lists/) — the clearest explanation of ownership and borrowing anywhere
 - [*Crafting Interpreters*](https://craftinginterpreters.com/), Robert Nystrom — builds two complete interpreters for the same language, one simple and one fast
+- [*A Whirlwind Tour of Python*](https://github.com/jakevdp/WhirlwindTourOfPython), Jake VanderPlas — Python 3 in about a hundred pages, written for people who already program in something else; also readable [online](https://jakevdp.github.io/WhirlwindTourOfPython/)
 - [The Python 3 tutorial and language reference](https://docs.python.org/3/) and [The Racket Guide](https://docs.racket-lang.org/guide/)
 
 **Recommended.** These are not free and none is required. Each is excellent, and worth owning if you want to go further in depth on this material:
@@ -139,7 +140,7 @@ Topics and readings will be posted here ahead of time. Check back once or twice 
 | Dates | Topics, readings, and due dates |
 |---|---|
 | **Aug 25, 27**<span class="wk">Week 1</span> | Syllabus and class policies; introduction to programming languages and paradigms; recursive vs imperative control; introduction to Python 3. |
-| **Sep 1, 3**<span class="wk">Week 2</span> | Syntax and Semantics. Lexing and Parsing. Regular expressions. Grammars. |
+| **Sep 1, 3**<span class="wk">Week 2</span> | Syntax and Semantics. Lexing and Parsing. Regular expressions. Grammars. **Readings:** [*A Whirlwind Tour of Python*](https://github.com/jakevdp/WhirlwindTourOfPython), Ch. 3–9. |
 | **Sep 8, 10**<span class="wk">Week 3</span> | Grammars. Recursive descent parsing. Interpreters. |
 | **Sep 15, 17**<span class="wk">Week 4</span> | **Exam 1 is on Tuesday, Sept 15.** C/C++; structured and object-oriented programming; memory management. |
 | **Sep 22, 24**<span class="wk">Week 5</span> | TBD |
