@@ -181,12 +181,14 @@
 	width: auto;
 }
 
-/* The small "Week 3" line under each date range in the schedule. */
+/* A trailing link in a schedule cell (slides, handouts) held clear of the
+   text before it. */
 .page td .aside {
 	margin-left: 1.8em;
 	white-space: nowrap;
 }
 
+/* The small "Week 3" line under each date range in the schedule. */
 .page .wk {
 	display: block;
 	font-size: calc(13px + var(--type-bump));
@@ -198,6 +200,15 @@
 }
 
 /* A break week or holiday: no topics, so let the row recede. */
+/* Day-by-day schedules (the planning page) rule off each new week. */
+.page tr.weekstart td {
+	border-top: 1px solid #c8c8c8;
+}
+
+.page tbody tr.weekstart:first-child td {
+	border-top: 0;
+}
+
 .page tr.off td {
 	color: #999;
 	font-style: italic;

@@ -6,14 +6,14 @@
 		<meta name="author" content="Thomas Gilray">
 		<meta name="copyright" content="(c) Thomas Gilray, 2018-2026">
 		<meta name="robots" content="noindex, nofollow, noarchive">
-		<meta name="description" content="Working draft of the CptS 355 syllabus and schedule. Not the published version.">
+		<meta name="description" content="Planning and retrospective notes for CptS 355, Programming Language Design, at Washington State University, Fall 2026.">
 		<meta name="keywords" content="cpts 355, programming language design, wsu, washington state university, interpreters, semantics, python, racket, functional programming, thomas gilray">
 
-		<title>CptS 355 — Programming Language Design</title>
+		<title>CptS 355 — Planning Notes</title>
 
 		<link rel="icon" href="/favicon.ico" sizes="any">
 		<link rel="stylesheet" href="/screen.css?v=c4f3452a57">
-		<link rel="stylesheet" href="/page.css?v=562b6a0a19">
+		<link rel="stylesheet" href="/page.css?v=eca19c1ca1">
 		<script>window.conwayBgMode = 'fewcritters';</script>
 		<script type="module" src="/js/background.js?v=667fb18518"></script>
 	</head>
@@ -26,170 +26,9 @@
 	<div id="wrapper">
 		<div class="rounded">
 			<div class="content page-top">
-<h1>CptS 355 — Programming Language Design</h1>
+<h1>CptS 355 — Planning Notes</h1>
 <div class="page-subtitle">Working draft · Washington State University · Fall 2026</div>
-<div class="note">
-<p><strong>This is the planning draft, not the syllabus.</strong> Weeks are penciled in here first; nothing on this page is committed until it is copied into <a href="/355/">the published page</a>. If you are taking the course, read that one instead.</p>
-</div>
-<div class="page-people">
-<p><strong>Instructor:</strong> Thomas Gilray — EME B49</p>
-<p><strong>Teaching assistants:</strong> Aidan Johnson and Joseph Buchholz</p>
-<p><strong>Office hours:</strong> 3–4pm Tuesdays and 9–10am Wednesdays in EME 105, 3–4pm Thursdays in Sloan 341, or by appointment</p>
-<p><strong>Lectures:</strong> Tuesdays and Thursdays, 4:20–5:35pm, in <a href="https://maps.google.com/?q=46.7288,-117.1682">SEH 105</a></p>
-<p><strong>Contact:</strong> <img class="email-inline" src="/img/email/2629eebf40e1f7ee.png" style="width:203.5px;height:19px;vertical-align:-4.0px" width="204" height="19" alt="email address"> · <img class="email-inline" src="/img/email/46edd5907fbab733.png" style="width:203.5px;height:19px;vertical-align:-4.0px" width="204" height="19" alt="email address"> · <img class="email-inline" src="/img/email/e79577e5c8366d19.png" style="width:222.5px;height:19px;vertical-align:-4.0px" width="222" height="19" alt="email address"></p>
-<p class="people-note">We are always glad to help, by email or by appointment. Please <strong>always include all three</strong> of these addresses when you write to us.</p>
-</div>
-<p>Programming Language Design is a tour of the surprisingly small set of ideas that nearly every programming language is assembled from. We will work in Python, Racket, Haskell, Rust, and C++, asking of each what it is built to make easy, what it gives up in exchange, and when that trade is the one you want. Rather than memorizing a language as a list of rules, we will build small interpreters of our own, so that scope, binding, closures, evaluation order, recursion, mutable state, and types become things you have studied closely or even implemented, rather than terms you have read. Alongside that comes just enough formal semantics (grammars and operational rules) to say precisely what a program <em>means</em>, and to see why two languages that look alike on the page can behave very differently when you run them. By the end you should be able to pick up an unfamiliar language quickly and reason about the tradeoffs its designers were making.</p>
-			</div>
-			<div class="a"></div>
-			<div class="b"></div>
-			<div class="c"></div>
-			<div class="d"></div>
-		</div>
-
-		<div class="rounded">
-			<div class="content">
-<h2>Course details</h2>
-<p><strong>Catalog description.</strong> <em>Design concepts of high-level programming languages; survey of existing languages; experience using some languages.</em> 3 credits.</p>
-<p><strong>Prerequisite.</strong> CPT_S 223 or CPT_S 233 with a C or better.</p>
-<p><strong>Resources.</strong> There is no textbook for this course. Readings will come from freely available and custom materials, listed in the weekly schedule below. These are all free, and any of them may help:</p>
-<ul>
-<li><a href="https://mitp-content-server.mit.edu/books/content/sectbyfn/books_pres_0/6515/sicp.zip/index.html"><em>Structure and Interpretation of Computer Programs</em></a> (SICP), Abelson and Sussman — the easiest introduction to programming in Scheme; free in full from MIT Press, and as a <a href="https://web.mit.edu/6.001/6.037/sicp.pdf">PDF</a></li>
-<li><a href="https://www.plai.org/"><em>Programming Languages: Application and Interpretation</em></a> (PLAI), Shriram Krishnamurthi — interpreters and semantics, the closest to what we do here</li>
-<li><a href="https://htdp.org/"><em>How to Design Programs</em>, 2nd ed.</a> (HtDP), Felleisen, Findler, Flatt, and Krishnamurthi</li>
-<li><a href="https://learnyouahaskell.github.io/"><em>Learn You a Haskell for Great Good!</em></a> — a gentle way into typed functional programming</li>
-<li><a href="https://github.com/sdiehl/write-you-a-haskell"><em>Write You a Haskell</em></a>, Stephen Diehl — building a typed functional language from nothing</li>
-<li><a href="https://doc.rust-lang.org/book/"><em>The Rust Programming Language</em></a> and <a href="https://doc.rust-lang.org/rust-by-example/"><em>Rust by Example</em></a> — the standard introductions</li>
-<li><a href="https://rust-unofficial.github.io/too-many-lists/"><em>Learning Rust With Entirely Too Many Linked Lists</em></a> — the clearest explanation of ownership and borrowing anywhere</li>
-<li><a href="https://craftinginterpreters.com/"><em>Crafting Interpreters</em></a>, Robert Nystrom — builds two complete interpreters for the same language, one simple and one fast</li>
-<li><a href="https://jakevdp.github.io/WhirlwindTourOfPython/"><em>A Whirlwind Tour of Python</em></a>, Jake VanderPlas — Python 3 in about a hundred pages, written for people who already program in something else; the notebooks behind it are on <a href="https://github.com/jakevdp/WhirlwindTourOfPython">GitHub</a></li>
-<li><a href="https://docs.python.org/3/">The Python 3 tutorial and language reference</a> and <a href="https://docs.racket-lang.org/guide/">The Racket Guide</a></li>
-</ul>
-<p><strong>Recommended.</strong> These are not free and none is required. Each is excellent, and worth owning if you want to go further in depth on this material:</p>
-<ul>
-<li><a href="https://eopl3.com/"><em>Essentials of Programming Languages</em>, 3rd ed.</a> (EOPL), Friedman and Wand (MIT Press, 2008, ISBN 978-0-262-06279-4) — the classic interpreter-first course text, and the deepest treatment of environments, closures, and continuations</li>
-<li><a href="https://christian.queinnec.org/WWW/LiSP.html"><em>Lisp in Small Pieces</em></a>, Christian Queinnec (Cambridge, 2003, ISBN 978-0-521-54566-2) — eleven interpreters and two compilers for Scheme, each more sophisticated than the last</li>
-<li><a href="https://www.cis.upenn.edu/~bcpierce/tapl/"><em>Types and Programming Languages</em></a> (TAPL), Benjamin Pierce (MIT Press, 2002, ISBN 978-0-262-16209-8) — the standard reference on type systems, if the typing material grabs you</li>
-<li><a href="https://www.stroustrup.com/tour3.html"><em>A Tour of C++</em>, 3rd ed.</a>, Bjarne Stroustrup (Addison-Wesley, 2022, ISBN 0-13-681648-7) — covers C++20 in about 300 pages, the quickest route into modern C++</li>
-</ul>
-<p><strong>Software.</strong> Everything we use is free and runs on every platform: <a href="https://www.python.org/downloads/">Python 3.12+</a>, <a href="https://download.racket-lang.org/">Racket 8.x</a>, <a href="https://rustup.rs/">Rust</a> (installed with rustup), <a href="https://www.haskell.org/ghcup/">GHC</a> for Haskell (installed with GHCup), and <a href="https://clang.llvm.org/get_started.html">clang</a> for C++.</p>
-<p><strong>Expected effort.</strong> This is a 3-credit course, so plan on roughly six to nine hours per week outside of lecture, most of it spent writing and debugging code.</p>
-			</div>
-			<div class="a"></div>
-			<div class="b"></div>
-			<div class="c"></div>
-			<div class="d"></div>
-		</div>
-
-		<div class="rounded">
-			<div class="content">
-<h2>Learning outcomes</h2>
-<p>By the end of the term you should be able to:</p>
-<ol>
-<li>Read and write idiomatic programs in an imperative/object-oriented language (for example, Python 3, C++, or Rust) and a functional one (for example, Racket or Haskell), and explain the differences in how each structures a solution.</li>
-<li>Describe a language&rsquo;s syntax with a grammar, and its behavior with operational rules, precisely enough that someone else could implement it.</li>
-<li>Implement an interpreter for a small language, including environments, closures, recursion, and mutable state.</li>
-<li>Explain and demonstrate the consequences of core design choices — scoping discipline, evaluation order, parameter passing, mutability, and static versus dynamic typing.</li>
-<li>Learn an unfamiliar language quickly by recognizing which of these familiar mechanisms it is built from.</li>
-</ol>
-			</div>
-			<div class="a"></div>
-			<div class="b"></div>
-			<div class="c"></div>
-			<div class="d"></div>
-		</div>
-
-		<div class="rounded">
-			<div class="content">
-<h2>Grading</h2>
-<table class="compact">
-<thead>
-<tr>
-<th>Weight</th>
-<th>Component</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>50%</td>
-<td>Five written exams, in class at designated times — 10% each</td>
-</tr>
-<tr>
-<td>30%</td>
-<td>Three coding exams, proctored — 10% each</td>
-</tr>
-<tr>
-<td>20%</td>
-<td>Study group: weekly meeting reports and a final group project</td>
-</tr>
-<tr>
-<td>+10%</td>
-<td>Coding exercises, released throughout the term</td>
-</tr>
-</tbody>
-</table>
-<p>The <strong>five written exams</strong> are taken in class at times posted on the schedule below. The <strong>three coding exams</strong> are proctored; scheduling details are forthcoming. Every exam, written or coding, is closed book, closed internet, and closed model, with one exception: you may bring a single page of notes, front and back, printed or handwritten. You are welcome to build those notes collaboratively within your study group, but each student must bring their own page. You may rewrite your page before each exam, and probably should as the material moves on.</p>
-<p>The <strong>coding exercises</strong> are additive, so there are more points available in this course than a perfect grade requires. Treat them as bonus credit: completing them can make up for points lost elsewhere.</p>
-<h3>Study groups</h3>
-<p>You will spend the term working in a study group. <strong>By Friday, August 28</strong>, one member of each proposed group should email me the names of everyone in it, using the subject line <strong>CptS 355 Group</strong> and including the word <strong>open</strong> or <strong>closed</strong> to say whether I may add another student. Please do not register yourself as a closed group of one unless you are genuinely certain you want to work alone this term; if you are, include your unofficial transcript and a short note on why working alone is the right call for you. Anyone without a group by that Friday will be placed in one.</p>
-<p>Each group agrees on a fixed weekly time and keeps it for the rest of the term, meeting either in person or on Zoom. Each week one member rotates into the role of <strong>scribe</strong> and writes up a half page of thoughtful bulleted notes: who attended, what the group discussed, and what you learned. Here is <a href="/355/study-report-example.pdf">an example of what one might look like</a>. Those weekly reports are <strong>10%</strong> of your grade.</p>
-<p>The remaining <strong>10%</strong> is a <strong>final project</strong> carried out in your study group. You will have an opportunity to select a project related to your interests, with some flexibility in scope; a proposal deadline and further details will come with the assignment.</p>
-<h3>Letter grades</h3>
-<p>Cut-offs can move down but never up: an A or A− will not require more than 90%, a B or B− more than 80%, a C or C− more than 70%, and a D more than 60%. Totals are rounded to the nearest tenth of a percent. A substantial curve on grade cut-offs is unlikely.</p>
-			</div>
-			<div class="a"></div>
-			<div class="b"></div>
-			<div class="c"></div>
-			<div class="d"></div>
-		</div>
-
-		<div class="rounded">
-			<div class="content">
-<h2>Course policies</h2>
-<p><strong>Coding exercises</strong> are released throughout the term and submitted online. No individual exercise has its own deadline: any of them may be submitted for credit at any point through the last day of lecture, Thursday, December 10. They track exactly what the exams cover, though, so the release schedule is still the pace you want to keep.</p>
-<p><strong>Attendance</strong> is not graded directly, but the five written exams are taken in class on the day they are scheduled, so those days are not optional. Come to the others too; this material is much easier to absorb in conversation than from a screenshot of someone else&rsquo;s notes.</p>
-<p><strong>Exams</strong> — written exams are taken in class on the scheduled day; coding exams are proctored at times announced during the term. Make-up exams are arranged in advance, for documented and university-approved absences. If something goes wrong the day of an exam, contact me as soon as you are able rather than after the fact.</p>
-<p><strong>Study group reports</strong> are due each week and submitted by that week&rsquo;s scribe; see the <a href="/355/study-report-example.pdf">example report</a> for the length and level of detail expected.</p>
-<p><strong>Regrades</strong> may be requested within one week of a grade being posted, by email to me or a TA, saying specifically which part you believe was misgraded.</p>
-<p><strong>Questions</strong> are best asked in class or on the course discussion board, where the answer helps everyone. Email me or a TA for anything personal.</p>
-			</div>
-			<div class="a"></div>
-			<div class="b"></div>
-			<div class="c"></div>
-			<div class="d"></div>
-		</div>
-
-		<div class="rounded">
-			<div class="content">
-<h2>Academic integrity</h2>
-<p>Academic integrity is a cornerstone of the university. You are responsible for reading and understanding <a href="https://communitystandards.wsu.edu/policies-and-reporting/academic-integrity-policy/">WSU&rsquo;s Academic Integrity Policy</a>, which is grounded in Washington state law (WAC 504-26-010(3) and WAC 504-26-404).</p>
-<p>In this course, cheating is almost entirely about one thing: <strong>giving or getting unauthorized assistance on a proctored exam</strong>, whether one of the five written exams or one of the three coding exams. That is where your grade is earned, and it is the one place where collaboration is off limits. Everything else is open. Studying together, working through the extra-credit coding exercises with whoever you like, and using whatever tools help you are all permitted without restriction; see <a href="#ai">Use of AI tools</a> below. The only other way to run into trouble is misrepresenting your group&rsquo;s work, such as reporting attendance at a study group meeting that did not happen; that is treated the same way. If you are ever unsure whether something crosses either line, ask me first.</p>
-<p><strong><em>If you cheat on an exam in this class you will fail the course.</em></strong> You will also be reported to the Center for Community Standards. You have the right to appeal my decision; while an appeal is pending you may not drop or withdraw from the course. To ask for a change in my decision, use the form on the <a href="https://communitystandards.wsu.edu/">Center for Community Standards</a> website.</p>
-			</div>
-			<div class="a"></div>
-			<div class="b"></div>
-			<div class="c"></div>
-			<div class="d"></div>
-		</div>
-
-		<div class="rounded">
-			<div class="content">
-<h2 id="ai">Use of AI tools</h2>
-<p>Primary assessment in this course is proctored: five written exams in class and three proctored coding exams. Apart from the one page of notes you bring, those are closed book, closed internet, and closed model, and they are where your grade actually comes from. Because of that, I have no reason to police how you prepare for them.</p>
-<p>So outside of the exams, you are encouraged to make delimited, thoughtful use of AI. You are permitted to treat an AI as you would a human classmate and use one arbitrarily on any out-of-class work — the extra-credit coding exercises, your study group meetings, and your group&rsquo;s final project all included. Ask it to explain a concept, walk you through documentation, review code you wrote, or argue with you about a design choice. Collaboration with your classmates on the same work is equally unrestricted.</p>
-<p>How you use that freedom is your call, and the discipline you bring to it will matter more than any rule I could write here. A study partner who does the work for you leaves you with nothing to show in a proctored room. Use a model to reach understanding faster and to get yourself unstuck, not to alienate yourself from your own process of learning.</p>
-			</div>
-			<div class="a"></div>
-			<div class="b"></div>
-			<div class="c"></div>
-			<div class="d"></div>
-		</div>
-
-		<div class="rounded">
-			<div class="content">
-<h2>University policies and student resources</h2>
-<p>WSU maintains a <a href="https://syllabus.wsu.edu/university-syllabus/">University Syllabus</a> covering the policies that apply to every course at the university: the Student Care Network, Lauren&rsquo;s Promise, reasonable accommodations for disability, pregnancy and related conditions, religious accommodation, and campus safety procedures. You are responsible for reading and understanding it.</p>
-<p>If you need accommodations, reach out to the <a href="https://accesscenter.wsu.edu/">Access Center</a> early in the term and then talk with me <strong>at least two weeks before any exam</strong>, so that everything is arranged in advance rather than during one.</p>
+<p>These are planning and retrospective notes, one row per class meeting. For the syllabus, readings, grading, and policies, <a href="/355/">return to the main page</a>.</p>
 			</div>
 			<div class="a"></div>
 			<div class="b"></div>
@@ -200,80 +39,143 @@
 		<div class="rounded">
 			<div class="content">
 <h2>Schedule</h2>
-<p>Topics and readings will be posted here ahead of time. Check back once or twice a week to stay up to date.</p>
 <table>
 <thead>
 <tr>
-<th>Dates</th>
-<th>Topics, readings, and due dates</th>
+<th>Date</th>
+<th>Plan and notes</th>
 </tr>
 </thead>
 <tbody>
-<tr>
-<td><strong>Aug 25, 27</strong><span class="wk">Week 1</span></td>
-<td>Syllabus and class policies; introduction to programming languages and paradigms; recursive vs imperative control; introduction to Python 3. <a href="/355/groups.html">Please review your group assignments.</a></td>
+<tr class="weekstart">
+<td><strong>Tue, Aug 25</strong><span class="wk">Week 1</span></td>
+<td>Syntax vs Semantics. Paradigms (listed at board and discussed). Syllabus.</td>
 </tr>
 <tr>
-<td><strong>Sep 1, 3</strong><span class="wk">Week 2</span></td>
-<td>Syntax and Semantics. Lexing and Parsing. Regular expressions. Grammars. <strong>Readings:</strong> <a href="https://jakevdp.github.io/WhirlwindTourOfPython/"><em>A Whirlwind Tour of Python</em></a>, Ch. 3–9. <a class="aside" href="/355/slides/intro-lexing.pdf">(lexing slides)</a></td>
+<td><strong>Thu, Aug 27</strong></td>
+<td>Drawing ASTs for simple arithmetic expressions. Warm up with Python 3. REPL. Notebooks. Fibonacci: recursion vs iteration, memoization.</td>
+</tr>
+<tr class="weekstart">
+<td><strong>Tue, Sep 1</strong><span class="wk">Week 2</span></td>
+<td><a href="/355/slides/intro-lexing.pdf">Slides</a>: Discrete math review. Formal languages; regular languages; interpreting regular expressions. Parsing vs lexing.</td>
 </tr>
 <tr>
-<td><strong>Sep 8, 10</strong><span class="wk">Week 3</span></td>
+<td><strong>Thu, Sep 3</strong></td>
+<td>Drawing ASTs for regular expressions. Edit-distance warm-up in Python: solving via the <code>@cache</code> decorator. Derivatives of languages.</td>
+</tr>
+<tr class="weekstart">
+<td><strong>Tue, Sep 8</strong><span class="wk">Week 3</span></td>
+<td>Derivatives of regular expressions. In class example: lexing with derivatives in Python 3.</td>
+</tr>
+<tr>
+<td><strong>Thu, Sep 10</strong></td>
 <td>Grammars. Recursive descent parsing. Interpreters.</td>
 </tr>
-<tr>
-<td><strong>Sep 15, 17</strong><span class="wk">Week 4</span></td>
-<td><strong>Exam 1 is on Tuesday, Sept 15.</strong> C/C++; structured and object-oriented programming; memory management.</td>
+<tr class="weekstart">
+<td><strong>Tue, Sep 15</strong><span class="wk">Week 4</span></td>
+<td><strong>Exam 1.</strong></td>
 </tr>
 <tr>
-<td><strong>Sep 22, 24</strong><span class="wk">Week 5</span></td>
+<td><strong>Thu, Sep 17</strong></td>
+<td>C/C++; structured and object-oriented programming; memory management.</td>
+</tr>
+<tr class="weekstart">
+<td><strong>Tue, Sep 22</strong><span class="wk">Week 5</span></td>
 <td>TBD</td>
 </tr>
 <tr>
-<td><strong>Sep 29, Oct 1</strong><span class="wk">Week 6</span></td>
+<td><strong>Thu, Sep 24</strong></td>
+<td>TBD</td>
+</tr>
+<tr class="weekstart">
+<td><strong>Tue, Sep 29</strong><span class="wk">Week 6</span></td>
 <td>TBD</td>
 </tr>
 <tr>
-<td><strong>Oct 6, 8</strong><span class="wk">Week 7</span></td>
+<td><strong>Thu, Oct 1</strong></td>
+<td>TBD</td>
+</tr>
+<tr class="weekstart">
+<td><strong>Tue, Oct 6</strong><span class="wk">Week 7</span></td>
 <td>TBD</td>
 </tr>
 <tr>
-<td><strong>Oct 13, 15</strong><span class="wk">Week 8</span></td>
+<td><strong>Thu, Oct 8</strong></td>
+<td>TBD</td>
+</tr>
+<tr class="weekstart">
+<td><strong>Tue, Oct 13</strong><span class="wk">Week 8</span></td>
 <td>TBD</td>
 </tr>
 <tr>
-<td><strong>Oct 20, 22</strong><span class="wk">Week 9</span></td>
+<td><strong>Thu, Oct 15</strong></td>
+<td>TBD</td>
+</tr>
+<tr class="weekstart">
+<td><strong>Tue, Oct 20</strong><span class="wk">Week 9</span></td>
 <td>TBD</td>
 </tr>
 <tr>
-<td><strong>Oct 27, 29</strong><span class="wk">Week 10</span></td>
+<td><strong>Thu, Oct 22</strong></td>
+<td>TBD</td>
+</tr>
+<tr class="weekstart">
+<td><strong>Tue, Oct 27</strong><span class="wk">Week 10</span></td>
 <td>TBD</td>
 </tr>
 <tr>
-<td><strong>Nov 3, 5</strong><span class="wk">Week 11</span></td>
+<td><strong>Thu, Oct 29</strong></td>
+<td>TBD</td>
+</tr>
+<tr class="weekstart">
+<td><strong>Tue, Nov 3</strong><span class="wk">Week 11</span></td>
 <td>TBD</td>
 </tr>
 <tr>
-<td><strong>Nov 10, 12</strong><span class="wk">Week 12</span></td>
+<td><strong>Thu, Nov 5</strong></td>
+<td>TBD</td>
+</tr>
+<tr class="weekstart">
+<td><strong>Tue, Nov 10</strong><span class="wk">Week 12</span></td>
 <td>TBD</td>
 </tr>
 <tr>
-<td><strong>Nov 17, 19</strong><span class="wk">Week 13</span></td>
+<td><strong>Thu, Nov 12</strong></td>
 <td>TBD</td>
 </tr>
-<tr class="off">
-<td><strong>Nov 24, 26</strong><span class="wk">Week 14</span></td>
+<tr class="weekstart">
+<td><strong>Tue, Nov 17</strong><span class="wk">Week 13</span></td>
+<td>TBD</td>
+</tr>
+<tr>
+<td><strong>Thu, Nov 19</strong></td>
+<td>TBD</td>
+</tr>
+<tr class="off weekstart">
+<td><strong>Tue, Nov 24</strong><span class="wk">Week 14</span></td>
 <td><em>Thanksgiving break, Nov 23–27 — no class, no office hours.</em></td>
 </tr>
-<tr>
-<td><strong>Dec 1, 3</strong><span class="wk">Week 15</span></td>
+<tr class="off">
+<td><strong>Thu, Nov 26</strong></td>
+<td><em>Thanksgiving break — no class.</em></td>
+</tr>
+<tr class="weekstart">
+<td><strong>Tue, Dec 1</strong><span class="wk">Week 15</span></td>
 <td>TBD</td>
 </tr>
 <tr>
-<td><strong>Dec 8, 10</strong><span class="wk">Week 16</span></td>
+<td><strong>Thu, Dec 3</strong></td>
+<td>TBD</td>
+</tr>
+<tr class="weekstart">
+<td><strong>Tue, Dec 8</strong><span class="wk">Week 16</span></td>
 <td>TBD</td>
 </tr>
 <tr>
+<td><strong>Thu, Dec 10</strong></td>
+<td>TBD</td>
+</tr>
+<tr class="off weekstart">
 <td><strong>Dec 14–18</strong><span class="wk">Finals</span></td>
 <td><em>There is no designated final exam.</em></td>
 </tr>
