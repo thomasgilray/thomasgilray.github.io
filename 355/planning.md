@@ -14,9 +14,9 @@ These are planning and retrospective notes, one row per class meeting. For the s
 | Date | Plan and notes |
 |---|---|
 | **Tue, Aug 25**<span class="wk">Week 1</span> | Syntax vs Semantics. Paradigms (listed at board and discussed). Syllabus. {.row-weekstart} |
-| **Thu, Aug 27** | Drawing ASTs for simple arithmetic expressions. Warm up with Python 3. REPL. Notebooks. Fibonacci: recursion vs iteration, memoization. |
+| **Thu, Aug 27** | Drawing ASTs for simple arithmetic expressions. Warm up with Python 3. REPL. Notebooks. Fibonacci: recursion vs iteration, memoization. Meet your classmates: Levenshtein-distance exercise. |
 | **Tue, Sep 1**<span class="wk">Week 2</span> | [Slides](/355/slides/intro-lexing.pdf): Discrete math review. Formal languages; regular languages; interpreting regular expressions. Parsing vs lexing. {.row-weekstart} |
-| **Thu, Sep 3** | Drawing ASTs for regular expressions. Edit-distance warm-up in Python: solving via the `@cache` decorator. Derivatives of languages. |
+| **Thu, Sep 3** | Drawing ASTs for regular expressions. Levenshtein-distance warm-up in Python: solving via the `@cache` decorator. Derivatives of languages. |
 | **Tue, Sep 8**<span class="wk">Week 3</span> | Derivatives of regular expressions. In class example: lexing with derivatives in Python 3. {.row-weekstart} |
 | **Thu, Sep 10** | Grammars. Recursive descent parsing. Interpreters. |
 | **Tue, Sep 15**<span class="wk">Week 4</span> | **Exam 1.** {.row-weekstart} |
