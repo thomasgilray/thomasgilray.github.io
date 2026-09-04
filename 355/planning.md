@@ -1,6 +1,6 @@
 ---
 title: CptS 355 — Planning Notes
-subtitle: Working draft · Washington State University · Fall 2026
+subtitle: Washington State University · Fall 2026
 description: Planning and retrospective notes for CptS 355, Programming Language Design, at Washington State University, Fall 2026.
 keywords: cpts 355, programming language design, wsu, washington state university, interpreters, semantics, python, racket, functional programming, thomas gilray
 bg: fewcritters
