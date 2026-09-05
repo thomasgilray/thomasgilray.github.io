@@ -137,10 +137,10 @@ Topics and readings will be posted here ahead of time. Check back once or twice 
 | **Aug 25, 27**<span class="wk">Week 1</span> | Syllabus and class policies; introduction to programming languages and paradigms; recursive vs imperative control; introduction to Python 3. [Please review your group assignments.](/355/groups.html) |
 | **Sep 1, 3**<span class="wk">Week 2</span> | Syntax and Semantics. Lexing and Parsing. Regular expressions. Grammars. **Readings:** [*A Whirlwind Tour of Python*](https://jakevdp.github.io/WhirlwindTourOfPython/), Ch. 3–9. [(lexing slides)](/355/slides/intro-lexing.pdf){: .aside } |
 | **Sep 8, 10**<span class="wk">Week 3</span> | Grammars. Recursive descent parsing. Interpreters. |
-| **Sep 15, 17**<span class="wk">Week 4</span> | **Exam 1 is on Tuesday, Sept 15.** C/C++; structured and object-oriented programming; memory management. |
-| **Sep 22, 24**<span class="wk">Week 5</span> | TBD |
-| **Sep 29, Oct 1**<span class="wk">Week 6</span> | TBD |
-| **Oct 6, 8**<span class="wk">Week 7</span> | TBD |
+| **Sep 15, 17**<span class="wk">Week 4</span> | **Exam 1 is on Tuesday, Sept 15.** C/C++. The stack and the heap. Pointers. Memory management. |
+| **Sep 22, 24**<span class="wk">Week 5</span> | Object-oriented programming in C++. Static vs dynamic dispatch. Virtual tables. |
+| **Sep 29, Oct 1**<span class="wk">Week 6</span> | Intro to Rust. Memory safety. Ownership and borrowing. |
+| **Oct 6, 8**<span class="wk">Week 7</span> | Rust, TBD. **Exam 2 is on Thursday, Oct 8.** |
 | **Oct 13, 15**<span class="wk">Week 8</span> | TBD |
 | **Oct 20, 22**<span class="wk">Week 9</span> | TBD |
 | **Oct 27, 29**<span class="wk">Week 10</span> | TBD |
