@@ -21,18 +21,18 @@ These are planning and retrospective notes, one row per class meeting. For the s
 | **Thu, Sep 10** | Grammars. Recursive descent parsing. |
 | **Tue, Sep 15**<span class="wk">Week 4</span> | **Exam 1:** Python 3. Syntax trees. Discrete Math. Regular expressions. Lexing and parsing. {.row-weekstart} |
 | **Thu, Sep 17** | C/C++. The stack and the heap. Pointers. Memory Management. |
-| **Tue, Sep 22**<span class="wk">Week 5</span> | Object-oriented programming in C++. Static vs dynamic dispatch. Virtual tables. {.row-weekstart} |
-| **Thu, Sep 24** | TBD |
-| **Tue, Sep 29**<span class="wk">Week 6</span> | TBD {.row-weekstart} |
-| **Thu, Oct 1** | TBD |
-| **Tue, Oct 6**<span class="wk">Week 7</span> | TBD {.row-weekstart} |
+| **Tue, Sep 22**<span class="wk">Week 5</span> | Object-oriented programming in C++. {.row-weekstart} |
+| **Thu, Sep 24** | Static vs dynamic dispatch. Virtual tables. |
+| **Tue, Sep 29**<span class="wk">Week 6</span> | Intro to Rust, Memory safety. {.row-weekstart} |
+| **Thu, Oct 1** | Rust, Ownership, Borrowing. |
+| **Tue, Oct 6**<span class="wk">Week 7</span> | Rust: TBD {.row-weekstart} |
 | **Thu, Oct 8** | **Exam 2:** C/C++, Rust, Structured/OO, Polymorphism, Memory, Lifetimes, Ownership. |
 | **Tue, Oct 13**<span class="wk">Week 8</span> | Functional Programming. {.row-weekstart} |
 | **Thu, Oct 15** | S-expressions, Intro to Scheme/Racket. |
 | **Tue, Oct 20**<span class="wk">Week 9</span> | Scheme/Racket: TBD {.row-weekstart} |
 | **Thu, Oct 22** | Scheme/Racket: TBD |
 | **Tue, Oct 27**<span class="wk">Week 10</span> | Scheme/Racket: TBD {.row-weekstart} |
-| **Thu, Oct 29** | Lambda Calculus: TBD |
+| **Thu, Oct 29** | **Exam 3:** Functional Programming, Scheme/Racket. |
 | **Tue, Nov 3**<span class="wk">Week 11</span> | Lambda Calculus: TBD {.row-weekstart} |
 | **Thu, Nov 5** | Lambda Calculus: TBD |
 | **Tue, Nov 10**<span class="wk">Week 12</span> | Haskell: TBD {.row-weekstart} |
