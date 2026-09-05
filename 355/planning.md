@@ -28,21 +28,21 @@ These are planning and retrospective notes, one row per class meeting. For the s
 | **Tue, Oct 6**<span class="wk">Week 7</span> | TBD {.row-weekstart} |
 | **Thu, Oct 8** | **Exam 2:** C/C++, Rust, Structured/OO, Polymorphism, Memory, Lifetimes, Ownership. |
 | **Tue, Oct 13**<span class="wk">Week 8</span> | Functional Programming. {.row-weekstart} |
-| **Thu, Oct 15** | Functional Programming. |
-| **Tue, Oct 20**<span class="wk">Week 9</span> | S-expressions, Intro to Scheme/Racket. {.row-weekstart} |
+| **Thu, Oct 15** | S-expressions, Intro to Scheme/Racket. |
+| **Tue, Oct 20**<span class="wk">Week 9</span> | Scheme/Racket: TBD {.row-weekstart} |
 | **Thu, Oct 22** | Scheme/Racket: TBD |
 | **Tue, Oct 27**<span class="wk">Week 10</span> | Scheme/Racket: TBD {.row-weekstart} |
-| **Thu, Oct 29** | Scheme/Racket: TBD |
+| **Thu, Oct 29** | Lambda Calculus: TBD |
 | **Tue, Nov 3**<span class="wk">Week 11</span> | Lambda Calculus: TBD {.row-weekstart} |
 | **Thu, Nov 5** | Lambda Calculus: TBD |
-| **Tue, Nov 10**<span class="wk">Week 12</span> | Lambda Calculus: TBD {.row-weekstart} |
+| **Tue, Nov 10**<span class="wk">Week 12</span> | Haskell: TBD {.row-weekstart} |
 | **Thu, Nov 12** | Haskell: TBD |
 | **Tue, Nov 17**<span class="wk">Week 13</span> | Haskell: TBD {.row-weekstart} |
-| **Thu, Nov 19** | Haskell: TBD |
+| **Thu, Nov 19** | **Exam 4:** Functional Programming, Lambda Calculus, Haskell. |
 | **Tue, Nov 24**<span class="wk">Week 14</span> | *Thanksgiving break, Nov 23–27 — no class, no office hours.* {.row-off .row-weekstart} |
 | **Thu, Nov 26** | *Thanksgiving break — no class.* {.row-off} |
 | **Tue, Dec 1**<span class="wk">Week 15</span> | Declarative & Logic Programming: TBD {.row-weekstart} |
 | **Thu, Dec 3** | Declarative & Logic Programming: TBD |
 | **Tue, Dec 8**<span class="wk">Week 16</span> | Declarative & Logic Programming: TBD {.row-weekstart} |
-| **Thu, Dec 10** | Declarative & Logic Programming: TBD |
+| **Thu, Dec 10** | **Exam 5:** Logic Programming and Comprehensive. |
 | **Dec 14–18**<span class="wk">Finals</span> | *There is no designated final exam.* {.row-off .row-weekstart} |
