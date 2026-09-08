@@ -26,7 +26,7 @@ These are planning and retrospective notes, one row per class meeting. For the s
 | **Tue, Sep 29**<span class="wk">Week 6</span> | Intro to Rust, Memory safety. {.row-weekstart} |
 | **Thu, Oct 1** | Rust, Ownership, Borrowing. Reference counting and shared environments. |
 | **Tue, Oct 6**<span class="wk">Week 7</span> | Interpreting a Python-like language in Rust. {.row-weekstart} |
-| **Thu, Oct 8** | **Exam 2:** C/C++, Rust, Structured/OO, Polymorphism, Memory, Lifetimes, Ownership. |
+| **Thu, Oct 8** | **Exam 2:** C/C++, Rust, Structured/OO, Polymorphism, Memory, Lifetimes, Ownership, Interpreters. |
 | **Tue, Oct 13**<span class="wk">Week 8</span> | Functional Programming. {.row-weekstart} |
 | **Thu, Oct 15** | S-expressions, Intro to Scheme/Racket. |
 | **Tue, Oct 20**<span class="wk">Week 9</span> | Scheme/Racket: TBD {.row-weekstart} |
