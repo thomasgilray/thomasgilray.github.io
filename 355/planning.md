@@ -18,9 +18,9 @@ These are planning and retrospective notes, one row per class meeting. For the s
 | **Tue, Sep 1**<span class="wk">Week 2</span> | [Slides](/355/slides/intro-lexing.pdf): Discrete math review. Formal languages; regular languages; interpreting regular expressions. Parsing vs lexing. **Readings:** [*A Whirlwind Tour of Python*](https://jakevdp.github.io/WhirlwindTourOfPython/), Ch. 3–9. [Group assignments posted.](/355/groups.html) {.row-weekstart} |
 | **Thu, Sep 3** | Drawing ASTs for regular expressions. Interpretation. Levenshtein-distance warm-up in Python: solving via the `@cache` decorator. Derivatives of languages. |
 | **Tue, Sep 8**<span class="wk">Week 3</span> | Derivatives of regular expressions. In class example: lexing with derivatives in Python 3. Functional and object-oriented principles in Python. {.row-weekstart} |
-| **Thu, Sep 10** | Context-free grammars. Recursive-descent parsing. |
+| **Thu, Sep 10** | Lexing with derivatives, continued: built the whole [in-class exercise](/355/code/lexing.py) up in Python 3. Functional and object-oriented principles in Python. Context-free grammars and recursive descent pushed to Sep 17. |
 | **Tue, Sep 15**<span class="wk">Week 4</span> | **Exam 1:** Python 3. Syntax trees. Discrete Math. Regular expressions. Lexing and parsing. {.row-weekstart} |
-| **Thu, Sep 17** | Clang. Separate Compilation. C/C++. The stack and the heap. Pointers. Memory Management. |
+| **Thu, Sep 17** | [Slides](/355/slides/top-down-parsing.pdf): Context-free grammars. Recursive-descent parsing. Clang. Separate Compilation. C/C++. The stack and the heap. Pointers. Memory Management. |
 | **Tue, Sep 22**<span class="wk">Week 5</span> | Object-oriented programming in C++. Generics and Templates. The STL. Interpreting Python. {.row-weekstart} |
 | **Thu, Sep 24** | Static vs dynamic dispatch. Virtual tables. Interpreters in C++. |
 | **Tue, Sep 29**<span class="wk">Week 6</span> | Intro to Rust, Memory safety. {.row-weekstart} |
