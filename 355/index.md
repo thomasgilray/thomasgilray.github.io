@@ -136,8 +136,8 @@ Topics and readings will be posted here ahead of time. Check back once or twice 
 |---|---|
 | **Aug 25, 27**<span class="wk">Week 1</span> | Syllabus and class policies; introduction to programming languages and paradigms; recursive vs imperative control; introduction to Python 3. [Please review your group assignments.](/355/groups.html) |
 | **Sep 1, 3**<span class="wk">Week 2</span> | Syntax and Semantics. Lexing and Parsing. Regular expressions. Grammars. **Readings:** [*A Whirlwind Tour of Python*](https://jakevdp.github.io/WhirlwindTourOfPython/), Ch. 3–9. [(lexing slides)](/355/slides/intro-lexing.pdf){: .aside } |
-| **Sep 8, 10**<span class="wk">Week 3</span> | Interpretation. Lexing with derivatives. Grammars. Recursive descent parsing. |
-| **Sep 15, 17**<span class="wk">Week 4</span> | **Exam 1 is on Tuesday, Sept 15.** It covers Python 3, syntax trees, discrete math, regular expressions, and lexing and parsing.<br>C/C++. The stack and the heap. Pointers. Memory management. [(parsing slides)](/355/slides/top-down-parsing.pdf){: .aside } |
+| **Sep 8, 10**<span class="wk">Week 3</span> | Interpretation. Lexing with derivatives. |
+| **Sep 15, 17**<span class="wk">Week 4</span> | **Exam 1 is on Tuesday, Sept 15.** It covers Python 3, syntax trees, discrete math, regular expressions, and lexing and parsing.<br>Grammars. Recursive descent parsing. C/C++. The stack and the heap. Pointers. Memory management. [(parsing slides)](/355/slides/top-down-parsing.pdf){: .aside } |
 | **Sep 22, 24**<span class="wk">Week 5</span> | Object-oriented programming in C++. Static vs dynamic dispatch. Virtual tables. |
 | **Sep 29, Oct 1**<span class="wk">Week 6</span> | Intro to Rust. Memory safety. Ownership and borrowing. |
 | **Oct 6, 8**<span class="wk">Week 7</span> | Rust, TBD. **Exam 2 is on Thursday, Oct 8.** |
