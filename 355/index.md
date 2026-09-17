@@ -80,6 +80,8 @@ The **five written exams** are taken in class at times posted on the schedule be
 
 The **coding exercises** are additive, so there are more points available in this course than a perfect grade requires. Treat them as bonus credit: completing them can make up for points lost elsewhere.
 
+Exercises are submitted through our **Test-driven Development server**, at [tdd-server.eecs.wsu.edu](https://tdd-server.eecs.wsu.edu/). You will need to be on the campus network or the WSU VPN to reach it.
+
 ### Study groups
 
 You will spend the term working in a study group. **By Friday, August 28**, one member of each proposed group should email me the names of everyone in it, using the subject line **CptS 355 Group** and including the word **open** or **closed** to say whether I may add another student. Please do not register yourself as a closed group of one unless you are genuinely certain you want to work alone this term; if you are, include your unofficial transcript and a short note on why working alone is the right call for you. Anyone without a group by that Friday will be placed in one.
