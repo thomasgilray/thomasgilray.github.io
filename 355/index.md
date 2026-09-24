@@ -143,9 +143,9 @@ Topics and readings will be posted here ahead of time. Check back once or twice 
 | **Sep 22, 24**<span class="wk">Week 5</span> | Object-oriented programming in C++. Generics and templates. The STL. Static vs dynamic dispatch. Virtual tables. Writing an interpreter in C++.<br>**Readings:** [*A Tour of C++*](https://isocpp.org/images/uploads/3-Tour-Abstr.pdf), Ch. 3, "Abstraction Mechanisms." |
 | **Sep 29, Oct 1**<span class="wk">Week 6</span> | Intro to Rust. Memory safety. Ownership and borrowing. Reference counting and shared environments. |
 | **Oct 6, 8**<span class="wk">Week 7</span> | Interpreting a Python-like language in Rust.<br>**Exam 2 is on Thursday, Oct 8.** It covers C and C++, Rust, structured and object-oriented programming, polymorphism, memory, ownership and lifetimes, and interpreters. |
-| **Oct 13, 15**<span class="wk">Week 8</span> | TBD |
-| **Oct 20, 22**<span class="wk">Week 9</span> | TBD |
-| **Oct 27, 29**<span class="wk">Week 10</span> | TBD |
+| **Oct 13, 15**<span class="wk">Week 8</span> | Functional programming. S-expressions. Intro to Scheme and Racket. |
+| **Oct 20, 22**<span class="wk">Week 9</span> | Scheme and Racket. Meta-circular interpreters. |
+| **Oct 27, 29**<span class="wk">Week 10</span> | Closure-creating interpreters.<br>**Exam 3 is on Thursday, Oct 29.** It covers functional programming, Scheme and Racket, and interpreters. |
 | **Nov 3, 5**<span class="wk">Week 11</span> | TBD |
 | **Nov 10, 12**<span class="wk">Week 12</span> | TBD |
 | **Nov 17, 19**<span class="wk">Week 13</span> | TBD |

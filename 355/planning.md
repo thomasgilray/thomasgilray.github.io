@@ -30,9 +30,9 @@ These are planning and retrospective notes, one row per class meeting. For the s
 | **Tue, Oct 13**<span class="wk">Week 8</span> | Functional Programming. {.row-weekstart} |
 | **Thu, Oct 15** | S-expressions, Intro to Scheme/Racket. |
 | **Tue, Oct 20**<span class="wk">Week 9</span> | Scheme/Racket: TBD {.row-weekstart} |
-| **Thu, Oct 22** | Scheme/Racket: TBD |
-| **Tue, Oct 27**<span class="wk">Week 10</span> | Scheme/Racket: TBD {.row-weekstart} |
-| **Thu, Oct 29** | **Exam 3:** Functional Programming, Scheme/Racket. |
+| **Thu, Oct 22** | Meta-circular interpreters. |
+| **Tue, Oct 27**<span class="wk">Week 10</span> | Closure-creating interpreters. {.row-weekstart} |
+| **Thu, Oct 29** | **Exam 3:** Functional Programming, Scheme/Racket, Interpreters. |
 | **Tue, Nov 3**<span class="wk">Week 11</span> | Lambda Calculus: TBD {.row-weekstart} |
 | **Thu, Nov 5** | Lambda Calculus: TBD |
 | **Tue, Nov 10**<span class="wk">Week 12</span> | Haskell: TBD {.row-weekstart} |
