@@ -25,13 +25,13 @@ These are planning and retrospective notes, one row per class meeting. For the s
 | **Thu, Sep 24** | Static vs dynamic dispatch. Virtual tables. Interpreters in C++. |
 | **Tue, Sep 29**<span class="wk">Week 6</span> | Intro to Rust, Memory safety. {.row-weekstart} |
 | **Thu, Oct 1** | Rust, Ownership, Borrowing. Reference counting and shared environments. |
-| **Tue, Oct 6**<span class="wk">Week 7</span> | Interpreting a Python-like language in Rust. {.row-weekstart} |
-| **Thu, Oct 8** | **Exam 2:** C/C++, Rust, Structured/OO, Polymorphism, Memory, Lifetimes, Ownership, Interpreters. |
-| **Tue, Oct 13**<span class="wk">Week 8</span> | Functional Programming. {.row-weekstart} |
-| **Thu, Oct 15** | S-expressions, Intro to Scheme/Racket. |
-| **Tue, Oct 20**<span class="wk">Week 9</span> | Scheme/Racket: TBD {.row-weekstart} |
-| **Thu, Oct 22** | Meta-circular interpreters. |
-| **Tue, Oct 27**<span class="wk">Week 10</span> | Closure-creating interpreters. {.row-weekstart} |
+| **Tue, Oct 6**<span class="wk">Week 7</span> | C++. Parsing. Virtual tables. Static vs dynamic dispatch. {.row-weekstart} |
+| **Thu, Oct 8** | **Exam 2:** C++, Parsing, Virtual tables, Dispatch, Rust basics.<br>Intro to Rust. |
+| **Tue, Oct 13**<span class="wk">Week 8</span> | Interpreting a Python-like language in Rust. {.row-weekstart} |
+| **Thu, Oct 15** | Interpreting a Python-like language in Rust, continued. |
+| **Tue, Oct 20**<span class="wk">Week 9</span> | Interpreters in Rust. {.row-weekstart} |
+| **Thu, Oct 22** | **Coding Exam 1:** C++ or Rust (in class, bring your laptop and 1 page of notes). |
+| **Tue, Oct 27**<span class="wk">Week 10</span> | Functional Programming. S-expressions, Intro to Scheme/Racket. {.row-weekstart} |
 | **Thu, Oct 29** | **Exam 3:** Functional Programming, Scheme/Racket, Interpreters. |
 | **Tue, Nov 3**<span class="wk">Week 11</span> | Lambda Calculus: TBD {.row-weekstart} |
 | **Thu, Nov 5** | Lambda Calculus: TBD |
