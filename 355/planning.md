@@ -27,9 +27,9 @@ These are planning and retrospective notes, one row per class meeting. For the s
 | **Thu, Oct 1** | Interpreting Regexes in C++. |
 | **Tue, Oct 6**<span class="wk">Week 7</span> | C++. Parsing. Virtual tables. Static vs dynamic dispatch. {.row-weekstart} |
 | **Thu, Oct 8** | **Exam 2:** C++, Parsing, Virtual tables, Dispatch, Rust basics.<br>Intro to Rust. |
-| **Tue, Oct 13**<span class="wk">Week 8</span> | Intro to Rust, Memory safety. Ownership, Borrowing, Lifetimes. Polymorphism, Traits. {.row-weekstart} |
-| **Thu, Oct 15** | Rust: Reference counting and shared environments. Interpreting a Python-like language in Rust. |
-| **Tue, Oct 20**<span class="wk">Week 9</span> | Interpreters in Rust. {.row-weekstart} |
+| **Tue, Oct 13**<span class="wk">Week 8</span> | Intro to Rust, Memory safety. Ownership, Borrowing, Lifetimes. {.row-weekstart} |
+| **Thu, Oct 15** | Rust: Polymorphism, Traits. |
+| **Tue, Oct 20**<span class="wk">Week 9</span> | Reference counting and shared environments. Interpreters in Rust. {.row-weekstart} |
 | **Thu, Oct 22** | **Coding Exam 1:** C++ or Rust (in class, bring your laptop and 1 page of notes). |
 | **Tue, Oct 27**<span class="wk">Week 10</span> | Functional Programming. S-expressions, Intro to Scheme/Racket. {.row-weekstart} |
 | **Thu, Oct 29** | **Exam 3:** C/C++, Rust, Structured/OO, Polymorphism, Memory, Lifetimes, Ownership, Interpreters, S-expressions. |
