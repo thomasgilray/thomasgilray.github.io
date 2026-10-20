@@ -29,8 +29,8 @@ These are planning and retrospective notes, one row per class meeting. For the s
 | **Thu, Oct 8** | **Exam 2:** C++, Parsing, Virtual tables, Dispatch, Rust basics.<br>Intro to Rust. |
 | **Tue, Oct 13**<span class="wk">Week 8</span> | Intro to Rust, Memory safety. Ownership, Borrowing, Lifetimes. {.row-weekstart} |
 | **Thu, Oct 15** | Rust: Polymorphism, Traits. |
-| **Tue, Oct 20**<span class="wk">Week 9</span> | **Class is on Zoom Oct 20:** [wsu.zoom.us/j/89216556292](https://wsu.zoom.us/j/89216556292?pwd=sz8Ebp3zqsCWoUQZvyNKbxCuXQopI0.1)<br>Reference counting and shared environments. Interpreters in Rust. {.row-weekstart} |
-| **Thu, Oct 22** | **Coding Exam 1:** C++ or Rust (in person, bring your laptop and 1 page of notes). |
+| **Tue, Oct 20**<span class="wk">Week 9</span> | Reference counting and shared environments. Interpreters in Rust.<br>**Class is on Zoom Oct 20:** [wsu.zoom.us/j/89216556292](https://wsu.zoom.us/j/89216556292?pwd=sz8Ebp3zqsCWoUQZvyNKbxCuXQopI0.1) {.row-weekstart} |
+| **Thu, Oct 22** | **Extra office hours:** 12–1:30pm, Oct 22, in EME B49.<br>**Coding Exam 1:** C++ or Rust (in person, bring your laptop and 1 page of notes). |
 | **Tue, Oct 27**<span class="wk">Week 10</span> | Functional Programming. S-expressions, Intro to Scheme/Racket. {.row-weekstart} |
 | **Thu, Oct 29** | **Exam 3:** C/C++, Rust, Structured/OO, Polymorphism, Memory, Lifetimes, Ownership, Interpreters, S-expressions. |
 | **Tue, Nov 3**<span class="wk">Week 11</span> | Lambda Calculus: TBD {.row-weekstart} |
