@@ -33,8 +33,8 @@ These are planning and retrospective notes, one row per class meeting. For the s
 | **Thu, Oct 22** | **Extra office hours:** 12–1:30pm, Oct 22, in EME B49.<br>**Coding Exam 1:** C++ or Rust (in person, bring your laptop and 1 page of notes). |
 | **Tue, Oct 27**<span class="wk">Week 10</span> | Functional Programming. S-expressions, Intro to Scheme/Racket. {.row-weekstart} |
 | **Thu, Oct 29** | **Exam 3:** C/C++, Rust, Structured/OO, Polymorphism, Memory, Lifetimes, Ownership, Interpreters, S-expressions. |
-| **Tue, Nov 3**<span class="wk">Week 11</span> | Lambda Calculus: TBD {.row-weekstart} |
-| **Thu, Nov 5** | Lambda Calculus: TBD |
+| **Tue, Nov 3**<span class="wk">Week 11</span> | Scheme/Racket. Functional programming. {.row-weekstart} |
+| **Thu, Nov 5** | Scheme/Racket. Higher-order and first-class functions. |
 | **Tue, Nov 10**<span class="wk">Week 12</span> | Haskell: TBD {.row-weekstart} |
 | **Thu, Nov 12** | Haskell: TBD |
 | **Tue, Nov 17**<span class="wk">Week 13</span> | Haskell: TBD {.row-weekstart} |
