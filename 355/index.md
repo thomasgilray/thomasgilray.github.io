@@ -147,7 +147,7 @@ Topics and readings will be posted here ahead of time. Check back once or twice 
 | **Oct 20, 22**<span class="wk">Week 9</span> | Reference counting and shared environments. Interpreters in Rust.<br>**Class is on Zoom Oct 20:** [Zoom link](https://wsu.zoom.us/j/89216556292?pwd=sz8Ebp3zqsCWoUQZvyNKbxCuXQopI0.1)<br>**Extra office hours:** 12–1:30pm, Oct 22, in EME B49.<br>**Coding Exam 1 is on Thursday, Oct 22**, in person: C++ or Rust. Bring your laptop and one page of notes. |
 | **Oct 27, 29**<span class="wk">Week 10</span> | Functional programming. S-expressions. Intro to Scheme/Racket.<br>**Readings:** [*SICP*](https://web.mit.edu/6.001/6.037/sicp.pdf#page=29), Ch. 1.<br>**Exam 3 is on Thursday, Oct 29.** It covers C and C++, Rust, structured and object-oriented programming, polymorphism, memory, ownership and lifetimes, interpreters, and S-expressions. |
 | **Nov 3, 5**<span class="wk">Week 11</span> | Scheme/Racket. Functional programming. Higher-order and first-class functions.<br>**Readings:** [*SICP*](https://web.mit.edu/6.001/6.037/sicp.pdf#page=135), Ch. 2. |
-| **Nov 10, 12**<span class="wk">Week 12</span> | TBD<br>**Readings:** [*SICP*](https://web.mit.edu/6.001/6.037/sicp.pdf#page=322), Ch. 3. |
+| **Nov 10, 12**<span class="wk">Week 12</span> | Interpreters in Scheme. Intro to Lambda Calculus.<br>**Readings:** [*SICP*](https://web.mit.edu/6.001/6.037/sicp.pdf#page=322), Ch. 3. |
 | **Nov 17, 19**<span class="wk">Week 13</span> | TBD |
 | **Nov 24, 26**<span class="wk">Week 14</span> | *Thanksgiving break, Nov 23–27 — no class, no office hours.* {.row-off} |
 | **Dec 1, 3**<span class="wk">Week 15</span> | TBD |

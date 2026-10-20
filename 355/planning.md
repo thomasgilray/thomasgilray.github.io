@@ -35,8 +35,8 @@ These are planning and retrospective notes, one row per class meeting. For the s
 | **Thu, Oct 29** | **Exam 3:** C/C++, Rust, Structured/OO, Polymorphism, Memory, Lifetimes, Ownership, Interpreters, S-expressions. |
 | **Tue, Nov 3**<span class="wk">Week 11</span> | Scheme/Racket. Functional programming. {.row-weekstart} |
 | **Thu, Nov 5** | Scheme/Racket. Higher-order and first-class functions. |
-| **Tue, Nov 10**<span class="wk">Week 12</span> | Haskell: TBD {.row-weekstart} |
-| **Thu, Nov 12** | Haskell: TBD |
+| **Tue, Nov 10**<span class="wk">Week 12</span> | Interpreters in Scheme. {.row-weekstart} |
+| **Thu, Nov 12** | Intro to Lambda Calculus. |
 | **Tue, Nov 17**<span class="wk">Week 13</span> | Haskell: TBD {.row-weekstart} |
 | **Thu, Nov 19** | **Exam 4:** Functional Programming, Lambda Calculus, Haskell. |
 | **Tue, Nov 24**<span class="wk">Week 14</span> | *Thanksgiving break, Nov 23–27 — no class, no office hours.* {.row-off .row-weekstart} |
