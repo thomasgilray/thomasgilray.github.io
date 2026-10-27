@@ -32,13 +32,13 @@ These are planning and retrospective notes, one row per class meeting. For the s
 | **Tue, Oct 20**<span class="wk">Week 9</span> | Reference counting and shared environments. Interpreters in Rust.<br>**Class is on Zoom Oct 20:** [Zoom link](https://wsu.zoom.us/j/89216556292?pwd=sz8Ebp3zqsCWoUQZvyNKbxCuXQopI0.1) {.row-weekstart} |
 | **Thu, Oct 22** | **Extra office hours:** 12–1:30pm, Oct 22, in EME B49.<br>**Coding Exam 1:** C++ or Rust (in person, bring your laptop and 1 page of notes). |
 | **Tue, Oct 27**<span class="wk">Week 10</span> | Functional Programming. S-expressions, Intro to Scheme/Racket. {.row-weekstart} |
-| **Thu, Oct 29** | **Exam 3:** C/C++, Rust, Structured/OO, Polymorphism, Memory, Lifetimes, Ownership, Interpreters, S-expressions. |
+| **Thu, Oct 29** | **Exam 3:** C/C++, Rust, Structured/OO, Polymorphism, Traits, Memory, RAII, Ownership, Borrowing, Lifetimes, Parsing, Interpreters, S-expressions, Scheme basics. |
 | **Tue, Nov 3**<span class="wk">Week 11</span> | Scheme/Racket. Functional programming. {.row-weekstart} |
 | **Thu, Nov 5** | Scheme/Racket. Higher-order and first-class functions. |
 | **Tue, Nov 10**<span class="wk">Week 12</span> | Interpreters in Scheme. {.row-weekstart} |
 | **Thu, Nov 12** | Intro to Lambda Calculus. |
-| **Tue, Nov 17**<span class="wk">Week 13</span> | Haskell: TBD {.row-weekstart} |
-| **Thu, Nov 19** | **Exam 4:** Functional Programming, Lambda Calculus, Haskell. |
+| **Tue, Nov 17**<span class="wk">Week 13</span> | Lambda Calculus and Operational Semantics. {.row-weekstart} |
+| **Thu, Nov 19** | **Exam 4:** Functional Programming, Scheme/Racket, S-expressions, Higher-order and First-class Functions, Closures and Environments, Recursion, Interpreters in Scheme, Lambda Calculus. |
 | **Tue, Nov 24**<span class="wk">Week 14</span> | *Thanksgiving break, Nov 23–27 — no class, no office hours.* {.row-off .row-weekstart} |
 | **Thu, Nov 26** | *Thanksgiving break — no class.* {.row-off} |
 | **Tue, Dec 1**<span class="wk">Week 15</span> | Declarative & Logic Programming: TBD {.row-weekstart} |
