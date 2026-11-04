@@ -37,7 +37,7 @@ These are planning and retrospective notes, one row per class meeting. For the s
 | **Thu, Nov 5** | Scheme/Racket. Higher-order and first-class functions. |
 | **Tue, Nov 10**<span class="wk">Week 12</span> | Interpreters in Scheme. {.row-weekstart} |
 | **Thu, Nov 12** | Intro to Lambda Calculus. |
-| **Tue, Nov 17**<span class="wk">Week 13</span> | Lambda Calculus and Operational Semantics.<br>**Term project proposals due** via PDF upload to Canvas. {.row-weekstart} |
+| **Tue, Nov 17**<span class="wk">Week 13</span> | Lambda Calculus and Operational Semantics.<br>**Term project proposals due** via PDF upload to Canvas. One per study group or chosen group. {.row-weekstart} |
 | **Thu, Nov 19** | **Exam 4:** Functional Programming, Scheme/Racket, S-expressions, Higher-order and First-class Functions, Closures and Environments, Recursion, Interpreters in Scheme, Lambda Calculus. |
 | **Tue, Nov 24**<span class="wk">Week 14</span> | *Thanksgiving break, Nov 23–27 — no class, no office hours.* {.row-off .row-weekstart} |
 | **Thu, Nov 26** | *Thanksgiving break — no class.* {.row-off} |
