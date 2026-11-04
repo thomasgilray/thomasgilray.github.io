@@ -88,7 +88,7 @@ You will spend the term working in a study group. **By Friday, August 28**, one 
 
 Each group agrees on a fixed weekly time and keeps it for the rest of the term, meeting either in person or on Zoom. Each week one member rotates into the role of **scribe** and writes up a half page of thoughtful bulleted notes: who attended, what the group discussed, and what you learned. Here is [an example of what one might look like](/355/study-report-example.pdf). Those weekly reports are **10%** of your grade.
 
-The remaining **10%** is a **final project** carried out in your study group. You will have an opportunity to select a project related to your interests, with some flexibility in scope; proposals are due **Nov 17** via PDF upload to Canvas, and further details will come with the assignment.
+The remaining **10%** is a **final project** carried out in your study group or in another group of classmates you choose. You will have an opportunity to select a project related to your interests, with some flexibility in scope; proposals are due **Nov 17** via PDF upload to Canvas, and further details will come with the assignment.
 
 ### Letter grades
 
