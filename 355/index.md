@@ -88,7 +88,7 @@ You will spend the term working in a study group. **By Friday, August 28**, one 
 
 Each group agrees on a fixed weekly time and keeps it for the rest of the term, meeting either in person or on Zoom. Each week one member rotates into the role of **scribe** and writes up a half page of thoughtful bulleted notes: who attended, what the group discussed, and what you learned. Here is [an example of what one might look like](/355/study-report-example.pdf). Those weekly reports are **10%** of your grade.
 
-The remaining **10%** is a **final project** carried out in your study group. You will have an opportunity to select a project related to your interests, with some flexibility in scope; a proposal deadline and further details will come with the assignment.
+The remaining **10%** is a **final project** carried out in your study group. You will have an opportunity to select a project related to your interests, with some flexibility in scope; proposals are due **Nov 17** via PDF upload to Canvas, and further details will come with the assignment.
 
 ### Letter grades
 
@@ -148,7 +148,7 @@ Topics and readings will be posted here ahead of time. Check back once or twice 
 | **Oct 27, 29**<span class="wk">Week 10</span> | Functional programming. S-expressions. Intro to Scheme/Racket.<br>**Readings:** [*SICP*](https://web.mit.edu/6.001/6.037/sicp.pdf#page=29), Ch. 1.<br>**Exam 3 is on Thursday, Oct 29** ([view the practice exam](/355/exam3-practice.pdf)). It covers C and C++, Rust, structured and object-oriented programming, polymorphism and traits, memory and RAII, ownership, borrowing, and lifetimes, parsing and interpreters, and S-expressions and Scheme basics. |
 | **Nov 3, 5**<span class="wk">Week 11</span> | Scheme/Racket. Functional programming. Higher-order and first-class functions.<br>**Readings:** [*SICP*](https://web.mit.edu/6.001/6.037/sicp.pdf#page=135), Ch. 2. |
 | **Nov 10, 12**<span class="wk">Week 12</span> | Interpreters in Scheme. Intro to Lambda Calculus.<br>**Readings:** [*SICP*](https://web.mit.edu/6.001/6.037/sicp.pdf#page=322), Ch. 3. |
-| **Nov 17, 19**<span class="wk">Week 13</span> | Lambda Calculus and Operational Semantics.<br>**Exam 4 is on Thursday, Nov 19.** It covers functional programming, Scheme/Racket, S-expressions, higher-order and first-class functions, closures and environments, recursion, interpreters in Scheme, and the lambda calculus. |
+| **Nov 17, 19**<span class="wk">Week 13</span> | Lambda Calculus and Operational Semantics.<br>**Nov 17:** Term project proposals due via PDF upload to Canvas.<br>**Exam 4 is on Thursday, Nov 19.** It covers functional programming, Scheme/Racket, S-expressions, higher-order and first-class functions, closures and environments, recursion, interpreters in Scheme, and the lambda calculus. |
 | **Nov 24, 26**<span class="wk">Week 14</span> | *Thanksgiving break, Nov 23–27 — no class, no office hours.* {.row-off} |
 | **Dec 1, 3**<span class="wk">Week 15</span> | TBD |
 | **Dec 8, 10**<span class="wk">Week 16</span> | TBD |
