@@ -36,13 +36,13 @@ These are planning and retrospective notes, one row per class meeting. For the s
 | **Tue, Nov 3**<span class="wk">Week 11</span> | Scheme/Racket. Functional programming. {.row-weekstart} |
 | **Thu, Nov 5** | Scheme/Racket. Higher-order and first-class functions. |
 | **Tue, Nov 10**<span class="wk">Week 12</span> | Interpreters in Scheme. {.row-weekstart} |
-| **Thu, Nov 12** | Intro to Lambda Calculus.<br>**Coding Exam 2:** Scheme (in person, bring your laptop and 1 page of notes). |
-| **Tue, Nov 17**<span class="wk">Week 13</span> | **Guest lecture on Zoom:** [link forthcoming].<br>**Term project proposals due** via PDF upload to Canvas. One per study group or chosen group of 3–6 students. {.row-weekstart} |
+| **Thu, Nov 12** | Intro to Lambda Calculus.<br>**Coding Exam 2**, on Scheme (in person, bring your laptop and 1 page of notes). |
+| **Tue, Nov 17**<span class="wk">Week 13</span> | **Guest lecture on Zoom:** [link forthcoming]. **Term project proposals due** via PDF upload to Canvas. One per study group or chosen group of 3–6 students. {.row-weekstart} |
 | **Thu, Nov 19** | **Exam 4:** Functional Programming, Scheme/Racket, S-expressions, Higher-order and First-class Functions, Closures and Environments, Recursion, some Lambda Calculus basics. |
 | **Tue, Nov 24**<span class="wk">Week 14</span> | *Thanksgiving break, Nov 23–27 — no class, no office hours.* {.row-off .row-weekstart} |
 | **Thu, Nov 26** | *Thanksgiving break — no class.* {.row-off} |
-| **Tue, Dec 1**<span class="wk">Week 15</span> | Lambda Calculus, Operational Semantics, and interpreters. {.row-weekstart} |
+| **Tue, Dec 1**<span class="wk">Week 15</span> | Lambda Calculus, Operational Semantics, and interpreters. **Readings:** Sections 1 and 2 of [our lambda calculus notes](/355/lambda-calculus.pdf). {.row-weekstart} |
 | **Thu, Dec 3** | Datalog and logic programming. |
-| **Tue, Dec 8**<span class="wk">Week 16</span> | Datalog and logic programming.<br>**Coding Exam 3.** **Take-home Exam 5 released.** {.row-weekstart} |
+| **Tue, Dec 8**<span class="wk">Week 16</span> | Datalog and logic programming. **Readings:** [*Foundations of Databases*](http://webdam.inria.fr/Alice/pdfs/all.pdf), the Chapter 12 introduction and §12.1 ([pp. 273–278](http://webdam.inria.fr/Alice/pdfs/all.pdf#page=271)), §12.3 ([pp. 282–286](http://webdam.inria.fr/Alice/pdfs/all.pdf#page=280)), and §13.1 ([pp. 312–316](http://webdam.inria.fr/Alice/pdfs/all.pdf#page=310)).<br>**Coding Exam 3.** **Take-home Exam 5 released.** {.row-weekstart} |
 | **Thu, Dec 10** | Final project presentations. Course wrap-up.<br>**Final project reports due** on Canvas by 11:59pm. |
 | **Dec 14–18**<span class="wk">Finals</span> | **Take-home Exam 5 due** on Canvas by 6:30pm, Wednesday, Dec 16. {.row-weekstart} |
