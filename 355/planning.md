@@ -36,13 +36,13 @@ These are planning and retrospective notes, one row per class meeting. For the s
 | **Tue, Nov 3**<span class="wk">Week 11</span> | Scheme/Racket. Functional programming. {.row-weekstart} |
 | **Thu, Nov 5** | Scheme/Racket. Higher-order and first-class functions. |
 | **Tue, Nov 10**<span class="wk">Week 12</span> | Interpreters in Scheme. {.row-weekstart} |
-| **Thu, Nov 12** | Intro to Lambda Calculus. |
-| **Tue, Nov 17**<span class="wk">Week 13</span> | Lambda Calculus and Operational Semantics.<br>**Term project proposals due** via PDF upload to Canvas. One per study group or chosen group. {.row-weekstart} |
-| **Thu, Nov 19** | **Exam 4:** Functional Programming, Scheme/Racket, S-expressions, Higher-order and First-class Functions, Closures and Environments, Recursion, Interpreters in Scheme, Lambda Calculus. |
+| **Thu, Nov 12** | Intro to Lambda Calculus.<br>**Coding Exam 2:** Scheme (in person, bring your laptop and 1 page of notes). |
+| **Tue, Nov 17**<span class="wk">Week 13</span> | **Guest lecture on Zoom:** [link forthcoming].<br>**Term project proposals due** via PDF upload to Canvas. One per study group or chosen group of 3–6 students. {.row-weekstart} |
+| **Thu, Nov 19** | **Exam 4:** Functional Programming, Scheme/Racket, S-expressions, Higher-order and First-class Functions, Closures and Environments, Recursion, some Lambda Calculus basics. |
 | **Tue, Nov 24**<span class="wk">Week 14</span> | *Thanksgiving break, Nov 23–27 — no class, no office hours.* {.row-off .row-weekstart} |
 | **Thu, Nov 26** | *Thanksgiving break — no class.* {.row-off} |
-| **Tue, Dec 1**<span class="wk">Week 15</span> | Declarative & Logic Programming: TBD {.row-weekstart} |
-| **Thu, Dec 3** | **Exam 5:** Comprehensive. |
-| **Tue, Dec 8**<span class="wk">Week 16</span> | Declarative & Logic Programming: TBD {.row-weekstart} |
-| **Thu, Dec 10** | Declarative & Logic Programming: TBD |
-| **Dec 14–18**<span class="wk">Finals</span> | *There is no designated final exam.* {.row-off .row-weekstart} |
+| **Tue, Dec 1**<span class="wk">Week 15</span> | Lambda Calculus, Operational Semantics, and interpreters. {.row-weekstart} |
+| **Thu, Dec 3** | Datalog and logic programming. |
+| **Tue, Dec 8**<span class="wk">Week 16</span> | Datalog and logic programming.<br>**Coding Exam 3.** **Take-home Exam 5 released.** {.row-weekstart} |
+| **Thu, Dec 10** | Final project presentations. Course wrap-up.<br>**Final project reports due** on Canvas by 11:59pm. |
+| **Dec 14–18**<span class="wk">Finals</span> | **Take-home Exam 5 due** on Canvas by 6:30pm, Wednesday, Dec 16. {.row-weekstart} |

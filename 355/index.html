@@ -36,7 +36,7 @@
 <p><strong>Contact:</strong> <img class="email-inline" src="/img/email/2629eebf40e1f7ee.png" style="width:203.5px;height:19px;vertical-align:-4.0px" width="204" height="19" alt="email address"> · <img class="email-inline" src="/img/email/46edd5907fbab733.png" style="width:203.5px;height:19px;vertical-align:-4.0px" width="204" height="19" alt="email address"> · <img class="email-inline" src="/img/email/e79577e5c8366d19.png" style="width:222.5px;height:19px;vertical-align:-4.0px" width="222" height="19" alt="email address"></p>
 <p class="people-note">We are always glad to help, by email or by appointment. Please <strong>always include all three</strong> of these addresses when you write to us.</p>
 </div>
-<p>Programming Language Design is a tour of the surprisingly small set of ideas that nearly every programming language is assembled from. We will work in Python, Racket, Haskell, Rust, and C++, asking of each what it is built to make easy, what it gives up in exchange, and when that trade is the one you want. Rather than memorizing a language as a list of rules, we will build small interpreters of our own, so that scope, binding, closures, evaluation order, recursion, mutable state, and types become things you have studied closely or even implemented, rather than terms you have read. Alongside that comes just enough formal semantics (grammars and operational rules) to say precisely what a program <em>means</em>, and to see why two languages that look alike on the page can behave very differently when you run them. By the end you should be able to pick up an unfamiliar language quickly and reason about the tradeoffs its designers were making.</p>
+<p>Programming Language Design is a tour of the surprisingly small set of ideas that nearly every programming language is assembled from. We will work in Python, Racket, Rust, and C++, asking of each what it is built to make easy, what it gives up in exchange, and when that trade is the one you want. Rather than memorizing a language as a list of rules, we will build small interpreters of our own, so that scope, binding, closures, evaluation order, recursion, mutable state, and types become things you have studied closely or even implemented, rather than terms you have read. Alongside that comes just enough formal semantics (grammars and operational rules) to say precisely what a program <em>means</em>, and to see why two languages that look alike on the page can behave very differently when you run them. By the end you should be able to pick up an unfamiliar language quickly and reason about the tradeoffs its designers were making.</p>
 			</div>
 			<div class="a"></div>
 			<div class="b"></div>
@@ -69,7 +69,7 @@
 <li><a href="https://www.cis.upenn.edu/~bcpierce/tapl/"><em>Types and Programming Languages</em></a> (TAPL), Benjamin Pierce (MIT Press, 2002, ISBN 978-0-262-16209-8) — the standard reference on type systems, if the typing material grabs you</li>
 <li><a href="https://www.stroustrup.com/tour3.html"><em>A Tour of C++</em>, 3rd ed.</a>, Bjarne Stroustrup (Addison-Wesley, 2022, ISBN 0-13-681648-7) — covers C++20 in about 300 pages, the quickest route into modern C++</li>
 </ul>
-<p><strong>Software.</strong> Everything we use is free and runs on every platform: <a href="https://www.python.org/downloads/">Python 3.12+</a>, <a href="https://download.racket-lang.org/">Racket 8.x</a>, <a href="https://rustup.rs/">Rust</a> (installed with rustup), <a href="https://www.haskell.org/ghcup/">GHC</a> for Haskell (installed with GHCup), and <a href="https://clang.llvm.org/get_started.html">clang</a> for C++.</p>
+<p><strong>Software.</strong> Everything we use is free and runs on every platform: <a href="https://www.python.org/downloads/">Python 3.12+</a>, <a href="https://download.racket-lang.org/">Racket 8.x</a>, <a href="https://rustup.rs/">Rust</a> (installed with rustup), and <a href="https://clang.llvm.org/get_started.html">clang</a> for C++.</p>
 <p><strong>Expected effort.</strong> This is a 3-credit course, so plan on roughly six to nine hours per week outside of lecture, most of it spent writing and debugging code.</p>
 			</div>
 			<div class="a"></div>
@@ -83,7 +83,7 @@
 <h2>Learning outcomes</h2>
 <p>By the end of the term you should be able to:</p>
 <ol>
-<li>Read and write idiomatic programs in an imperative/object-oriented language (for example, Python 3, C++, or Rust) and a functional one (for example, Racket or Haskell), and explain the differences in how each structures a solution.</li>
+<li>Read and write idiomatic programs in an imperative/object-oriented language (for example, Python 3, C++, or Rust) and a functional one (for example, Racket), and explain the differences in how each structures a solution.</li>
 <li>Describe a language&rsquo;s syntax with a grammar, and its behavior with operational rules, precisely enough that someone else could implement it.</li>
 <li>Implement an interpreter for a small language, including environments, closures, recursion, and mutable state.</li>
 <li>Explain and demonstrate the consequences of core design choices — scoping discipline, evaluation order, parameter passing, mutability, and static versus dynamic typing.</li>
@@ -109,11 +109,11 @@
 <tbody>
 <tr>
 <td>50%</td>
-<td>Five written exams, in class at designated times — 10% each</td>
+<td>Five written exams — 10% each (Exams 1–4 in class, Exam 5 take-home)</td>
 </tr>
 <tr>
 <td>30%</td>
-<td>Three coding exams, proctored — 10% each</td>
+<td>Three coding exams, proctored — best 2 of 3, 15% each</td>
 </tr>
 <tr>
 <td>20%</td>
@@ -125,13 +125,13 @@
 </tr>
 </tbody>
 </table>
-<p>The <strong>five written exams</strong> are taken in class at times posted on the schedule below. The <strong>three coding exams</strong> are proctored; scheduling details are forthcoming. Every exam, written or coding, is closed book, closed internet, and closed model, with one exception: you may bring a single page of notes, front and back, printed or handwritten. You are welcome to build those notes collaboratively within your study group, but each student must bring their own page. You may rewrite your page before each exam, and probably should as the material moves on.</p>
+<p>The <strong>five written exams</strong> fall on the dates posted in the schedule below. Exams 1–4 are taken in class; Exam 5 is a take-home exam, released in the last week of class and due during finals week. The <strong>three coding exams</strong> are proctored and together are worth 30%, made up of your best two of the three grades at 15% each; scheduling details are forthcoming. Every in-class or proctored exam, written or coding, is closed book, closed internet, and closed model, with one exception: you may bring a single page of notes, front and back, printed or handwritten. You are welcome to build those notes collaboratively within your study group, but each student must bring their own page. You may rewrite your page before each exam, and probably should as the material moves on.</p>
 <p>The <strong>coding exercises</strong> are additive, so there are more points available in this course than a perfect grade requires. Treat them as bonus credit: completing them can make up for points lost elsewhere.</p>
 <p>Exercises are submitted through our <strong>Test-driven Development server</strong>, at <a href="https://tdd-server.eecs.wsu.edu/">tdd-server.eecs.wsu.edu</a>. You will need to be on the campus network or the WSU VPN to reach it.</p>
 <h3>Study groups</h3>
 <p>You will spend the term working in a study group. <strong>By Friday, August 28</strong>, one member of each proposed group should email me the names of everyone in it, using the subject line <strong>CptS 355 Group</strong> and including the word <strong>open</strong> or <strong>closed</strong> to say whether I may add another student. Please do not register yourself as a closed group of one unless you are genuinely certain you want to work alone this term; if you are, include your unofficial transcript and a short note on why working alone is the right call for you. Anyone without a group by that Friday will be placed in one.</p>
 <p>Each group agrees on a fixed weekly time and keeps it for the rest of the term, meeting either in person or on Zoom. Each week one member rotates into the role of <strong>scribe</strong> and writes up a half page of thoughtful bulleted notes: who attended, what the group discussed, and what you learned. Here is <a href="/355/study-report-example.pdf">an example of what one might look like</a>. Those weekly reports are <strong>10%</strong> of your grade.</p>
-<p>The remaining <strong>10%</strong> is a <strong>final project</strong> carried out in your study group or in another group of classmates you choose. You will have an opportunity to select a project related to your interests, with some flexibility in scope; proposals are due <strong>Nov 17</strong> via PDF upload to Canvas, and further details will come with the assignment.</p>
+<p>The remaining <strong>10%</strong> is a <strong>final project</strong> carried out in your study group or in another group of classmates you choose, with 3–6 students per group. You will have an opportunity to select a project related to your interests, with some flexibility in scope; proposals are due <strong>Nov 17</strong> via PDF upload to Canvas, and further details will come with the assignment.</p>
 <h3>Letter grades</h3>
 <p>Cut-offs can move down but never up: an A or A− will not require more than 90%, a B or B− more than 80%, a C or C− more than 70%, and a D more than 60%. Totals are rounded to the nearest tenth of a percent. A substantial curve on grade cut-offs is unlikely.</p>
 			</div>
@@ -145,8 +145,8 @@
 			<div class="content">
 <h2>Course policies</h2>
 <p><strong>Coding exercises</strong> are released throughout the term and submitted online. No individual exercise has its own deadline: any of them may be submitted for credit at any point through the last day of lecture, Thursday, December 10. They track exactly what the exams cover, though, so the release schedule is still the pace you want to keep.</p>
-<p><strong>Attendance</strong> is not graded directly, but the five written exams are taken in class on the day they are scheduled, so those days are not optional. Come to the others too; this material is much easier to absorb in conversation than from a screenshot of someone else&rsquo;s notes.</p>
-<p><strong>Exams</strong> — written exams are taken in class on the scheduled day; coding exams are proctored at times announced during the term. Make-up exams are arranged in advance, for documented and university-approved absences. If something goes wrong the day of an exam, contact me as soon as you are able rather than after the fact.</p>
+<p><strong>Attendance</strong> is not graded directly, but in-class exams are taken on the day they are scheduled, so those days are not optional. Come to the others too; this material is much easier to absorb in conversation than from a screenshot of someone else&rsquo;s notes.</p>
+<p><strong>Exams</strong> — Exams 1–4 are taken in class on the scheduled day; Exam 5 is take-home, and its instructions come with it; coding exams are proctored at times announced during the term. Make-up exams are arranged in advance, for documented and university-approved absences. If something goes wrong the day of an exam, contact me as soon as you are able rather than after the fact.</p>
 <p><strong>Study group reports</strong> are due each week and submitted by that week&rsquo;s scribe; see the <a href="/355/study-report-example.pdf">example report</a> for the length and level of detail expected.</p>
 <p><strong>Regrades</strong> may be requested within one week of a grade being posted, by email to me or a TA, saying specifically which part you believe was misgraded.</p>
 <p><strong>Questions</strong> are best asked in class or on the course discussion board, where the answer helps everyone. Email me or a TA for anything personal.</p>
@@ -161,7 +161,7 @@
 			<div class="content">
 <h2>Academic integrity</h2>
 <p>Academic integrity is a cornerstone of the university. You are responsible for reading and understanding <a href="https://communitystandards.wsu.edu/policies-and-reporting/academic-integrity-policy/">WSU&rsquo;s Academic Integrity Policy</a>, which is grounded in Washington state law (WAC 504-26-010(3) and WAC 504-26-404).</p>
-<p>In this course, cheating is almost entirely about one thing: <strong>giving or getting unauthorized assistance on a proctored exam</strong>, whether one of the five written exams or one of the three coding exams. That is where your grade is earned, and it is the one place where collaboration is off limits. Everything else is open. Studying together, working through the extra-credit coding exercises with whoever you like, and using whatever tools help you are all permitted without restriction; see <a href="#ai">Use of AI tools</a> below. The only other way to run into trouble is misrepresenting your group&rsquo;s work, such as reporting attendance at a study group meeting that did not happen; that is treated the same way. If you are ever unsure whether something crosses either line, ask me first.</p>
+<p>In this course, cheating is almost entirely about one thing: <strong>giving or getting unauthorized assistance on an exam</strong>, whether one of the written exams or one of the three coding exams. For the take-home Exam 5, its instructions will say what assistance is allowed. That is where your grade is earned, and it is the one place where collaboration is off limits. Everything else is open. Studying together, working through the extra-credit coding exercises with whoever you like, and using whatever tools help you are all permitted without restriction; see <a href="#ai">Use of AI tools</a> below. The only other way to run into trouble is misrepresenting your group&rsquo;s work, such as reporting attendance at a study group meeting that did not happen; that is treated the same way. If you are ever unsure whether something crosses either line, ask me first.</p>
 <p><strong><em>If you cheat on an exam in this class you will fail the course.</em></strong> You will also be reported to the Center for Community Standards. You have the right to appeal my decision; while an appeal is pending you may not drop or withdraw from the course. To ask for a change in my decision, use the form on the <a href="https://communitystandards.wsu.edu/">Center for Community Standards</a> website.</p>
 			</div>
 			<div class="a"></div>
@@ -173,7 +173,7 @@
 		<div class="rounded">
 			<div class="content">
 <h2 id="ai">Use of AI tools</h2>
-<p>Primary assessment in this course is proctored: five written exams in class and three proctored coding exams. Apart from the one page of notes you bring, those are closed book, closed internet, and closed model, and they are where your grade actually comes from. Because of that, I have no reason to police how you prepare for them.</p>
+<p>Primary assessment in this course is mostly proctored: four written exams in class and three proctored coding exams. Apart from the one page of notes you bring, those are closed book, closed internet, and closed model, and they are where your grade actually comes from. Because of that, I have no reason to police how you prepare for them.</p>
 <p>So outside of the exams, you are encouraged to make delimited, thoughtful use of AI. You are permitted to treat an AI as you would a human classmate and use one arbitrarily on any out-of-class work — the extra-credit coding exercises, your study group meetings, and your group&rsquo;s final project all included. Ask it to explain a concept, walk you through documentation, review code you wrote, or argue with you about a design choice. Collaboration with your classmates on the same work is equally unrestricted.</p>
 <p>How you use that freedom is your call, and the discipline you bring to it will matter more than any rule I could write here. A study partner who does the work for you leaves you with nothing to show in a proctored room. Use a model to reach understanding faster and to get yourself unstuck, not to alienate yourself from your own process of learning.</p>
 			</div>
@@ -253,11 +253,11 @@
 </tr>
 <tr>
 <td><strong>Nov 10, 12</strong><span class="wk">Week 12</span></td>
-<td>Interpreters in Scheme. Intro to Lambda Calculus.<br><strong>Readings:</strong> <a href="https://web.mit.edu/6.001/6.037/sicp.pdf#page=322"><em>SICP</em></a>, Ch. 3.</td>
+<td>Interpreters in Scheme. Intro to Lambda Calculus.<br><strong>Readings:</strong> <a href="https://web.mit.edu/6.001/6.037/sicp.pdf#page=322"><em>SICP</em></a>, Ch. 3.<br><strong>Coding Exam 2 is on Thursday, Nov 12</strong>, in person: Scheme. Bring your laptop and one page of notes.</td>
 </tr>
 <tr>
 <td><strong>Nov 17, 19</strong><span class="wk">Week 13</span></td>
-<td>Lambda Calculus and Operational Semantics.<br><strong>Nov 17:</strong> Term project proposals due via PDF upload to Canvas. One per study group or chosen group.<br><strong>Exam 4 is on Thursday, Nov 19.</strong> It covers functional programming, Scheme/Racket, S-expressions, higher-order and first-class functions, closures and environments, recursion, interpreters in Scheme, and the lambda calculus.</td>
+<td><strong>Nov 17:</strong> Guest lecture on Zoom: [link forthcoming].<br><strong>Nov 17:</strong> Term project proposals due via PDF upload to Canvas. One per study group or chosen group of 3–6 students.<br><strong>Exam 4 is on Thursday, Nov 19.</strong> It covers functional programming, Scheme/Racket, S-expressions, higher-order and first-class functions, closures and environments, recursion, and some lambda calculus basics.</td>
 </tr>
 <tr class="off">
 <td><strong>Nov 24, 26</strong><span class="wk">Week 14</span></td>
@@ -265,15 +265,15 @@
 </tr>
 <tr>
 <td><strong>Dec 1, 3</strong><span class="wk">Week 15</span></td>
-<td>TBD</td>
+<td>Lambda Calculus, Operational Semantics, and interpreters. Datalog and logic programming.</td>
 </tr>
 <tr>
 <td><strong>Dec 8, 10</strong><span class="wk">Week 16</span></td>
-<td>TBD</td>
+<td>Datalog and logic programming.<br><strong>Dec 8:</strong> Coding Exam 3. Take-home Exam 5 released.<br><strong>Dec 10:</strong> Final project presentations. Course wrap-up. Final project reports due on Canvas by 11:59pm.</td>
 </tr>
 <tr>
 <td><strong>Dec 14–18</strong><span class="wk">Finals</span></td>
-<td><em>There is no designated final exam.</em></td>
+<td><strong>Take-home Exam 5 is due on Canvas by 6:30pm, Wednesday, Dec 16.</strong></td>
 </tr>
 </tbody>
 </table>
