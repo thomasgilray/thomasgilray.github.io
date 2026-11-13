@@ -38,7 +38,7 @@ These are planning and retrospective notes, one row per class meeting. For the s
 | **Tue, Nov 10**<span class="wk">Week 12</span> | Interpreters in Scheme. {.row-weekstart} |
 | **Thu, Nov 12** | **Coding Exam 2**, on Scheme (in person, bring your laptop and 1 page of notes). |
 | **Tue, Nov 17**<span class="wk">Week 13</span> | **Readings:** Section 1 of [our lambda calculus notes](/355/lambda-calculus.pdf).<br>**Guest lecture on Macros via Zoom:** [link forthcoming]. **Term project proposals due** via PDF upload to Canvas. One per study group or chosen group of 3–6 students. {.row-weekstart} |
-| **Thu, Nov 19** | **Exam 4:** Functional Programming, Scheme/Racket, S-expressions, Higher-order and First-class Functions, Closures and Environments, Recursion. |
+| **Thu, Nov 19** | **Exam 4:** Functional Programming, Scheme/Racket, S-expressions, Higher-order and First-class Functions, Recursion. |
 | **Tue, Nov 24**<span class="wk">Week 14</span> | *Thanksgiving break, Nov 23–27 — no class, no office hours.* {.row-off .row-weekstart} |
 | **Thu, Nov 26** | *Thanksgiving break — no class.* {.row-off} |
 | **Tue, Dec 1**<span class="wk">Week 15</span> | **Readings:** Section 2 of [our lambda calculus notes](/355/lambda-calculus.pdf).<br>Lambda Calculus. Interpreters in Scheme. {.row-weekstart} |
