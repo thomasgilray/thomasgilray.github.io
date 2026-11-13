@@ -41,8 +41,8 @@ These are planning and retrospective notes, one row per class meeting. For the s
 | **Thu, Nov 19** | **Exam 4:** Functional Programming, Scheme/Racket, S-expressions, Higher-order and First-class Functions, Closures and Environments, Recursion. |
 | **Tue, Nov 24**<span class="wk">Week 14</span> | *Thanksgiving break, Nov 23–27 — no class, no office hours.* {.row-off .row-weekstart} |
 | **Thu, Nov 26** | *Thanksgiving break — no class.* {.row-off} |
-| **Tue, Dec 1**<span class="wk">Week 15</span> | **Readings:** Section 2 of [our lambda calculus notes](/355/lambda-calculus.pdf); [*Foundations of Databases*](http://webdam.inria.fr/Alice/pdfs/all.pdf), §12.0 and §12.1.<br>Lambda Calculus, Operational Semantics, and interpreters. {.row-weekstart} |
-| **Thu, Dec 3** | Datalog and logic programming.<br>**Coding Exam 3.** |
-| **Tue, Dec 8**<span class="wk">Week 16</span> | Datalog and logic programming. **Readings:** [*Foundations of Databases*](http://webdam.inria.fr/Alice/pdfs/all.pdf), §12.3 and §13.1.<br>**Take-home Exam 5 released.** {.row-weekstart} |
+| **Tue, Dec 1**<span class="wk">Week 15</span> | **Readings:** Section 2 of [our lambda calculus notes](/355/lambda-calculus.pdf).<br>Lambda Calculus. Interpreters in Scheme. {.row-weekstart} |
+| **Thu, Dec 3** | Lambda Calculus. Interpreters in Scheme.<br>**Coding Exam 3**, in the second half of class. |
+| **Tue, Dec 8**<span class="wk">Week 16</span> | **Readings:** [*Foundations of Databases*](http://webdam.inria.fr/Alice/pdfs/all.pdf), §12.0, §12.1, §12.3, and §13.1.<br>Datalog and logic programming.<br>**Take-home Exam 5 released.** {.row-weekstart} |
 | **Thu, Dec 10** | Final project presentations. Course wrap-up.<br>**Final project reports due** on Canvas by 11:59pm. |
 | **Dec 14–18**<span class="wk">Finals</span> | **Take-home Exam 5 due** on Canvas by 6:30pm, Wednesday, Dec 16. {.row-weekstart} |
