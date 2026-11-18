@@ -37,7 +37,7 @@ These are planning and retrospective notes, one row per class meeting. For the s
 | **Thu, Nov 5** | Scheme/Racket. Higher-order and first-class functions. |
 | **Tue, Nov 10**<span class="wk">Week 12</span> | Interpreters in Scheme. {.row-weekstart} |
 | **Thu, Nov 12** | **Coding Exam 2**, on Scheme (in person, bring your laptop and 1 page of notes). |
-| **Tue, Nov 17**<span class="wk">Week 13</span> | **Readings:** Section 1 of [our lambda calculus notes](/355/lambda-calculus.pdf).<br>**Guest lecture on Macros via Zoom:** [https://wsu.zoom.us/j/87019117148?pwd=rbfdomilphndyY75zqrL0VC5oTjlbo.1](https://wsu.zoom.us/j/87019117148?pwd=rbfdomilphndyY75zqrL0VC5oTjlbo.1). **Term project proposals due** via PDF upload to Canvas. One per study group or chosen group of 3–6 students. {.row-weekstart} |
+| **Tue, Nov 17**<span class="wk">Week 13</span> | **Readings:** Section 1 of [our lambda calculus notes](/355/lambda-calculus.pdf).<br>**Guest lecture on Macros via Zoom.** Watch [a recording](https://wsu.zoom.us/rec/share/pc1285DSds9PWrMDRD_3ihQ6cHDQ76T-GMl6rfko6ySsRsMyRV-B5s0JY_O6fkwk.kjf6BOYy8daMb2Wl) here and [see Michael's notes here](https://github.com/michaelballantyne/wsu-pl-fall2026). **Term project proposals due** via PDF upload to Canvas. One per study group or chosen group of 3–6 students. {.row-weekstart} |
 | **Thu, Nov 19** | **Exam 4:** Functional Programming, Scheme/Racket, S-expressions, Higher-order and First-class Functions, Recursion. |
 | **Tue, Nov 24**<span class="wk">Week 14</span> | *Thanksgiving break, Nov 23–27 — no class, no office hours.* {.row-off .row-weekstart} |
 | **Thu, Nov 26** | *Thanksgiving break — no class.* {.row-off} |
